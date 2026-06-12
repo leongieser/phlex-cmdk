@@ -140,19 +140,27 @@ module Scenarios
   class ScopedSearch < Phlex::HTML
     def view_template
       div(class: 'flex w-[28rem] max-w-full flex-col gap-3') do
-        div(class: 'flex items-center gap-2 text-xs text-neutral-500') do
-          plain 'Active scope:'
-          span(id: 'scope-badge', class: 'rounded bg-neutral-200 px-1.5 py-0.5 font-mono') { '—' }
-          plain 'Try typing'
-          code(class: 'rounded bg-neutral-200 px-1') { 'user: le' }
+        div(class: 'flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-500') do
+          plain 'Type'
+          code(class: 'rounded bg-neutral-200 px-1') { '/' }
+          plain 'to pick a scope, Enter to pin it as a pill, Backspace on empty input to leave.'
+          plain 'Typing it out ('
+          code(class: 'rounded bg-neutral-200 px-1') { '/user ' }
           plain 'or'
-          code(class: 'rounded bg-neutral-200 px-1') { 'doc: arch' }
+          code(class: 'rounded bg-neutral-200 px-1') { 'user: ' }
+          plain ') works too.'
         end
 
         Cmdk::Root(label: 'Scoped search', scopes: %w[user doc], class: 'cmdk-vercel w-full') do
-          Cmdk::Input(placeholder: "Search, or scope with 'user: ' / 'doc: '")
+          div(class: 'cmdk-search-row') do
+            Cmdk::Input(placeholder: "Search, or type '/' for scopes…")
+          end
           Cmdk::List() do
             Cmdk::Empty { 'No results found.' }
+            Cmdk::Group(heading: 'Jump to') do
+              Cmdk::Item(value: 'user', enters_scope: 'user', keywords: %w[people members]) { '🧑 Search users…' }
+              Cmdk::Item(value: 'doc', enters_scope: 'doc', keywords: %w[files pages]) { '📄 Search documents…' }
+            end
             Cmdk::Group(heading: 'Actions') do
               Cmdk::Item() { '➕ New Issue' }
               Cmdk::Item() { '🔍 Search Everything' }
@@ -171,9 +179,9 @@ module Scenarios
 
         script { raw safe(<<~JS) }
           document.addEventListener('cmdk-scope-change', (e) => {
-            document.getElementById('scope-badge').textContent = e.detail.scope ?? '—'
             // In a real app this is where you would kick off a server-backed
             // search, e.g. frame.src = `/search/users?q=${e.detail.query}`
+            console.log('cmdk-scope-change', e.detail)
           })
         JS
       end

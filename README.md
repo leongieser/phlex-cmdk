@@ -82,20 +82,31 @@ backdrop with `dialog[cmdk-dialog]::backdrop` (replaces Radix's `[cmdk-overlay]`
 cmdk deliberately keeps its filter vanilla; modes like `user: <query>` are userland.
 This port gives you both levels:
 
-**Declarative scopes** — declare them on the root, tag items or groups:
+**Declarative scopes** — declare them on the root, tag items or groups, and offer
+scope-entry items for the picker:
 
 ```ruby
-Cmdk::Root(label: 'Search', scopes: %w[user doc]) do   # triggers "user:" / "doc:"
-  Cmdk::Input()
+Cmdk::Root(label: 'Search', scopes: %w[user doc]) do
+  div(class: 'cmdk-search-row') { Cmdk::Input() }     # flex row hosts the pill
   Cmdk::List() do
-    Cmdk::Group(heading: 'Users', scope: 'user') { ... }
-    Cmdk::Group(heading: 'Docs',  scope: 'doc')  { ... }
+    Cmdk::Item(enters_scope: 'user') { 'Search users…' }
+    Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) { ... }
+    Cmdk::Group(heading: 'Docs',  scope: 'doc') { ... }
   end
 end
 ```
 
-Typing `user: le` matches only user-scoped items against `le`. The root gets
-`data-cmdk-active-scope="user"` (style a chip/badge off it), and events carry the
+The flow follows the Linear/Slack/Raycast pattern (and cmdk's own "pages" recipe):
+
+- Typing `/` suggests the `enters_scope:` items; `/u` narrows them.
+- Enter (or click) pins the scope as a **pill** (`[cmdk-scope-pill]`, a button
+  inserted before the input) and clears the input — typing then filters only
+  items/groups tagged with that `scope:`.
+- Typing a trigger out commits too: `/user ` or the text triggers (`user: le`
+  becomes the `user` pill with query `le`).
+- Backspace on an empty input or clicking the pill leaves the scope.
+
+The root mirrors the state as `data-cmdk-active-scope="user"`, and events carry the
 parsed parts — ideal for a server-backed lookup in a Turbo app, since streamed-in
 items register automatically:
 
@@ -105,7 +116,9 @@ root.addEventListener('cmdk-scope-change', (e) => {
 })
 ```
 
-Custom triggers: `scopes: { 'user' => '@' }`. Deleting the trigger text exits the scope.
+Custom text triggers: `scopes: { 'user' => '@' }`. The picker prefix is configurable
+(`scope_picker: ':'`) or can be turned off (`scope_picker: false`). Programmatic:
+`Cmdk.enterScope(root, 'user')` / `Cmdk.exitScope(root)`.
 
 By default scoped items also match global (unscoped) searches. Mark a group or item
 with `scope_only: true` to require deliberate entry — it stays hidden (and excluded

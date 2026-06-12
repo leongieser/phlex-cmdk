@@ -7,7 +7,7 @@ module Cmdk
   # `href:` is a Turbo-friendly extension: the runtime visits the URL on select.
   class Item < Base
     def initialize(value: nil, keywords: nil, disabled: false, force_mount: false, href: nil,
-                   scope: nil, scope_only: false, **attributes)
+                   scope: nil, scope_only: false, enters_scope: nil, **attributes)
       @value = value
       @keywords = keywords
       @disabled = disabled
@@ -15,6 +15,7 @@ module Cmdk
       @href = href
       @scope = scope
       @scope_only = scope_only
+      @enters_scope = enters_scope
       @attributes = attributes
     end
 
@@ -32,6 +33,7 @@ module Cmdk
       data[:href] = @href if @href
       data[:cmdk_scope] = @scope if @scope
       data[:cmdk_scope_only] = '' if @scope_only
+      data[:cmdk_enters_scope] = @enters_scope if @enters_scope
 
       {
         'cmdk-item' => '',

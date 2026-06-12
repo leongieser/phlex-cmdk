@@ -59,6 +59,17 @@ class RootTest < Minitest::Test
 
     assert_includes html, 'data-cmdk-scopes="{&quot;user&quot;:&quot;@&quot;}"'
   end
+
+  def test_scope_picker_override_and_disable
+    html = render { Cmdk::Root(scopes: %w[user], scope_picker: ':') }
+    assert_includes html, 'data-cmdk-scope-picker=":"'
+
+    html = render { Cmdk::Root(scopes: %w[user], scope_picker: false) }
+    assert_includes html, 'data-cmdk-scope-picker="false"'
+
+    html = render { Cmdk::Root(scopes: %w[user]) }
+    refute_includes html, 'data-cmdk-scope-picker'
+  end
 end
 
 class InputTest < Minitest::Test
@@ -128,6 +139,12 @@ class ItemTest < Minitest::Test
     html = render { Cmdk::Item(scope: 'user', scope_only: true) { 'Leon' } }
 
     assert_includes html, 'data-cmdk-scope-only=""'
+  end
+
+  def test_enters_scope
+    html = render { Cmdk::Item(enters_scope: 'user') { 'Search users…' } }
+
+    assert_includes html, 'data-cmdk-enters-scope="user"'
   end
 end
 

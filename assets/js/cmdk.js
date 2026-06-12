@@ -20,10 +20,15 @@
  *
  * Scoped search: declare scopes on the root (`data-cmdk-scopes="user doc"`, or a
  * JSON object mapping scope names to custom trigger strings) and tag items or
- * groups with `data-cmdk-scope="user"`. Typing `user: ...` then only matches
- * items in that scope, with the text after the trigger as the query. Listen to
- * cmdk-search-change to fetch scoped results from the server (e.g. via Turbo).
- * Add `data-cmdk-scope-only` to keep items hidden unless their scope is active.
+ * groups with `data-cmdk-scope="user"`. Typing the picker prefix ("/" by
+ * default, `data-cmdk-scope-picker` overrides, "false" disables) suggests
+ * items marked `data-cmdk-enters-scope="user"`; selecting one — or typing a
+ * trigger out ("/user " or "user: ") — pins the scope as a removable pill
+ * before the input and leaves only the query text. Backspace on an empty
+ * input or a pill click exits the scope. Listen to cmdk-scope-change /
+ * cmdk-search-change to fetch scoped results from the server (e.g. via
+ * Turbo). Add `data-cmdk-scope-only` to keep items hidden unless their scope
+ * is active.
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -194,15 +199,79 @@ function isScopeOnly(el) {
   return Boolean(el.closest('[data-cmdk-scope-only]'))
 }
 
-/** Re-parse the search, mirror the active scope onto the root, emit on change. */
-function syncScope(inst) {
-  const { scope, query } = parseScope(inst.root, inst.search)
-  const changed = (inst.scope ?? null) !== scope
+/** The scope-picker prefix ("/" by default) — null when disabled or no scopes. */
+function pickerChar(root) {
+  if (!scopesOf(root)) return null
+  const attr = root.getAttribute('data-cmdk-scope-picker')
+  if (attr === 'false') return null
+  return attr || '/'
+}
+
+/** Recompute picker mode and the effective query from the raw search. */
+function syncSearchMeta(inst) {
+  const pc = pickerChar(inst.root)
+  inst.picker = Boolean(!inst.scope && pc && inst.search.startsWith(pc))
+  inst.query = inst.picker ? inst.search.slice(pc.length).replace(/^\s+/, '') : inst.search
+}
+
+/** Keep the scope pill (a removable chip inserted before the input) in sync. */
+function renderPill(inst) {
+  const input = inst.root.querySelector(INPUT_SELECTOR)
+  let pill = inst.root.querySelector('[cmdk-scope-pill]')
+  if (!inst.scope) {
+    pill?.remove()
+    return
+  }
+  if (!pill) {
+    pill = document.createElement('button')
+    pill.type = 'button'
+    pill.setAttribute('cmdk-scope-pill', '')
+    input?.parentElement?.insertBefore(pill, input)
+  }
+  pill.textContent = inst.scope
+  pill.setAttribute('aria-label', `Remove ${inst.scope} filter`)
+}
+
+/** Pin a scope: render the pill, leave only the query in the input. */
+export function enterScope(target, scope, { query = '', emit = true } = {}) {
+  const inst = target.root ? target : getInstance(target)
+  if (!inst || inst.scope === scope) return
   inst.scope = scope
-  inst.query = query
-  if (scope) inst.root.setAttribute('data-cmdk-active-scope', scope)
-  else inst.root.removeAttribute('data-cmdk-active-scope')
-  return changed
+  inst.search = query
+  syncSearchMeta(inst)
+  const input = inst.root.querySelector(INPUT_SELECTOR)
+  if (input) input.value = query
+  renderPill(inst)
+  inst.root.setAttribute('data-cmdk-active-scope', scope)
+  filterItems(inst)
+  sortItems(inst)
+  selectFirstItem(inst, emit ? undefined : { scroll: false, emit: false })
+  if (emit) {
+    inst.root.dispatchEvent(
+      new CustomEvent('cmdk-scope-change', { bubbles: true, detail: { scope, query: inst.query } }),
+    )
+    inst.root.dispatchEvent(
+      new CustomEvent(SEARCH_CHANGE_EVENT, { bubbles: true, detail: { search: inst.search, scope, query: inst.query } }),
+    )
+    input?.focus()
+  }
+}
+
+/** Leave the active scope (Backspace on empty input, pill click, or API). */
+export function exitScope(target) {
+  const inst = target.root ? target : getInstance(target)
+  if (!inst || !inst.scope) return
+  inst.scope = null
+  syncSearchMeta(inst)
+  renderPill(inst)
+  inst.root.removeAttribute('data-cmdk-active-scope')
+  filterItems(inst)
+  sortItems(inst)
+  selectFirstItem(inst)
+  inst.root.dispatchEvent(new CustomEvent('cmdk-scope-change', { bubbles: true, detail: { scope: null, query: inst.query } }))
+  inst.root.dispatchEvent(
+    new CustomEvent(SEARCH_CHANGE_EVENT, { bubbles: true, detail: { search: inst.search, scope: null, query: inst.query } }),
+  )
 }
 
 function config(root) {
@@ -232,8 +301,9 @@ function createInstance(root) {
   const inst = {
     root,
     search: '',
-    scope: null, // active search scope (see scopesOf/parseScope)
-    query: '', // search with any scope trigger stripped
+    scope: null, // pinned scope (rendered as a pill before the input)
+    picker: false, // true while the search starts with the scope-picker prefix
+    query: '', // the effective query (picker prefix stripped in picker mode)
     value: (root.getAttribute('data-cmdk-default-value') || '').trim(),
     count: 0,
     filter: null, // per-root custom filter, see setFilter()
@@ -249,7 +319,17 @@ function createInstance(root) {
   registerNodes(inst)
   // A server-rendered input value is the initial search (React: <Command.Input value>).
   inst.search = root.querySelector(INPUT_SELECTOR)?.value || ''
-  syncScope(inst)
+  // A text trigger in it ("user: le") pins the scope as a pill right away.
+  const initial = parseScope(root, inst.search)
+  if (initial.scope) {
+    inst.scope = initial.scope
+    inst.search = initial.query
+    const input = root.querySelector(INPUT_SELECTOR)
+    if (input) input.value = initial.query
+    renderPill(inst)
+    root.setAttribute('data-cmdk-active-scope', initial.scope)
+  }
+  syncSearchMeta(inst)
   filterItems(inst)
   sortItems(inst)
   if (!inst.value || !getSelectedItem(inst)) selectFirstItem(inst, { scroll: false, emit: false })
@@ -349,7 +429,7 @@ function score(inst, value, keywords, item) {
 
 /** Port of filterItems(): score items, toggle item/group/separator/empty visibility. */
 function filterItems(inst) {
-  const { root, search, scope } = inst
+  const { root, search, scope, picker } = inst
   const filtering = Boolean(search) && config(root).shouldFilter
   let count = 0
 
@@ -358,11 +438,21 @@ function filterItems(inst) {
     // Scope-only items require deliberate entry: hidden (even from global
     // search and force mount) unless their scope is the active one.
     const scopeHidden = isScopeOnly(item) && itemScope(item) !== scope
-    const outOfScope = filtering && scope && itemScope(item) !== scope
-    const rank =
-      scopeHidden || outOfScope ? 0 : filtering ? score(inst, itemValue(item), itemKeywords(item), item) : 1
+    let rank
+    if (scopeHidden) {
+      rank = 0
+    } else if (picker) {
+      // Scope-picker mode ("/..."): only scope-entry items are suggested.
+      rank = item.hasAttribute('data-cmdk-enters-scope')
+        ? score(inst, itemValue(item), itemKeywords(item), item)
+        : 0
+    } else if (scope && itemScope(item) !== scope) {
+      rank = 0
+    } else {
+      rank = filtering ? score(inst, itemValue(item), itemKeywords(item), item) : 1
+    }
     inst.scores.set(item, rank)
-    const shown = !scopeHidden && (fm || !filtering || rank > 0)
+    const shown = !scopeHidden && (fm || rank > 0)
     // React removes filtered items from the DOM; we hide them with an inline
     // style so theme CSS (e.g. `[cmdk-item] { display: flex }`) cannot win.
     item.style.display = shown ? '' : 'none'
@@ -372,9 +462,9 @@ function filterItems(inst) {
 
   for (const group of root.querySelectorAll(GROUP_SELECTOR)) {
     let shown = !(isScopeOnly(group) && itemScope(group) !== scope)
-    if (shown && filtering) {
+    if (shown && (filtering || picker || scope)) {
       shown =
-        group.hasAttribute('data-cmdk-force-mount') ||
+        (!picker && group.hasAttribute('data-cmdk-force-mount')) ||
         Array.from(group.querySelectorAll(ITEM_SELECTOR)).some(
           (item) => !forceMounted(item) && inst.scores.get(item) > 0,
         )
@@ -388,7 +478,7 @@ function filterItems(inst) {
   }
 
   for (const separator of root.querySelectorAll('[cmdk-separator]')) {
-    const shown = !search || separator.hasAttribute('data-cmdk-always-render')
+    const shown = (!search && !scope) || separator.hasAttribute('data-cmdk-always-render')
     separator.style.display = shown ? '' : 'none'
   }
 
@@ -485,15 +575,24 @@ function setValueState(inst, value, { scroll = true, emit = true } = {}) {
 function setSearchState(inst, search) {
   if (Object.is(inst.search, search)) return
   inst.search = search
-  const scopeChanged = syncScope(inst)
+
+  if (!inst.scope) {
+    // Typing a text trigger ("user: rest") pins the scope directly...
+    const parsed = parseScope(inst.root, search)
+    if (parsed.scope) return enterScope(inst, parsed.scope, { query: parsed.query })
+    // ...and so does typing a scope name out in picker mode ("/user ").
+    const pc = pickerChar(inst.root)
+    if (pc && search.startsWith(pc)) {
+      const rest = search.slice(pc.length)
+      const hit = Object.keys(scopesOf(inst.root)).find((name) => rest === `${name} `)
+      if (hit) return enterScope(inst, hit)
+    }
+  }
+
+  syncSearchMeta(inst)
   filterItems(inst)
   sortItems(inst)
   selectFirstItem(inst)
-  if (scopeChanged) {
-    inst.root.dispatchEvent(
-      new CustomEvent('cmdk-scope-change', { bubbles: true, detail: { scope: inst.scope, query: inst.query } }),
-    )
-  }
   inst.root.dispatchEvent(
     new CustomEvent(SEARCH_CHANGE_EVENT, { bubbles: true, detail: { search, scope: inst.scope, query: inst.query } }),
   )
@@ -511,8 +610,14 @@ function triggerSelect(inst, item) {
   setValueState(inst, value, { scroll: false })
   const event = new CustomEvent(SELECT_EVENT, { bubbles: true, cancelable: true, detail: { value } })
   const proceed = item.dispatchEvent(event)
+  if (!proceed) return
+  const enters = item.getAttribute('data-cmdk-enters-scope')
+  if (enters) {
+    enterScope(inst, enters)
+    return
+  }
   const href = item.getAttribute('data-href')
-  if (proceed && href) {
+  if (href) {
     if (window.Turbo?.visit) window.Turbo.visit(href)
     else window.location.assign(href)
   }
@@ -689,6 +794,14 @@ function onKeydown(e) {
       prev(inst, e)
       break
     }
+    case 'Backspace': {
+      // Backspace on an empty input pops the scope pill.
+      if (inst.scope && e.target.matches?.(INPUT_SELECTOR) && e.target.value === '') {
+        e.preventDefault()
+        exitScope(inst)
+      }
+      break
+    }
     case 'Home': {
       e.preventDefault()
       updateSelectedToIndex(inst, 0)
@@ -723,6 +836,13 @@ function onClick(e) {
     const inside =
       e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom
     if (!inside) closeDialog(e.target)
+    return
+  }
+
+  const pill = e.target.closest('[cmdk-scope-pill]')
+  if (pill) {
+    const root = pill.closest(ROOT_SELECTOR)
+    if (root) exitScope(getInstance(root))
     return
   }
 
@@ -770,7 +890,14 @@ export function setValue(target, value) {
 export function getState(target) {
   const inst = getInstance(target)
   if (!inst) return null
-  return { search: inst.search, scope: inst.scope, query: inst.query, value: inst.value, filtered: { count: inst.count } }
+  return {
+    search: inst.search,
+    scope: inst.scope,
+    picker: inst.picker,
+    query: inst.query,
+    value: inst.value,
+    filtered: { count: inst.count },
+  }
 }
 
 /**
@@ -828,6 +955,8 @@ const Cmdk = {
   setValue,
   getState,
   getInstance,
+  enterScope,
+  exitScope,
   openDialog,
   closeDialog,
 }

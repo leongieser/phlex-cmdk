@@ -49,9 +49,11 @@ class CmdkPreview < Lookbook::Preview
     render Scenarios::Empty.new
   end
 
-  # Scoped search (extension over the React API): the root declares
-  # `scopes: %w[user doc]`, groups/items are tagged with `scope:`.
-  # Typing `user: le` matches only user-scoped items against "le";
+  # Scoped search (extension over the React API): typing `/` suggests the
+  # `enters_scope:` items; Enter pins the scope as a pill before the input and
+  # the remaining text only matches items/groups tagged with that `scope:`.
+  # Typing a trigger out (`/user ` or `user: `) commits the pill too;
+  # Backspace on an empty input or a pill click leaves the scope.
   # `cmdk-scope-change` fires for server-backed lookups via Turbo.
   def scoped_search
     render Scenarios::ScopedSearch.new

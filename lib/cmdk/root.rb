@@ -11,11 +11,15 @@ module Cmdk
   # `scopes:` enables scoped search (an extension over the React API): pass
   # scope names (`scopes: %w[user doc]`, triggers default to "user:"/"doc:")
   # or a hash with custom triggers (`scopes: { 'user' => '@' }`). Typing the
-  # trigger narrows matching to items/groups tagged with the same `scope:`,
-  # using the rest of the input as the query.
+  # scope-picker prefix ("/" by default, override with `scope_picker: ':'`,
+  # disable with `scope_picker: false`) suggests `Cmdk::Item(enters_scope:)`
+  # items; committing one pins the scope as a pill before the input. Typing a
+  # trigger out ("/user " or "user: ") commits it too. The rest of the input
+  # is then matched only against items/groups tagged with the same `scope:`.
   class Root < Base
     def initialize(label: nil, default_value: nil, should_filter: true, loop: false,
-                   vim_bindings: true, disable_pointer_selection: false, scopes: nil, **attributes)
+                   vim_bindings: true, disable_pointer_selection: false, scopes: nil,
+                   scope_picker: nil, **attributes)
       @label = label
       @default_value = default_value
       @should_filter = should_filter
@@ -23,6 +27,7 @@ module Cmdk
       @vim_bindings = vim_bindings
       @disable_pointer_selection = disable_pointer_selection
       @scopes = scopes
+      @scope_picker = scope_picker
       @attributes = attributes
     end
 
@@ -48,6 +53,9 @@ module Cmdk
       data[:cmdk_default_value] = @default_value if @default_value
       if @scopes
         data[:cmdk_scopes] = @scopes.is_a?(Hash) ? JSON.generate(@scopes) : Array(@scopes).join(' ')
+      end
+      unless @scope_picker.nil?
+        data[:cmdk_scope_picker] = @scope_picker == false ? 'false' : @scope_picker
       end
 
       { 'cmdk-root' => '', tabindex: '-1', data: data }

@@ -8,6 +8,8 @@ group :development, :test do
   gem 'rack'
   gem 'rackup'
   gem 'rake'
+  gem 'kramdown'
+  gem 'kramdown-parser-gfm'
   gem 'tailwindcss-ruby'
 
   # Lookbook component previews (Rails host lives in lookbook/)

@@ -21,3 +21,8 @@ desc 'Run Lookbook component previews on http://localhost:9293'
 task lookbook: :css do
   sh 'bundle exec rackup lookbook/config.ru -p 9293'
 end
+
+desc 'Build the static GitHub Pages site into _site/'
+task site: :css do
+  sh 'bundle exec ruby site/build.rb'
+end

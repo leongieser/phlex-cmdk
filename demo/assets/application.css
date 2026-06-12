@@ -2,6 +2,7 @@
 @import '../../assets/css/cmdk_themes.css';
 @source '../app.rb';
 @source '../../lookbook/scenarios.rb';
+@source '../../site/build.rb';
 
 /*
  * Demo/Lookbook page chrome only — the component themes (cmdk-vercel,
@@ -30,3 +31,48 @@
   background: light-dark(#ffffff, #18181b);
   color: light-dark(#525252, #a1a1aa);
 }
+
+/* Minimal prose styles for the docs page (README rendered via kramdown). */
+.markdown {
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 1.6em 0 0.6em;
+  color: light-dark(#171717, #fafafa);
+}
+
+.markdown h1 { font-size: 1.8em; margin-top: 0.4em; }
+.markdown h2 { font-size: 1.35em; border-bottom: 1px solid light-dark(#e5e5e5, #27272a); padding-bottom: 0.3em; }
+.markdown h3 { font-size: 1.1em; }
+.markdown p, .markdown ul, .markdown ol, .markdown table { margin: 0.8em 0; }
+.markdown ul { padding-left: 1.4em; list-style: disc; }
+.markdown a { text-decoration: underline; }
+
+.markdown code {
+  font-size: 0.9em;
+  background: light-dark(#ececec, #27272a);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
+
+.markdown pre {
+  background: light-dark(#ffffff, #18181b);
+  border: 1px solid light-dark(#e5e5e5, #27272a);
+  border-radius: 8px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.markdown pre code { background: transparent; padding: 0; }
+
+.markdown table { border-collapse: collapse; display: block; overflow-x: auto; font-size: 13px; }
+.markdown th, .markdown td { border: 1px solid light-dark(#e5e5e5, #27272a); padding: 6px 10px; text-align: left; }
+.markdown th { background: light-dark(#fafafa, #18181b); }

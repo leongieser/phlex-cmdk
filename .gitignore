@@ -3,3 +3,4 @@
 /demo/public/application.css
 Gemfile.lock
 *.gem
+_site/

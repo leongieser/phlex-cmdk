@@ -35,6 +35,32 @@ Serve or bundle the runtime once per page. Its path is exposed as `Cmdk.javascri
 The components are unstyled; optionally start from the shipped themes
 (`Cmdk.stylesheet_path` — see [Styling](#styling)).
 
+### With Rails (importmap + Propshaft)
+
+Serve the gem assets straight from the gem — no copying:
+
+```ruby
+# config/initializers/cmdk.rb
+Rails.application.config.assets.paths << File.dirname(Cmdk.javascript_path)
+Rails.application.config.assets.paths << File.dirname(Cmdk.stylesheet_path)
+```
+
+```ruby
+# config/importmap.rb
+pin "cmdk", to: "cmdk.js"
+pin "cmdk_controller", to: "cmdk_controller.js" # optional Stimulus base controller
+```
+
+```js
+// app/javascript/application.js
+import "cmdk"
+```
+
+```erb
+<%# layout — optional ready-made themes %>
+<%= stylesheet_link_tag "cmdk_themes", "data-turbo-track": "reload" %>
+```
+
 ### With Tailwind
 
 Everything composes with a Tailwind v4 setup out of the box: components accept

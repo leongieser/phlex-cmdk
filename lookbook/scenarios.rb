@@ -15,7 +15,7 @@ module Scenarios
     def view_template
       Cmdk::Root(label: 'Command Menu', loop: @loop, vim_bindings: @vim_bindings,
                  disable_pointer_selection: @disable_pointer_selection, should_filter: @should_filter,
-                 class: 'cmdk-vercel w-[28rem] max-w-full') do
+                 class: 'cmdk-vercel w-[40rem] max-w-full') do
         Cmdk::Input(placeholder: @placeholder)
         Cmdk::List() do
           Cmdk::Empty() { 'No results found.' }
@@ -48,7 +48,7 @@ module Scenarios
 
   class PlainItems < Phlex::HTML
     def view_template
-      Cmdk::Root(label: 'Fruits', class: 'cmdk-vercel w-[28rem] max-w-full') do
+      Cmdk::Root(label: 'Fruits', class: 'cmdk-vercel w-[40rem] max-w-full') do
         Cmdk::Input(placeholder: 'Search fruit...')
         Cmdk::List() do
           Cmdk::Empty() { 'No results found.' }
@@ -62,7 +62,7 @@ module Scenarios
 
   class ForceMount < Phlex::HTML
     def view_template
-      Cmdk::Root(label: 'Force mount', class: 'cmdk-vercel w-[28rem] max-w-full') do
+      Cmdk::Root(label: 'Force mount', class: 'cmdk-vercel w-[40rem] max-w-full') do
         Cmdk::Input(placeholder: "Type 'zzz': Help stays visible")
         Cmdk::List() do
           Cmdk::Empty() { 'No results found.' }
@@ -86,7 +86,7 @@ module Scenarios
     end
 
     def view_template
-      Cmdk::Root(label: 'Loading', class: 'cmdk-vercel w-[28rem] max-w-full') do
+      Cmdk::Root(label: 'Loading', class: 'cmdk-vercel w-[40rem] max-w-full') do
         Cmdk::Input(placeholder: 'Fetching results...')
         Cmdk::List() do
           Cmdk::Loading(progress: @progress) { 'Hang on, loading results…' }
@@ -97,7 +97,7 @@ module Scenarios
 
   class Empty < Phlex::HTML
     def view_template
-      Cmdk::Root(label: 'Empty', class: 'cmdk-vercel w-[28rem] max-w-full') do
+      Cmdk::Root(label: 'Empty', class: 'cmdk-vercel w-[40rem] max-w-full') do
         Cmdk::Input(placeholder: 'No items were rendered at all')
         Cmdk::List() do
           Cmdk::Empty() { 'No results found.' }
@@ -147,11 +147,11 @@ module Scenarios
 
   class ScopedSearch < Phlex::HTML
     def view_template
-      div(class: 'flex w-[28rem] max-w-full flex-col gap-3') do
+      div(class: 'flex w-[40rem] max-w-full flex-col gap-3') do
         div(class: 'flex flex-wrap items-center gap-x-2 gap-y-1 text-xs demo-hint') do
           plain 'Type'
           code(class: 'demo-chip') { '/' }
-          plain 'to pick a scope, Enter to pin it as a pill, Backspace on empty input to leave.'
+          plain 'to pick a scope, Enter to pin it as a pill, Backspace on empty input to leave. '
           plain 'Typing it out ('
           code(class: 'demo-chip') { '/user ' }
           plain ') works too.'
@@ -352,7 +352,7 @@ module Scenarios
 
   class Events < Phlex::HTML
     def view_template
-      div(class: 'flex w-[28rem] max-w-full flex-col gap-4') do
+      div(class: 'flex w-[40rem] max-w-full flex-col gap-4') do
         render Menu.new
         pre(id: 'event-log',
             class: 'demo-panel h-32 overflow-y-auto p-3 text-xs')

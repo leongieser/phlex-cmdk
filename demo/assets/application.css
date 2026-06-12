@@ -1,11 +1,11 @@
 @import 'tailwindcss';
-@import '../../assets/css/themes.css';
+@import '../../assets/css/cmdk_themes.css';
 @source '../app.rb';
 @source '../../lookbook/scenarios.rb';
 
 /*
  * Demo/Lookbook page chrome only — the component themes (cmdk-vercel,
- * cmdk-linear, cmdk-raycast) ship with the gem in assets/css/themes.css.
+ * cmdk-linear, cmdk-raycast) ship with the gem in assets/css/cmdk_themes.css.
  */
 
 /* Page canvas for the demo and Lookbook previews. */

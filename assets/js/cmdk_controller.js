@@ -17,12 +17,12 @@
  *     }
  *   }
  *
- * Requires `@hotwired/stimulus` (peer) and resolves the runtime relative to
- * this file (`./cmdk.js`) — serve or pin both from the same directory.
+ * Requires `@hotwired/stimulus` (peer) and the runtime resolvable as the bare
+ * specifier `cmdk` (importmap: `pin 'cmdk', to: 'cmdk.js'`; bundlers: alias).
  */
 
 import { Controller } from '@hotwired/stimulus'
-import Cmdk from './cmdk.js'
+import Cmdk from 'cmdk'
 
 export default class CmdkController extends Controller {
   #listeners = []

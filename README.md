@@ -43,7 +43,7 @@ the shipped themes are plain CSS you can import into your input stylesheet:
 
 ```css
 @import 'tailwindcss';
-@import '../path/to/cmdk-themes.css'; /* copied from Cmdk.stylesheet_path */
+@import '../path/to/cmdk_themes.css'; /* copied from Cmdk.stylesheet_path */
 ```
 
 ```ruby
@@ -245,7 +245,7 @@ Or target the attribute contract from a stylesheet (plain CSS, no build needed):
 ```
 
 Three ready-made themes ship with the gem as plain, dependency-free CSS
-([assets/css/themes.css](assets/css/themes.css), path via `Cmdk.stylesheet_path`):
+([assets/css/cmdk_themes.css](assets/css/cmdk_themes.css), path via `Cmdk.stylesheet_path`):
 `cmdk-vercel`, plus ports of the original cmdk `cmdk-linear` and `cmdk-raycast`
 themes. Apply one via the root's class; all are browsable in Lookbook under "Themes".
 

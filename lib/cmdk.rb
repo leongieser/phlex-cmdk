@@ -16,11 +16,11 @@ module Cmdk
   # cmdk-raycast). Plain dependency-free CSS — serve it, copy it, or import it
   # into a Tailwind build.
   def self.stylesheet_path
-    File.expand_path('../assets/css/themes.css', __dir__)
+    File.expand_path('../assets/css/cmdk_themes.css', __dir__)
   end
 
   # Absolute path to the optional Stimulus base controller (requires
-  # @hotwired/stimulus and the runtime served alongside it as ./cmdk.js).
+  # @hotwired/stimulus and the runtime pinned/aliased as `cmdk`).
   def self.stimulus_controller_path
     File.expand_path('../assets/js/cmdk_controller.js', __dir__)
   end

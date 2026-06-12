@@ -126,7 +126,10 @@ module Views
     def view_template
       render Layout.new(
         title: 'Stimulus — phlex-cmdk',
-        importmap: { '@hotwired/stimulus' => 'https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.2/+esm' },
+        importmap: {
+          '@hotwired/stimulus' => 'https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.2/+esm',
+          'cmdk' => '/cmdk.js',
+        },
       ) do
         main(class: 'mx-auto flex max-w-2xl flex-col items-center gap-6 px-4 py-16') do
           header(class: 'text-center') do

@@ -1,0 +1,264 @@
+/*
+ * Ports of the original cmdk themes (website/styles/cmdk/*.scss) for the
+ * Phlex port — same [cmdk-*] attribute contract, light palette, plus styles
+ * for the [cmdk-footer] / [cmdk-footer-hint] extension.
+ */
+
+/* ── Linear ─────────────────────────────────────────────────────────── */
+
+.cmdk-linear[cmdk-root] {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 0;
+  box-shadow: 0 16px 70px rgb(0 0 0 / 20%);
+}
+
+.cmdk-linear [cmdk-input] {
+  border: none;
+  width: 100%;
+  font-size: 18px;
+  padding: 20px;
+  outline: none;
+  background: transparent;
+  color: #282a30;
+  border-bottom: 1px solid #e9e8ea;
+  border-radius: 0;
+  caret-color: #6e5ed2;
+  margin: 0;
+}
+
+.cmdk-linear [cmdk-input]::placeholder {
+  color: #8a8f98;
+}
+
+.cmdk-linear [cmdk-item] {
+  content-visibility: auto;
+  cursor: pointer;
+  height: 48px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  color: #282a30;
+  user-select: none;
+  position: relative;
+}
+
+.cmdk-linear [cmdk-item][data-selected='true'] {
+  background: #f0f0f1;
+}
+
+.cmdk-linear [cmdk-item][data-selected='true']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: #5f6ad2;
+}
+
+.cmdk-linear [cmdk-item][data-disabled='true'] {
+  color: #b9bbc1;
+  cursor: not-allowed;
+}
+
+.cmdk-linear [cmdk-item]:active {
+  background: #e9e8ea;
+}
+
+.cmdk-linear [cmdk-list] {
+  height: min(300px, var(--cmdk-list-height));
+  max-height: 400px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  transition: height 100ms ease;
+}
+
+.cmdk-linear [cmdk-group-heading] {
+  user-select: none;
+  font-size: 12px;
+  color: #6f7177;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.cmdk-linear [cmdk-empty] {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  white-space: pre-wrap;
+  color: #6f7177;
+}
+
+.cmdk-linear [cmdk-footer] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border-top: 1px solid #e9e8ea;
+  font-size: 12px;
+  color: #6f7177;
+}
+
+.cmdk-linear [cmdk-footer-hint] {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.cmdk-linear [cmdk-footer-hint] kbd {
+  font-size: 12px;
+  color: #6f7177;
+  background: #f0f0f1;
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+/* ── Raycast ────────────────────────────────────────────────────────── */
+
+.cmdk-raycast[cmdk-root] {
+  width: 100%;
+  background: #fdfcfd;
+  border-radius: 12px;
+  padding: 8px 0 48px; /* bottom inset hosts the absolute footer */
+  border: 1px solid #e4e2e4;
+  box-shadow: 0 16px 70px rgb(0 0 0 / 20%);
+  position: relative;
+}
+
+.cmdk-raycast kbd {
+  background: #f0f0f1;
+  color: #6f7177;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.cmdk-raycast [cmdk-input] {
+  border: none;
+  width: 100%;
+  font-size: 15px;
+  padding: 8px 16px;
+  outline: none;
+  background: transparent;
+  color: #282a30;
+  border-bottom: 1px solid #e4e2e4;
+}
+
+.cmdk-raycast [cmdk-input]::placeholder {
+  color: #8a8f98;
+}
+
+.cmdk-raycast [cmdk-list] {
+  padding: 0 8px;
+  height: min(330px, var(--cmdk-list-height));
+  overflow: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block-end: 8px;
+  transition: height 100ms ease;
+}
+
+.cmdk-raycast [cmdk-item] {
+  content-visibility: auto;
+  cursor: pointer;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  color: #282a30;
+  user-select: none;
+}
+
+.cmdk-raycast [cmdk-item][data-selected='true'] {
+  background: #ededee;
+}
+
+.cmdk-raycast [cmdk-item][data-disabled='true'] {
+  color: #b9bbc1;
+  cursor: not-allowed;
+}
+
+.cmdk-raycast [cmdk-item]:first-child {
+  margin-top: 8px;
+}
+
+.cmdk-raycast [cmdk-item] + [cmdk-item] {
+  margin-top: 4px;
+}
+
+.cmdk-raycast .cmdk-raycast-meta {
+  margin-left: auto;
+  color: #6f7177;
+  font-size: 13px;
+}
+
+.cmdk-raycast [cmdk-separator] {
+  height: 1px;
+  width: 100%;
+  background: #e9e8ea;
+  margin: 4px 0;
+}
+
+.cmdk-raycast [cmdk-group-heading] {
+  user-select: none;
+  font-size: 12px;
+  color: #6f7177;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.cmdk-raycast [cmdk-empty] {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  white-space: pre-wrap;
+  color: #6f7177;
+}
+
+.cmdk-raycast [cmdk-footer] {
+  display: flex;
+  height: 40px;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  position: absolute;
+  background: #fdfcfd;
+  bottom: 0;
+  left: 0;
+  padding: 8px;
+  border-top: 1px solid #e4e2e4;
+  border-radius: 0 0 12px 12px;
+  font-size: 13px;
+  color: #6f7177;
+}
+
+.cmdk-raycast [cmdk-footer-hint] {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: #282a30;
+}
+
+.cmdk-raycast [cmdk-footer-hint][data-empty] {
+  display: none;
+}

@@ -186,6 +186,60 @@ module Scenarios
     end
   end
 
+  # One menu rendered under different theme classes, with a footer whose hint
+  # follows the selected item (Cmdk::Item hint:/kbd: → [cmdk-footer-hint]).
+  class Themed < Phlex::HTML
+    def initialize(theme:)
+      @theme = theme
+    end
+
+    def view_template
+      Cmdk::Root(label: 'Command Menu', loop: true, class: "#{@theme} w-[40rem] max-w-full") do
+        Cmdk::Input(placeholder: 'Search for apps and commands...')
+        Cmdk::List() do
+          Cmdk::Empty { 'No results found.' }
+
+          Cmdk::Group(heading: 'Suggestions') do
+            Cmdk::Item(value: 'Linear', hint: 'Open Application', kbd: '↵') do
+              item('📐', 'Linear')
+            end
+            Cmdk::Item(value: 'Figma', hint: 'Open in New Tab', kbd: '⌘ ↵') do
+              item('🎨', 'Figma')
+              span(class: 'cmdk-raycast-meta ml-auto text-xs text-neutral-400') { 'Application' }
+            end
+            Cmdk::Item(value: 'Slack', hint: 'Open Application', kbd: '↵') do
+              item('💬', 'Slack')
+            end
+          end
+
+          Cmdk::Separator()
+
+          Cmdk::Group(heading: 'Commands') do
+            Cmdk::Item(value: 'Clipboard History', hint: 'Paste Latest', kbd: '⌘ V') do
+              item('📋', 'Clipboard History')
+            end
+            Cmdk::Item(value: 'Search Emoji', hint: 'Insert Emoji', kbd: '↵') do
+              item('😀', 'Search Emoji')
+            end
+            Cmdk::Item(value: 'Calculator') { item('🧮', 'Calculator (no hint)') }
+          end
+        end
+
+        Cmdk::Footer() do
+          span(aria_hidden: 'true') { '🚀' }
+          div('cmdk-footer-hint' => '')
+        end
+      end
+    end
+
+    private
+
+    def item(icon, text)
+      span(class: 'text-base', aria_hidden: 'true') { icon }
+      span { text }
+    end
+  end
+
   class Events < Phlex::HTML
     def view_template
       div(class: 'flex w-[28rem] max-w-full flex-col gap-4') do

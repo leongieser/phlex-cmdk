@@ -146,6 +146,30 @@ class ItemTest < Minitest::Test
 
     assert_includes html, 'data-cmdk-enters-scope="user"'
   end
+
+  def test_hint_and_kbd
+    html = render { Cmdk::Item(hint: 'Open in New Tab', kbd: '⌘ ↵') { 'Figma' } }
+
+    assert_includes html, 'data-cmdk-hint="Open in New Tab"'
+    assert_includes html, 'data-cmdk-kbd="⌘ ↵"'
+  end
+end
+
+class FooterTest < Minitest::Test
+  def test_renders_hint_container_by_default
+    html = render { Cmdk::Footer() }
+
+    assert_includes html, 'cmdk-footer=""'
+    assert_includes html, 'cmdk-footer-hint=""'
+  end
+
+  def test_custom_content
+    html = render { Cmdk::Footer(class: 'bar') { 'Custom' } }
+
+    assert_includes html, 'class="bar"'
+    assert_includes html, 'Custom'
+    refute_includes html, 'cmdk-footer-hint'
+  end
 end
 
 class GroupTest < Minitest::Test

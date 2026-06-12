@@ -147,6 +147,25 @@ Cmdk.setFilter(root, (value, query, keywords, item) => {
 })
 ```
 
+### Footer with selection hints
+
+Raycast-style palettes show a footer hinting at what Enter will do for the
+*selected* item. Declare hints on items and drop a `Cmdk::Footer` after the list:
+
+```ruby
+Cmdk::Item(hint: 'Open in New Tab', kbd: '⌘ ↵') { 'Figma' }
+
+Cmdk::Footer() do            # or no block for just the hint container
+  span { '🚀' }
+  div('cmdk-footer-hint' => '')
+end
+```
+
+The runtime fills `[cmdk-footer-hint]` as the selection moves — the hint text in a
+`<span>`, each key of `kbd:` as its own `<kbd>` cap — and sets `data-empty` when the
+selected item declares no hint. For anything richer, drive your own footer from the
+`cmdk-value-change` event.
+
 ### Styling
 
 Unstyled, exactly like the React package. Target the attribute contract from Tailwind:
@@ -157,7 +176,9 @@ Unstyled, exactly like the React package. Target the attribute contract from Tai
 [cmdk-list] { height: min(330px, var(--cmdk-list-height)); transition: height 100ms ease; }
 ```
 
-See [demo/assets/application.css](demo/assets/application.css) for a complete Tailwind v4 theme.
+See [demo/assets/application.css](demo/assets/application.css) for a complete Tailwind v4
+theme, and [demo/assets/themes.css](demo/assets/themes.css) for ports of the original cmdk
+Linear and Raycast themes — all three are browsable in Lookbook under "Themes".
 
 ## React → Phlex parity map
 

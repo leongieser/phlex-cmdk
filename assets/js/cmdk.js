@@ -520,6 +520,28 @@ function applySelection(inst) {
     if (selected) el.setAttribute('aria-activedescendant', selected.id)
     else el.removeAttribute('aria-activedescendant')
   }
+
+  updateFooterHint(inst, selected)
+}
+
+/** Fill [cmdk-footer-hint] with the selected item's data-cmdk-hint / data-cmdk-kbd. */
+function updateFooterHint(inst, selected) {
+  const el = inst.root.querySelector('[cmdk-footer-hint]')
+  if (!el) return
+  const hint = selected?.getAttribute('data-cmdk-hint')
+  const kbd = selected?.getAttribute('data-cmdk-kbd')
+  el.replaceChildren()
+  el.toggleAttribute('data-empty', !hint && !kbd)
+  if (hint) {
+    const label = document.createElement('span')
+    label.textContent = hint
+    el.appendChild(label)
+  }
+  for (const key of (kbd || '').split(/\s+/).filter(Boolean)) {
+    const cap = document.createElement('kbd')
+    cap.textContent = key
+    el.appendChild(cap)
+  }
 }
 
 function scrollSelectedIntoView(inst) {

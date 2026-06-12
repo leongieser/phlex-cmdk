@@ -102,8 +102,7 @@ The flow follows the Linear/Slack/Raycast pattern (and cmdk's own "pages" recipe
 - Enter (or click) pins the scope as a **pill** (`[cmdk-scope-pill]`, a button
   inserted before the input) and clears the input — typing then filters only
   items/groups tagged with that `scope:`.
-- Typing a trigger out commits too: `/user ` or the text triggers (`user: le`
-  becomes the `user` pill with query `le`).
+- Typing the name out (`/user `) commits too.
 - Backspace on an empty input or clicking the pill leaves the scope.
 
 The root mirrors the state as `data-cmdk-active-scope="user"`, and events carry the
@@ -116,9 +115,10 @@ root.addEventListener('cmdk-scope-change', (e) => {
 })
 ```
 
-Custom text triggers: `scopes: { 'user' => '@' }`. The picker prefix is configurable
-(`scope_picker: ':'`) or can be turned off (`scope_picker: false`). Programmatic:
-`Cmdk.enterScope(root, 'user')` / `Cmdk.exitScope(root)`.
+The picker prefix is configurable (`scope_picker: ':'`) or can be turned off
+(`scope_picker: false`). Server-render an already-pinned scope with
+`Cmdk::Root(active_scope: 'user')`. Programmatic: `Cmdk.enterScope(root, 'user')` /
+`Cmdk.exitScope(root)`.
 
 By default scoped items also match global (unscoped) searches. Mark a group or item
 with `scope_only: true` to require deliberate entry — it stays hidden (and excluded

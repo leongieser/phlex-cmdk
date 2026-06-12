@@ -18,17 +18,17 @@
  *   cmdk-search-change detail: { search, scope, query } — search query changed
  *   cmdk-scope-change  detail: { scope, query } — active search scope entered/left
  *
- * Scoped search: declare scopes on the root (`data-cmdk-scopes="user doc"`, or a
- * JSON object mapping scope names to custom trigger strings) and tag items or
- * groups with `data-cmdk-scope="user"`. Typing the picker prefix ("/" by
- * default, `data-cmdk-scope-picker` overrides, "false" disables) suggests
- * items marked `data-cmdk-enters-scope="user"`; selecting one — or typing a
- * trigger out ("/user " or "user: ") — pins the scope as a removable pill
- * before the input and leaves only the query text. Backspace on an empty
- * input or a pill click exits the scope. Listen to cmdk-scope-change /
- * cmdk-search-change to fetch scoped results from the server (e.g. via
- * Turbo). Add `data-cmdk-scope-only` to keep items hidden unless their scope
- * is active.
+ * Scoped search: declare scopes on the root (`data-cmdk-scopes="user doc"`)
+ * and tag items or groups with `data-cmdk-scope="user"`. Typing the picker
+ * prefix ("/" by default, `data-cmdk-scope-picker` overrides, "false"
+ * disables) suggests items marked `data-cmdk-enters-scope="user"`; selecting
+ * one — or typing the name out ("/user ") — pins the scope as a removable
+ * pill before the input and leaves only the query text. Backspace on an
+ * empty input or a pill click exits the scope. Server-render
+ * `data-cmdk-active-scope` on the root to start with a pinned scope. Listen
+ * to cmdk-scope-change / cmdk-search-change to fetch scoped results from the
+ * server (e.g. via Turbo). Add `data-cmdk-scope-only` to keep items hidden
+ * unless their scope is active.
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -156,37 +156,12 @@ const knownDialogs = new WeakSet()
 let globalFilter = defaultFilter
 let uid = 0
 
-/** Scope declarations on the root: { name: trigger }. `"user doc"` → user:/doc: triggers. */
+/** Scope names declared on the root (`data-cmdk-scopes="user doc"`), or null. */
 function scopesOf(root) {
   const attr = root.getAttribute('data-cmdk-scopes')
   if (!attr) return null
-  let scopes = null
-  if (attr.trim().startsWith('{')) {
-    try {
-      scopes = JSON.parse(attr)
-    } catch {
-      scopes = null
-    }
-  }
-  if (!scopes) {
-    scopes = {}
-    for (const name of attr.split(/\s+/).filter(Boolean)) scopes[name] = `${name}:`
-  }
-  return scopes
-}
-
-/** Split the raw search into an active scope and the remaining query. */
-function parseScope(root, search) {
-  const scopes = scopesOf(root)
-  if (scopes && search) {
-    const entries = Object.entries(scopes).sort((a, b) => b[1].length - a[1].length)
-    for (const [name, trigger] of entries) {
-      if (trigger && search.startsWith(trigger)) {
-        return { scope: name, query: search.slice(trigger.length).replace(/^\s+/, '') }
-      }
-    }
-  }
-  return { scope: null, query: search }
+  const names = attr.split(/\s+/).filter(Boolean)
+  return names.length ? names : null
 }
 
 /** The scope an item belongs to (own attribute or inherited from its group). */
@@ -319,15 +294,11 @@ function createInstance(root) {
   registerNodes(inst)
   // A server-rendered input value is the initial search (React: <Command.Input value>).
   inst.search = root.querySelector(INPUT_SELECTOR)?.value || ''
-  // A text trigger in it ("user: le") pins the scope as a pill right away.
-  const initial = parseScope(root, inst.search)
-  if (initial.scope) {
-    inst.scope = initial.scope
-    inst.search = initial.query
-    const input = root.querySelector(INPUT_SELECTOR)
-    if (input) input.value = initial.query
+  // Server-rendered scope state: data-cmdk-active-scope pins the pill at init.
+  const ssrScope = root.getAttribute('data-cmdk-active-scope')
+  if (ssrScope) {
+    inst.scope = ssrScope
     renderPill(inst)
-    root.setAttribute('data-cmdk-active-scope', initial.scope)
   }
   syncSearchMeta(inst)
   filterItems(inst)
@@ -577,14 +548,11 @@ function setSearchState(inst, search) {
   inst.search = search
 
   if (!inst.scope) {
-    // Typing a text trigger ("user: rest") pins the scope directly...
-    const parsed = parseScope(inst.root, search)
-    if (parsed.scope) return enterScope(inst, parsed.scope, { query: parsed.query })
-    // ...and so does typing a scope name out in picker mode ("/user ").
+    // Typing a scope name out in picker mode ("/user ") commits it.
     const pc = pickerChar(inst.root)
     if (pc && search.startsWith(pc)) {
       const rest = search.slice(pc.length)
-      const hit = Object.keys(scopesOf(inst.root)).find((name) => rest === `${name} `)
+      const hit = scopesOf(inst.root).find((name) => rest === `${name} `)
       if (hit) return enterScope(inst, hit)
     }
   }

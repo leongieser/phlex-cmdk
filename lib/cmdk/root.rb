@@ -1,5 +1,3 @@
-require 'json'
-
 module Cmdk
   # Command menu root. Port of `<Command>` from cmdk.
   #
@@ -9,17 +7,17 @@ module Cmdk
   # a custom `filter` can be registered via `Cmdk.setFilter(rootEl, fn)` in JS.
   #
   # `scopes:` enables scoped search (an extension over the React API): pass
-  # scope names (`scopes: %w[user doc]`, triggers default to "user:"/"doc:")
-  # or a hash with custom triggers (`scopes: { 'user' => '@' }`). Typing the
-  # scope-picker prefix ("/" by default, override with `scope_picker: ':'`,
-  # disable with `scope_picker: false`) suggests `Cmdk::Item(enters_scope:)`
-  # items; committing one pins the scope as a pill before the input. Typing a
-  # trigger out ("/user " or "user: ") commits it too. The rest of the input
-  # is then matched only against items/groups tagged with the same `scope:`.
+  # scope names (`scopes: %w[user doc]`). Typing the scope-picker prefix
+  # ("/" by default, override with `scope_picker: ':'`, disable with
+  # `scope_picker: false`) suggests `Cmdk::Item(enters_scope:)` items;
+  # committing one — or typing the name out ("/user ") — pins the scope as a
+  # pill before the input. The rest of the input is then matched only against
+  # items/groups tagged with the same `scope:`. Pass `active_scope:` to
+  # server-render an already-pinned scope.
   class Root < Base
     def initialize(label: nil, default_value: nil, should_filter: true, loop: false,
                    vim_bindings: true, disable_pointer_selection: false, scopes: nil,
-                   scope_picker: nil, **attributes)
+                   scope_picker: nil, active_scope: nil, **attributes)
       @label = label
       @default_value = default_value
       @should_filter = should_filter
@@ -28,6 +26,7 @@ module Cmdk
       @disable_pointer_selection = disable_pointer_selection
       @scopes = scopes
       @scope_picker = scope_picker
+      @active_scope = active_scope
       @attributes = attributes
     end
 
@@ -51,9 +50,8 @@ module Cmdk
       data[:cmdk_vim_bindings] = 'false' unless @vim_bindings
       data[:cmdk_disable_pointer_selection] = '' if @disable_pointer_selection
       data[:cmdk_default_value] = @default_value if @default_value
-      if @scopes
-        data[:cmdk_scopes] = @scopes.is_a?(Hash) ? JSON.generate(@scopes) : Array(@scopes).join(' ')
-      end
+      data[:cmdk_scopes] = Array(@scopes).join(' ') if @scopes
+      data[:cmdk_active_scope] = @active_scope if @active_scope
       unless @scope_picker.nil?
         data[:cmdk_scope_picker] = @scope_picker == false ? 'false' : @scope_picker
       end

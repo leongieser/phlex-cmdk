@@ -54,10 +54,10 @@ class RootTest < Minitest::Test
     assert_includes html, 'data-cmdk-scopes="user doc"'
   end
 
-  def test_scopes_with_custom_triggers
-    html = render { Cmdk::Root(scopes: { 'user' => '@' }) }
+  def test_active_scope_for_ssr
+    html = render { Cmdk::Root(scopes: %w[user doc], active_scope: 'user') }
 
-    assert_includes html, 'data-cmdk-scopes="{&quot;user&quot;:&quot;@&quot;}"'
+    assert_includes html, 'data-cmdk-active-scope="user"'
   end
 
   def test_scope_picker_override_and_disable

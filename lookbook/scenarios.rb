@@ -146,8 +146,6 @@ module Scenarios
           plain 'to pick a scope, Enter to pin it as a pill, Backspace on empty input to leave.'
           plain 'Typing it out ('
           code(class: 'rounded bg-neutral-200 px-1') { '/user ' }
-          plain 'or'
-          code(class: 'rounded bg-neutral-200 px-1') { 'user: ' }
           plain ') works too.'
         end
 

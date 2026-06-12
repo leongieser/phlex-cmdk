@@ -73,7 +73,7 @@ module Views
       Cmdk::Root(label: 'Global Command Menu', loop: true, class: 'cmdk-vercel w-full max-w-xl') do
         Cmdk::Input(placeholder: 'What do you need?')
         Cmdk::List() do
-          Cmdk::Empty { 'No results found.' }
+          Cmdk::Empty() { 'No results found.' }
 
           Cmdk::Group(heading: 'Suggestions') do
             menu_items
@@ -95,7 +95,7 @@ module Views
                    dialog_attributes: { class: 'cmdk-dialog-frame' }, class: 'cmdk-vercel w-[36rem] max-w-full') do
         Cmdk::Input(placeholder: 'Type a command or search...')
         Cmdk::List() do
-          Cmdk::Empty { 'No results found.' }
+          Cmdk::Empty() { 'No results found.' }
           Cmdk::Group(heading: 'Suggestions') { menu_items }
         end
       end

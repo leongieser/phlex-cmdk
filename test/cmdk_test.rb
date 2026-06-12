@@ -95,7 +95,7 @@ end
 
 class ListTest < Minitest::Test
   def test_renders_listbox_with_sizer
-    html = render { Cmdk::List() { Cmdk::Item { 'A' } } }
+    html = render { Cmdk::List() { Cmdk::Item() { 'A' } } }
 
     assert_includes html, 'cmdk-list=""'
     assert_includes html, 'role="listbox"'
@@ -106,7 +106,7 @@ end
 
 class ItemTest < Minitest::Test
   def test_renders_option_contract
-    html = render { Cmdk::Item { 'Apple' } }
+    html = render { Cmdk::Item() { 'Apple' } }
 
     assert_includes html, 'cmdk-item=""'
     assert_includes html, 'role="option"'
@@ -181,7 +181,7 @@ end
 
 class GroupTest < Minitest::Test
   def test_renders_heading_and_items_container
-    html = render { Cmdk::Group(heading: 'Fruits') { Cmdk::Item { 'Apple' } } }
+    html = render { Cmdk::Group(heading: 'Fruits') { Cmdk::Item() { 'Apple' } } }
 
     assert_includes html, 'cmdk-group=""'
     assert_includes html, 'role="presentation"'
@@ -194,7 +194,7 @@ class GroupTest < Minitest::Test
   end
 
   def test_without_heading_uses_explicit_value
-    html = render { Cmdk::Group(value: 'misc') { Cmdk::Item { 'A' } } }
+    html = render { Cmdk::Group(value: 'misc') { Cmdk::Item() { 'A' } } }
 
     assert_includes html, 'data-value="misc"'
     refute_includes html, 'cmdk-group-heading'
@@ -202,13 +202,13 @@ class GroupTest < Minitest::Test
   end
 
   def test_scope
-    html = render { Cmdk::Group(heading: 'Users', scope: 'user') { Cmdk::Item { 'Leon' } } }
+    html = render { Cmdk::Group(heading: 'Users', scope: 'user') { Cmdk::Item() { 'Leon' } } }
 
     assert_includes html, 'data-cmdk-scope="user"'
   end
 
   def test_scope_only
-    html = render { Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) { Cmdk::Item { 'Leon' } } }
+    html = render { Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) { Cmdk::Item() { 'Leon' } } }
 
     assert_includes html, 'data-cmdk-scope-only=""'
   end
@@ -232,7 +232,7 @@ end
 
 class EmptyTest < Minitest::Test
   def test_renders_hidden_by_default
-    html = render { Cmdk::Empty { 'No results found.' } }
+    html = render { Cmdk::Empty() { 'No results found.' } }
 
     assert_includes html, 'cmdk-empty=""'
     assert_includes html, 'role="presentation"'

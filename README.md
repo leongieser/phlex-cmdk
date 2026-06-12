@@ -63,7 +63,7 @@ class CommandMenu < Phlex::HTML
     Cmdk::Root(label: 'Global Command Menu', loop: true) do
       Cmdk::Input(placeholder: 'What do you need?')
       Cmdk::List() do
-        Cmdk::Empty { 'No results found.' }
+        Cmdk::Empty() { 'No results found.' }
 
         Cmdk::Group(heading: 'Suggestions') do
           Cmdk::Item(value: 'linear', keywords: %w[issue tracker]) { 'Linear' }

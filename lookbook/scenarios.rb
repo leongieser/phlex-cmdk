@@ -18,7 +18,7 @@ module Scenarios
                  class: 'cmdk-vercel w-[28rem] max-w-full') do
         Cmdk::Input(placeholder: @placeholder)
         Cmdk::List() do
-          Cmdk::Empty { 'No results found.' }
+          Cmdk::Empty() { 'No results found.' }
 
           Cmdk::Group(heading: 'Suggestions') do
             Cmdk::Item(value: 'Linear', keywords: %w[issue tracker]) { item('📐', 'Linear') }
@@ -51,7 +51,7 @@ module Scenarios
       Cmdk::Root(label: 'Fruits', class: 'cmdk-vercel w-[28rem] max-w-full') do
         Cmdk::Input(placeholder: 'Search fruit...')
         Cmdk::List() do
-          Cmdk::Empty { 'No results found.' }
+          Cmdk::Empty() { 'No results found.' }
           %w[Apple Banana Cherry Grape Orange Peach].each do |fruit|
             Cmdk::Item() { fruit } # value inferred from text content
           end
@@ -65,7 +65,7 @@ module Scenarios
       Cmdk::Root(label: 'Force mount', class: 'cmdk-vercel w-[28rem] max-w-full') do
         Cmdk::Input(placeholder: "Type 'zzz' — Help stays visible")
         Cmdk::List() do
-          Cmdk::Empty { 'No results found.' }
+          Cmdk::Empty() { 'No results found.' }
           Cmdk::Group(heading: 'Results') do
             Cmdk::Item() { 'Open Project' }
             Cmdk::Item() { 'Close Project' }
@@ -100,7 +100,7 @@ module Scenarios
       Cmdk::Root(label: 'Empty', class: 'cmdk-vercel w-[28rem] max-w-full') do
         Cmdk::Input(placeholder: 'No items were rendered at all')
         Cmdk::List() do
-          Cmdk::Empty { 'No results found.' }
+          Cmdk::Empty() { 'No results found.' }
         end
       end
     end
@@ -125,7 +125,7 @@ module Scenarios
                      class: 'cmdk-vercel w-[36rem] max-w-full') do
           Cmdk::Input(placeholder: 'Type a command or search...')
           Cmdk::List() do
-            Cmdk::Empty { 'No results found.' }
+            Cmdk::Empty() { 'No results found.' }
             Cmdk::Group(heading: 'Actions') do
               Cmdk::Item(value: 'New File') { '📄 New File' }
               Cmdk::Item(value: 'New Window') { '🪟 New Window' }
@@ -154,7 +154,7 @@ module Scenarios
             Cmdk::Input(placeholder: "Search, or type '/' for scopes…")
           end
           Cmdk::List() do
-            Cmdk::Empty { 'No results found.' }
+            Cmdk::Empty() { 'No results found.' }
             Cmdk::Group(heading: 'Jump to') do
               Cmdk::Item(value: 'user', enters_scope: 'user', keywords: %w[people members]) { '🧑 Search users…' }
               Cmdk::Item(value: 'doc', enters_scope: 'doc', keywords: %w[files pages]) { '📄 Search documents…' }
@@ -197,7 +197,7 @@ module Scenarios
       Cmdk::Root(label: 'Command Menu', loop: true, class: "#{@theme} w-[40rem] max-w-full") do
         Cmdk::Input(placeholder: 'Search for apps and commands...')
         Cmdk::List() do
-          Cmdk::Empty { 'No results found.' }
+          Cmdk::Empty() { 'No results found.' }
 
           Cmdk::Group(heading: 'Suggestions') do
             Cmdk::Item(value: 'Linear', hint: 'Open Application', kbd: '↵') do

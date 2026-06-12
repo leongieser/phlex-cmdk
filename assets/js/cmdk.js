@@ -23,6 +23,7 @@
  * groups with `data-cmdk-scope="user"`. Typing `user: ...` then only matches
  * items in that scope, with the text after the trigger as the query. Listen to
  * cmdk-search-change to fetch scoped results from the server (e.g. via Turbo).
+ * Add `data-cmdk-scope-only` to keep items hidden unless their scope is active.
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -188,6 +189,11 @@ function itemScope(item) {
   return item.closest('[data-cmdk-scope]')?.getAttribute('data-cmdk-scope') ?? null
 }
 
+/** Scope-only elements are hidden unless their scope is active (deliberate entry). */
+function isScopeOnly(el) {
+  return Boolean(el.closest('[data-cmdk-scope-only]'))
+}
+
 /** Re-parse the search, mirror the active scope onto the root, emit on change. */
 function syncScope(inst) {
   const { scope, query } = parseScope(inst.root, inst.search)
@@ -349,23 +355,34 @@ function filterItems(inst) {
 
   for (const item of root.querySelectorAll(ITEM_SELECTOR)) {
     const fm = forceMounted(item)
+    // Scope-only items require deliberate entry: hidden (even from global
+    // search and force mount) unless their scope is the active one.
+    const scopeHidden = isScopeOnly(item) && itemScope(item) !== scope
     const outOfScope = filtering && scope && itemScope(item) !== scope
-    const rank = filtering ? (outOfScope ? 0 : score(inst, itemValue(item), itemKeywords(item), item)) : 1
+    const rank =
+      scopeHidden || outOfScope ? 0 : filtering ? score(inst, itemValue(item), itemKeywords(item), item) : 1
     inst.scores.set(item, rank)
-    const shown = fm || !filtering || rank > 0
+    const shown = !scopeHidden && (fm || !filtering || rank > 0)
     // React removes filtered items from the DOM; we hide them with an inline
     // style so theme CSS (e.g. `[cmdk-item] { display: flex }`) cannot win.
     item.style.display = shown ? '' : 'none'
-    if (!fm && (!filtering || rank > 0)) count++
+    if (!fm && shown) count++
   }
   inst.count = count
 
   for (const group of root.querySelectorAll(GROUP_SELECTOR)) {
-    let shown = !filtering || group.hasAttribute('data-cmdk-force-mount')
-    if (!shown) {
-      shown = Array.from(group.querySelectorAll(ITEM_SELECTOR)).some(
-        (item) => !forceMounted(item) && inst.scores.get(item) > 0,
-      )
+    let shown = !(isScopeOnly(group) && itemScope(group) !== scope)
+    if (shown && filtering) {
+      shown =
+        group.hasAttribute('data-cmdk-force-mount') ||
+        Array.from(group.querySelectorAll(ITEM_SELECTOR)).some(
+          (item) => !forceMounted(item) && inst.scores.get(item) > 0,
+        )
+    } else if (shown) {
+      // Hide groups whose items are all scope-hidden; keep itemless groups
+      // visible (they may be filled by a server-backed scope search).
+      const items = Array.from(group.querySelectorAll(ITEM_SELECTOR))
+      shown = items.length === 0 || items.some((item) => item.style.display !== 'none')
     }
     group.hidden = !shown
   }

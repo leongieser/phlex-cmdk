@@ -157,7 +157,7 @@ module Scenarios
               Cmdk::Item() { '➕ New Issue' }
               Cmdk::Item() { '🔍 Search Everything' }
             end
-            Cmdk::Group(heading: 'Users', scope: 'user') do
+            Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) do
               Cmdk::Item() { '🧑 Leon Gieser' }
               Cmdk::Item() { '🧑 Anna Schmidt' }
               Cmdk::Item() { '🧑 Marc Weber' }

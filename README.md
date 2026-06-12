@@ -107,6 +107,14 @@ root.addEventListener('cmdk-scope-change', (e) => {
 
 Custom triggers: `scopes: { 'user' => '@' }`. Deleting the trigger text exits the scope.
 
+By default scoped items also match global (unscoped) searches. Mark a group or item
+with `scope_only: true` to require deliberate entry — it stays hidden (and excluded
+from the result count) unless its scope is active:
+
+```ruby
+Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) { ... }
+```
+
 **Fully custom syntax** — the filter function receives the item element as a 4th
 argument (an extension over the React signature), so any operator grammar is possible:
 

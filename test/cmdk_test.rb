@@ -121,6 +121,13 @@ class ItemTest < Minitest::Test
     html = render { Cmdk::Item(scope: 'user') { 'Leon' } }
 
     assert_includes html, 'data-cmdk-scope="user"'
+    refute_includes html, 'data-cmdk-scope-only'
+  end
+
+  def test_scope_only
+    html = render { Cmdk::Item(scope: 'user', scope_only: true) { 'Leon' } }
+
+    assert_includes html, 'data-cmdk-scope-only=""'
   end
 end
 
@@ -150,6 +157,12 @@ class GroupTest < Minitest::Test
     html = render { Cmdk::Group(heading: 'Users', scope: 'user') { Cmdk::Item { 'Leon' } } }
 
     assert_includes html, 'data-cmdk-scope="user"'
+  end
+
+  def test_scope_only
+    html = render { Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) { Cmdk::Item { 'Leon' } } }
+
+    assert_includes html, 'data-cmdk-scope-only=""'
   end
 end
 

@@ -183,6 +183,8 @@ function createInstance(root) {
 
   wireIds(inst)
   registerNodes(inst)
+  // A server-rendered input value is the initial search (React: <Command.Input value>).
+  inst.search = root.querySelector(INPUT_SELECTOR)?.value || ''
   filterItems(inst)
   sortItems(inst)
   if (!inst.value || !getSelectedItem(inst)) selectFirstItem(inst, { scroll: false, emit: false })

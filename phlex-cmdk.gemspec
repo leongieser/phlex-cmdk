@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.description = 'Phlex components and a dependency-free JS runtime providing ' \
                      'feature parity with the cmdk React command menu, plus scoped search, ' \
                      'footer hints and ready-made themes. Works with Turbo and Tailwind.'
-  spec.homepage = 'https://github.com/dip/phlex-cmdk'
+  spec.homepage = 'https://github.com/leongieser/phlex-cmdk'
   spec.license = 'MIT'
   spec.required_ruby_version = '>= 3.2'
 

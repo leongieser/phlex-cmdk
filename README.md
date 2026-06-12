@@ -6,10 +6,10 @@ using [Phlex](https://www.phlex.fun), [Turbo](https://turbo.hotwired.dev) and Ta
 Two pieces:
 
 - **Phlex components** (`Cmdk::Root`, `Input`, `List`, `Item`, `Group`, `Separator`, `Empty`,
-  `Loading`, `Dialog`) render the exact same markup contract as the React package — the
+  `Loading`, `Dialog`) render the exact same markup contract as the React package - the
   `cmdk-*` attributes and ARIA roles. Existing cmdk themes work unchanged.
 - **One dependency-free ES module** ([assets/js/cmdk.js](assets/js/cmdk.js)) ports
-  `command-score` and the React runtime: fuzzy filtering, score-based sorting of items and
+  `command-score` verbatim and reimplements the cmdk component's behavior in vanilla JS: fuzzy filtering, score-based sorting of items and
   groups, keyboard navigation (arrows, `ctrl+n/j/p/k` vim bindings, Home/End, `alt` = group
   jump, `meta` = first/last), pointer selection, empty state, IME composition guard,
   `--cmdk-list-height`, and a native `<dialog>` command palette.
@@ -33,11 +33,11 @@ Serve or bundle the runtime once per page. Its path is exposed as `Cmdk.javascri
 ```
 
 The components are unstyled; optionally start from the shipped themes
-(`Cmdk.stylesheet_path` — see [Styling](#styling)).
+(`Cmdk.stylesheet_path` - see [Styling](#styling)).
 
 ### With Rails (importmap + Propshaft)
 
-Serve the gem assets straight from the gem — no copying:
+Serve the gem assets straight from the gem - no copying:
 
 ```ruby
 # config/initializers/cmdk.rb
@@ -57,7 +57,7 @@ import "cmdk"
 ```
 
 ```erb
-<%# layout — optional ready-made themes %>
+<%# layout - optional ready-made themes %>
 <%= stylesheet_link_tag "cmdk_themes", "data-turbo-track": "reload" %>
 ```
 
@@ -76,10 +76,10 @@ the shipped themes are plain CSS you can import into your input stylesheet:
 Cmdk::Root(class: 'cmdk-vercel w-full max-w-xl') do ... end
 ```
 
-No `@source` configuration is needed for the gem — its components emit no
+No `@source` configuration is needed for the gem - its components emit no
 Tailwind utilities of their own. (Heads-up: Tailwind's preflight resets break
 native `<dialog>` centering; the runtime ships zero-specificity defaults that
-handle this — see [Dialog](#dialog).)
+handle this - see [Dialog](#dialog).)
 
 ## Use
 
@@ -128,11 +128,11 @@ backdrop with `dialog[cmdk-dialog]::backdrop` (replaces Radix's `[cmdk-overlay]`
 
 By default the dialog renders as a top-third, horizontally centered palette; on
 viewports ≤640px it becomes a top-anchored, full-width sheet (the GitHub/Jira
-pattern — the software keyboard owns the bottom of the screen, so the input
+pattern - the software keyboard owns the bottom of the screen, so the input
 belongs at the top), sized with `dvh` units so dynamic viewports behave. CSS
 resets (e.g. Tailwind preflight's universal `margin: 0`) break native `<dialog>`
 centering, so the runtime injects these defaults with zero specificity (`:where()`)
-— any rule of yours wins, even a bare element selector:
+- any rule of yours wins, even a bare element selector:
 
 ```css
 dialog[cmdk-dialog] { margin-top: 30vh; }   /* overrides the default placement */
@@ -148,7 +148,7 @@ around while scrolling (only real pointer hover selects).
 cmdk deliberately keeps its filter vanilla; modes like `user: <query>` are userland.
 This port gives you both levels:
 
-**Declarative scopes** — declare them on the root, tag items or groups, and offer
+**Declarative scopes** - declare them on the root, tag items or groups, and offer
 scope-entry items for the picker:
 
 ```ruby
@@ -166,13 +166,13 @@ The flow follows the Linear/Slack/Raycast pattern (and cmdk's own "pages" recipe
 
 - Typing `/` suggests the `enters_scope:` items; `/u` narrows them.
 - Enter (or click) pins the scope as a **pill** (`[cmdk-scope-pill]`, a button
-  inserted before the input) and clears the input — typing then filters only
+  inserted before the input) and clears the input - typing then filters only
   items/groups tagged with that `scope:`.
 - Typing the name out (`/user `) commits too.
 - Backspace on an empty input or clicking the pill leaves the scope.
 
 The root mirrors the state as `data-cmdk-active-scope="user"`, and events carry the
-parsed parts — ideal for a server-backed lookup in a Turbo app, since streamed-in
+parsed parts - ideal for a server-backed lookup in a Turbo app, since streamed-in
 items register automatically:
 
 ```js
@@ -187,17 +187,17 @@ The picker prefix is configurable (`scope_picker: ':'`) or can be turned off
 `Cmdk.exitScope(root)`.
 
 By default scoped items also match global (unscoped) searches. Mark a group or item
-with `scope_only: true` to require deliberate entry — it stays hidden (and excluded
+with `scope_only: true` to require deliberate entry - it stays hidden (and excluded
 from the result count) unless its scope is active:
 
 ```ruby
 Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) { ... }
 ```
 
-**Server-backed scopes** — for data that lives in your database (users, documents),
+**Server-backed scopes** - for data that lives in your database (users, documents),
 mark the scoped group `server_filtered: true` and put a turbo-frame inside it. The
 runtime then shows the streamed-in items as-is instead of fuzzy-matching them against
-the query — which means the query can be a *server-side grammar*, e.g. `age > 21
+the query - which means the query can be a *server-side grammar*, e.g. `age > 21
 role:admin anna`:
 
 ```ruby
@@ -216,7 +216,7 @@ The endpoint parses the predicates, queries the database and renders `Cmdk::Item
 into the frame; selection, keyboard navigation, footer hints and the empty state all
 work on the streamed items automatically.
 
-**Fully custom syntax** — the filter function receives the item element as a 4th
+**Fully custom syntax** - the filter function receives the item element as a 4th
 argument (an extension over the React signature), so any operator grammar is possible:
 
 ```js
@@ -240,14 +240,14 @@ Cmdk::Footer() do            # or no block for just the hint container
 end
 ```
 
-The runtime fills `[cmdk-footer-hint]` as the selection moves — the hint text in a
-`<span>`, each key of `kbd:` as its own `<kbd>` cap — and sets `data-empty` when the
+The runtime fills `[cmdk-footer-hint]` as the selection moves - the hint text in a
+`<span>`, each key of `kbd:` as its own `<kbd>` cap - and sets `data-empty` when the
 selected item declares no hint. For anything richer, drive your own footer from the
 `cmdk-value-change` event.
 
 ### With Stimulus
 
-The bubbling events work with plain action descriptors — no controller required:
+The bubbling events work with plain action descriptors - no controller required:
 
 ```html
 <div data-controller="palette"
@@ -275,7 +275,7 @@ actions: `open`/`close`/`toggle` (dialog), `setSearch`, `setValue`, `enterScope`
 ### Styling
 
 Unstyled, exactly like the React package. With Tailwind, the idiomatic way is
-utilities on the components themselves — the runtime toggles `data-*` attributes,
+utilities on the components themselves - the runtime toggles `data-*` attributes,
 so Tailwind's data variants cover the states:
 
 ```ruby
@@ -297,7 +297,7 @@ Three ready-made themes ship with the gem as plain, dependency-free CSS
 `cmdk-vercel`, plus ports of the original cmdk `cmdk-linear` and `cmdk-raycast`
 themes. Apply one via the root's class; all are browsable in Lookbook under "Themes".
 
-**Dark mode** — the shipped themes declare every color with `light-dark()` and resolve
+**Dark mode** - the shipped themes declare every color with `light-dark()` and resolve
 through `color-scheme`, giving the standard tri-state:
 
 ```css
@@ -307,7 +307,7 @@ through `color-scheme`, giving the standard tri-state:
 ```
 
 Leave `data-theme` off (or `system`) to follow the OS preference; set
-`<html data-theme="dark">` to force a side — no duplicated selectors, one declaration
+`<html data-theme="dark">` to force a side - no duplicated selectors, one declaration
 per color. The Lookbook previews expose this as a Theme dropdown in the preview toolbar.
 
 ## React → Phlex parity map
@@ -316,14 +316,14 @@ per color. The Lookbook previews expose this as a Theme dropdown in the preview 
 |---|---|
 | `<Command label shouldFilter loop vimBindings disablePointerSelection defaultValue>` | `Cmdk::Root(label:, should_filter:, loop:, vim_bindings:, disable_pointer_selection:, default_value:)` |
 | `<Command value onValueChange>` (controlled) | `Cmdk.setValue(root, v)` + `cmdk-value-change` event |
-| `filter={fn}` | `Cmdk.setFilter(fn)` or `Cmdk.setFilter(root, fn)` — same `(value, search, keywords) → 0..1` signature |
+| `filter={fn}` | `Cmdk.setFilter(fn)` or `Cmdk.setFilter(root, fn)` - same `(value, search, keywords) → 0..1` signature |
 | `<Command.Input value onValueChange>` | `Cmdk::Input(value:)`; `Cmdk.setSearch(root, q)`; `cmdk-search-change` |
 | `<Command.List label>` | `Cmdk::List(label:)` |
 | `<Command.Item value keywords disabled forceMount onSelect>` | `Cmdk::Item(value:, keywords:, disabled:, force_mount:)`; `cmdk-item-select` event; value inferred from text content when omitted |
 | `<Command.Group heading value forceMount>` | `Cmdk::Group(heading:, value:, force_mount:)` |
 | `<Command.Separator alwaysRender>` | `Cmdk::Separator(always_render:)` |
 | `<Command.Empty>` / `<Command.Loading progress label>` | `Cmdk::Empty()` / `Cmdk::Loading(progress:, label:)` |
-| `<Command.Dialog open onOpenChange container>` | `Cmdk::Dialog(open:, hotkey:)` — native `<dialog>`, no portal needed |
+| `<Command.Dialog open onOpenChange container>` | `Cmdk::Dialog(open:, hotkey:)` - native `<dialog>`, no portal needed |
 | `useCommandState(selector)` | `Cmdk.getState(root)` + the events above |
 | vim bindings, Home/End, alt/meta arrows, IME guard | identical, ported from the same keydown logic |
 
@@ -340,7 +340,7 @@ bundle exec rake demo      # builds Tailwind CSS, serves http://localhost:9292
 bundle exec rake lookbook  # Lookbook component previews on http://localhost:9293
 ```
 
-The [Lookbook](https://lookbook.build) previews live in [lookbook/](lookbook/) — Lookbook is a
+The [Lookbook](https://lookbook.build) previews live in [lookbook/](lookbook/) - Lookbook is a
 Rails engine, so a minimal single-file Rails host ([lookbook/app.rb](lookbook/app.rb)) boots it;
 the gem itself stays Rails-free. Scenarios cover the default menu (with live params for
 placeholder/loop/vim bindings), ungrouped items, `should_filter: false`, force-mounted

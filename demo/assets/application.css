@@ -121,3 +121,17 @@ pre.has-copy {
 .copy-button.copied {
   color: light-dark(#15803d, #4ade80);
 }
+
+/* Site background: a dot grid under a soft indigo glow, both fading out
+   from the top like a spotlight. Theme-aware via light-dark(). */
+.site-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 65% 50% at 50% -10%, light-dark(rgb(95 106 210 / 0.14), rgb(95 106 210 / 0.18)), transparent 70%),
+    radial-gradient(light-dark(rgb(0 0 0 / 0.13), rgb(255 255 255 / 0.09)) 1px, transparent 1.5px);
+  background-size: auto, 22px 22px;
+  mask-image: radial-gradient(ellipse 95% 90% at 50% 0%, black 30%, transparent 78%);
+}

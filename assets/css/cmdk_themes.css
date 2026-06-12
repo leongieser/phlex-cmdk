@@ -232,7 +232,6 @@ dialog.cmdk-dialog-frame::backdrop {
 /* ── Linear ─────────────────────────────────────────────────────────── */
 
 .cmdk-linear[cmdk-root] {
-  width: 100%;
   background: light-dark(#ffffff, #27282b);
   border-radius: 8px;
   overflow: hidden;
@@ -354,7 +353,6 @@ dialog.cmdk-dialog-frame::backdrop {
 /* ── Raycast ────────────────────────────────────────────────────────── */
 
 .cmdk-raycast[cmdk-root] {
-  width: 100%;
   background: light-dark(#fdfcfd, #1c1c1f);
   border-radius: 12px;
   padding: 8px 0 48px; /* bottom inset hosts the absolute footer */

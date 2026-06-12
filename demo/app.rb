@@ -3,7 +3,7 @@ require_relative '../lib/cmdk'
 
 module Views
   class Layout < Phlex::HTML
-    def initialize(title: 'cmdk-phlex')
+    def initialize(title: 'phlex-cmdk')
       @title = title
     end
 

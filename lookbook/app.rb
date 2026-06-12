@@ -13,12 +13,12 @@ require 'phlex-rails'
 require_relative '../lib/cmdk'
 require_relative 'scenarios'
 
-module CmdkPhlex
+module PhlexCmdk
   class Application < Rails::Application
     config.root = __dir__
     config.eager_load = false
     config.consider_all_requests_local = true
-    config.secret_key_base = 'cmdk-phlex-lookbook-previews'
+    config.secret_key_base = 'phlex-cmdk-lookbook-previews'
     config.hosts.clear
     config.logger = ActiveSupport::Logger.new($stdout)
     config.log_level = :warn
@@ -26,7 +26,7 @@ module CmdkPhlex
     # Lookbook resolves preview classes through the app autoloader.
     config.autoload_paths << File.expand_path('previews', __dir__)
 
-    config.lookbook.project_name = 'cmdk-phlex'
+    config.lookbook.project_name = 'phlex-cmdk'
     config.lookbook.preview_paths = [File.expand_path('previews', __dir__)]
     config.lookbook.preview_layout = 'preview'
     config.lookbook.live_updates = false

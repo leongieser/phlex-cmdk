@@ -22,7 +22,7 @@ Turbo Streams are registered, filtered and sorted automatically.
 
 ```ruby
 # Gemfile
-gem 'cmdk-phlex'
+gem 'phlex-cmdk'
 ```
 
 Serve or bundle the runtime once per page. Its path is exposed as `Cmdk.javascript_path`

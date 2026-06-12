@@ -1,6 +1,6 @@
 # @label Command Menu
 #
-# Previews for the cmdk-phlex command menu — a Phlex port of the cmdk React component.
+# Previews for the phlex-cmdk command menu — a Phlex port of the cmdk React component.
 class CmdkPreview < Lookbook::Preview
   # The full command menu: groups, separator, keywords, a disabled item.
   # Try typing to filter, arrow keys / ctrl+n/p to navigate, Enter to select.

@@ -1,7 +1,7 @@
 /**
  * cmdk runtime — a dependency-free port of cmdk (React) for server-rendered HTML.
  *
- * Pairs with the `cmdk-phlex` Ruby gem, which renders the same markup contract
+ * Pairs with the `phlex-cmdk` Ruby gem, which renders the same markup contract
  * as the React package (cmdk-* attributes, ARIA roles). This module replicates
  * the React runtime: command-score filtering, group/item sorting, keyboard
  * navigation (including vim bindings), pointer selection, empty state,

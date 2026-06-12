@@ -744,6 +744,11 @@ function setupDialog(dialog) {
 
 function handleDialogHotkey(e) {
   if (!(e.metaKey || e.ctrlKey) || e.repeat) return
+  // ctrl+n/j/p/k inside a menu with vim bindings is navigation, not a hotkey.
+  if (e.ctrlKey && !e.metaKey && ['n', 'j', 'p', 'k'].includes(e.key)) {
+    const root = e.target instanceof Element ? e.target.closest(ROOT_SELECTOR) : null
+    if (root && config(root).vimBindings) return
+  }
   for (const dialog of document.querySelectorAll(`${DIALOG_SELECTOR}[data-cmdk-dialog-hotkey]`)) {
     if (e.key.toLowerCase() === dialog.getAttribute('data-cmdk-dialog-hotkey').toLowerCase()) {
       e.preventDefault()

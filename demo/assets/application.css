@@ -76,3 +76,21 @@
 .markdown table { border-collapse: collapse; display: block; overflow-x: auto; font-size: 13px; }
 .markdown th, .markdown td { border: 1px solid light-dark(#e5e5e5, #27272a); padding: 6px 10px; text-align: left; }
 .markdown th { background: light-dark(#fafafa, #18181b); }
+
+/* Semantic keycaps used in page chrome (outside the menus). */
+.demo-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 5px;
+  border: 1px solid light-dark(#d4d4d4, #3f3f46);
+  border-bottom-width: 2px;
+  background: light-dark(#ffffff, #27272a);
+  color: light-dark(#525252, #d4d4d8);
+}

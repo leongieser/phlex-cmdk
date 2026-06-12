@@ -63,7 +63,7 @@ module Scenarios
   class ForceMount < Phlex::HTML
     def view_template
       Cmdk::Root(label: 'Force mount', class: 'cmdk-vercel w-[28rem] max-w-full') do
-        Cmdk::Input(placeholder: "Type 'zzz' — Help stays visible")
+        Cmdk::Input(placeholder: "Type 'zzz': Help stays visible")
         Cmdk::List() do
           Cmdk::Empty() { 'No results found.' }
           Cmdk::Group(heading: 'Results') do
@@ -113,7 +113,15 @@ module Scenarios
           id: 'cmdk-dialog-trigger',
           class: 'demo-panel px-4 py-2 text-sm shadow-sm',
         ) { 'Open Command Menu' }
-        p(class: 'text-xs demo-hint') { 'or press ⌘K / Ctrl+K — Esc or backdrop click closes' }
+        p(class: 'demo-hint flex items-center gap-1 text-xs') do
+          plain 'or press'
+          kbd(class: 'demo-kbd') { '⌘' }
+          kbd(class: 'demo-kbd') { 'K' }
+          plain '/'
+          kbd(class: 'demo-kbd') { 'Ctrl' }
+          kbd(class: 'demo-kbd') { 'K' }
+          plain '. Esc or backdrop click closes.'
+        end
         script { raw safe(<<~JS) }
           document.getElementById('cmdk-dialog-trigger').addEventListener('click', () => {
             Cmdk.openDialog(document.querySelector('dialog[cmdk-dialog]'))

@@ -82,10 +82,12 @@ dialog.cmdk-dialog-frame {
   animation: cmdk-dialog-in 120ms ease;
 }
 
+/* The backdrop is transparent by default; opt into a scrim if you want one:
 dialog.cmdk-dialog-frame::backdrop {
   @apply bg-neutral-900/40;
   backdrop-filter: blur(2px);
 }
+*/
 
 @keyframes cmdk-dialog-in {
   from {

@@ -908,6 +908,9 @@ function injectBaseStyles() {
   height: fit-content;
   max-width: calc(100vw - 2rem);
   max-height: calc(84vh - 2rem);
+}
+:where(dialog[cmdk-dialog])::backdrop {
+  background: transparent;
 }`
   document.head.appendChild(style)
 }

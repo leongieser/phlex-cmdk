@@ -1,166 +1,32 @@
 @import 'tailwindcss';
-@import './themes.css';
+@import '../../assets/css/themes.css';
 @source '../app.rb';
 @source '../../lookbook/scenarios.rb';
 
 /*
- * A Vercel-flavored cmdk theme written with Tailwind v4 against the cmdk-*
- * attribute contract. The same selectors work for the React package — themes
- * are interchangeable between the two. Colors use light-dark(): the OS
- * decides by default, data-theme on <html> forces a side (see themes.css).
+ * Demo/Lookbook page chrome only — the component themes (cmdk-vercel,
+ * cmdk-linear, cmdk-raycast) ship with the gem in assets/css/themes.css.
  */
 
-.cmdk-vercel[cmdk-root] {
-  @apply rounded-xl border p-2 shadow-2xl;
-  background: light-dark(#ffffff, #18181b);
-  border-color: light-dark(#e5e5e5, #27272a);
+/* Page canvas for the demo and Lookbook previews. */
+.cmdk-canvas {
+  background: light-dark(#f5f5f5, #0b0b0d);
+  color: light-dark(#171717, #e4e4e7);
 }
 
-.cmdk-vercel [cmdk-input] {
-  @apply w-full border-b bg-transparent px-2 pt-1 pb-3 text-base outline-none;
-  color: light-dark(#171717, #ededef);
-  border-color: light-dark(#f5f5f5, #27272a);
-}
-
-.cmdk-vercel [cmdk-input]::placeholder {
-  color: light-dark(#a3a3a3, #71717a);
-}
-
-/* Flex row hosting the scope pill + input (the runtime inserts the pill before the input). */
-.cmdk-vercel .cmdk-search-row {
-  @apply flex items-center gap-1 border-b px-2;
-  border-color: light-dark(#f5f5f5, #27272a);
-}
-
-.cmdk-vercel .cmdk-search-row [cmdk-input] {
-  @apply flex-1 border-0 px-0;
-}
-
-.cmdk-vercel [cmdk-scope-pill] {
-  @apply mb-2 flex h-6 shrink-0 cursor-pointer items-center gap-1 rounded-md border-0 px-2 text-xs font-medium;
-  background: light-dark(#e5e5e5, #3f3f46);
-  color: light-dark(#404040, #d4d4d8);
-}
-
-.cmdk-vercel [cmdk-scope-pill]:hover {
-  background: light-dark(#d4d4d4, #52525b);
-}
-
-.cmdk-vercel [cmdk-scope-pill]::after {
-  content: '×';
-  color: light-dark(#a3a3a3, #a1a1aa);
-}
-
-.cmdk-vercel [cmdk-list] {
-  @apply overflow-y-auto overscroll-contain pt-2;
-  height: min(330px, calc(var(--cmdk-list-height) + 8px));
-  max-height: 330px;
-  transition: height 100ms ease;
-}
-
-.cmdk-vercel [cmdk-item] {
-  @apply flex h-10 cursor-pointer items-center gap-2 rounded-lg px-3 text-sm select-none;
-  color: light-dark(#404040, #d4d4d8);
-  content-visibility: auto;
-}
-
-.cmdk-vercel [cmdk-item][data-selected='true'] {
-  background: light-dark(#f5f5f5, #27272a);
-  color: light-dark(#0a0a0a, #fafafa);
-}
-
-.cmdk-vercel [cmdk-item][data-disabled='true'] {
-  @apply cursor-not-allowed;
-  color: light-dark(#d4d4d4, #52525b);
-}
-
-.cmdk-vercel [cmdk-item]:active {
-  background: light-dark(#e5e5e5, #3f3f46);
-}
-
-.cmdk-vercel [cmdk-group-heading] {
-  @apply px-3 pt-2 pb-1.5 text-xs font-medium select-none;
-  color: light-dark(#a3a3a3, #71717a);
-}
-
-.cmdk-vercel [cmdk-separator] {
-  @apply mx-1 my-2 h-px;
-  background: light-dark(#f5f5f5, #27272a);
-}
-
-.cmdk-vercel [cmdk-empty],
-.cmdk-vercel [cmdk-loading] {
-  @apply flex h-12 items-center justify-center text-sm;
-  color: light-dark(#a3a3a3, #71717a);
-}
-
-.cmdk-vercel [cmdk-footer] {
-  @apply -mx-2 -mb-2 mt-2 flex h-10 items-center gap-2 rounded-b-xl border-t px-3 text-xs;
-  border-color: light-dark(#f5f5f5, #27272a);
-  color: light-dark(#a3a3a3, #71717a);
-}
-
-.cmdk-vercel [cmdk-footer-hint] {
-  @apply ml-auto flex items-center gap-1.5;
-  color: light-dark(#525252, #a1a1aa);
-}
-
-.cmdk-vercel [cmdk-footer-hint] kbd {
-  @apply rounded px-1.5 py-0.5 font-sans text-[11px];
-  background: light-dark(#f5f5f5, #27272a);
-  color: light-dark(#737373, #a1a1aa);
-}
-
-.cmdk-vercel [cmdk-footer-hint][data-empty] {
-  @apply hidden;
-}
-
-/* Prevent iOS Safari from zooming into the focused input (needs ≥16px). */
-@media (max-width: 640px) {
-  .cmdk-vercel [cmdk-input] {
-    font-size: 16px;
-  }
-}
-
-/* Native <dialog> replaces the Radix overlay/content pair. Placement comes
-   from the runtime's zero-specificity defaults (top third, centered) — set
-   e.g. `@apply mt-[30vh]` here to override it. */
-dialog.cmdk-dialog-frame {
-  @apply border-0 bg-transparent p-0;
-  animation: cmdk-dialog-in 120ms ease;
-}
-
-/* The backdrop is transparent by default; opt into a scrim if you want one:
-dialog.cmdk-dialog-frame::backdrop {
-  @apply bg-neutral-900/40;
-  backdrop-filter: blur(2px);
-}
-*/
-
-@keyframes cmdk-dialog-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Demo/Lookbook chrome (hint rows, code chips, event log) — theme-aware. */
 .demo-hint {
   color: light-dark(#737373, #a1a1aa);
 }
 
 .demo-chip {
-  @apply rounded px-1;
+  border-radius: 4px;
+  padding: 0 4px;
   background: light-dark(#e5e5e5, #27272a);
 }
 
 .demo-panel {
-  @apply rounded-lg border;
+  border-radius: 8px;
+  border: 1px solid light-dark(#e5e5e5, #27272a);
   background: light-dark(#ffffff, #18181b);
-  border-color: light-dark(#e5e5e5, #27272a);
   color: light-dark(#525252, #a1a1aa);
 }

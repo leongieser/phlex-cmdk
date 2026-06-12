@@ -11,6 +11,13 @@ module Cmdk
   def self.javascript_path
     File.expand_path('../assets/js/cmdk.js', __dir__)
   end
+
+  # Absolute path to the optional themes stylesheet (cmdk-vercel, cmdk-linear,
+  # cmdk-raycast). Plain dependency-free CSS — serve it, copy it, or import it
+  # into a Tailwind build.
+  def self.stylesheet_path
+    File.expand_path('../assets/css/themes.css', __dir__)
+  end
 end
 
 require_relative 'cmdk/version'

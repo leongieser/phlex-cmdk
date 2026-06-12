@@ -22,7 +22,7 @@ Turbo Streams are registered, filtered and sorted automatically.
 
 ```ruby
 # Gemfile
-gem 'cmdk-phlex', path: '...' # or from your git source
+gem 'cmdk-phlex'
 ```
 
 Serve or bundle the runtime once per page. Its path is exposed as `Cmdk.javascript_path`
@@ -31,6 +31,29 @@ Serve or bundle the runtime once per page. Its path is exposed as `Cmdk.javascri
 ```html
 <script type="module" src="/cmdk.js"></script> <!-- auto-starts on import -->
 ```
+
+The components are unstyled; optionally start from the shipped themes
+(`Cmdk.stylesheet_path` — see [Styling](#styling)).
+
+### With Tailwind
+
+Everything composes with a Tailwind v4 setup out of the box: components accept
+`class:` attributes like any Phlex element, the runtime needs no build step, and
+the shipped themes are plain CSS you can import into your input stylesheet:
+
+```css
+@import 'tailwindcss';
+@import '../path/to/cmdk-themes.css'; /* copied from Cmdk.stylesheet_path */
+```
+
+```ruby
+Cmdk::Root(class: 'cmdk-vercel w-full max-w-xl') do ... end
+```
+
+No `@source` configuration is needed for the gem — its components emit no
+Tailwind utilities of their own. (Heads-up: Tailwind's preflight resets break
+native `<dialog>` centering; the runtime ships zero-specificity defaults that
+handle this — see [Dialog](#dialog).)
 
 ## Use
 
@@ -184,9 +207,10 @@ Unstyled, exactly like the React package. Target the attribute contract from Tai
 [cmdk-list] { height: min(330px, var(--cmdk-list-height)); transition: height 100ms ease; }
 ```
 
-See [demo/assets/application.css](demo/assets/application.css) for a complete Tailwind v4
-theme, and [demo/assets/themes.css](demo/assets/themes.css) for ports of the original cmdk
-Linear and Raycast themes — all three are browsable in Lookbook under "Themes".
+Three ready-made themes ship with the gem as plain, dependency-free CSS
+([assets/css/themes.css](assets/css/themes.css), path via `Cmdk.stylesheet_path`):
+`cmdk-vercel`, plus ports of the original cmdk `cmdk-linear` and `cmdk-raycast`
+themes. Apply one via the root's class; all are browsable in Lookbook under "Themes".
 
 **Dark mode** — the shipped themes declare every color with `light-dark()` and resolve
 through `color-scheme`, giving the standard tri-state:

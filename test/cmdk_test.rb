@@ -276,9 +276,18 @@ class DialogTest < Minitest::Test
   end
 end
 
-class JavascriptTest < Minitest::Test
+class AssetsTest < Minitest::Test
   def test_runtime_asset_exists
     assert File.exist?(Cmdk.javascript_path)
     assert_includes File.read(Cmdk.javascript_path), 'commandScore'
+  end
+
+  def test_themes_stylesheet_exists_and_is_plain_css
+    assert File.exist?(Cmdk.stylesheet_path)
+    css = File.read(Cmdk.stylesheet_path)
+    assert_includes css, '.cmdk-vercel[cmdk-root]'
+    assert_includes css, '.cmdk-linear[cmdk-root]'
+    assert_includes css, '.cmdk-raycast[cmdk-root]'
+    refute_includes css, '@apply' # must not require a Tailwind build
   end
 end

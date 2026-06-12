@@ -1,1 +1,5 @@
-demo/public/application.css
+/.bundle/
+/pkg/
+/demo/public/application.css
+Gemfile.lock
+*.gem

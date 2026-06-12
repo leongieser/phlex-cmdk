@@ -18,4 +18,10 @@ class CmdkThemesPreview < Lookbook::Preview
   def raycast
     render Scenarios::Themed.new(theme: 'cmdk-raycast')
   end
+
+  # A fully custom CRT terminal look, written from scratch against the
+  # attribute contract (demo/assets/application.css, cmdk-terminal block).
+  def custom_terminal
+    render Scenarios::CustomTheme.new
+  end
 end

@@ -135,3 +135,199 @@ pre.has-copy {
   background-size: auto, 22px 22px;
   mask-image: radial-gradient(ellipse 95% 90% at 50% 0%, black 30%, transparent 78%);
 }
+
+/* >>> cmdk-terminal */
+/* A CRT terminal theme, written from scratch against the cmdk attribute
+   contract: phosphor green, scanlines, inverted selection, blinking caret. */
+.cmdk-terminal[cmdk-root] {
+  position: relative;
+  overflow: hidden;
+  padding: 8px;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  background: #04100a;
+  border: 1px solid #14532d;
+  border-radius: 6px;
+  color: #4ade80;
+  box-shadow:
+    0 0 50px rgb(74 222 128 / 0.18),
+    inset 0 0 90px rgb(74 222 128 / 0.05);
+}
+
+.cmdk-terminal[cmdk-root]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgb(0 0 0 / 0.22) 0 1px, transparent 1px 3px);
+}
+
+.cmdk-terminal .term-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 0;
+  border-bottom: 1px dashed #14532d;
+}
+
+.cmdk-terminal .term-prompt {
+  color: #4ade80;
+  text-shadow: 0 0 8px rgb(74 222 128 / 0.8);
+  animation: cmdk-terminal-blink 1.2s steps(2) infinite;
+}
+
+@keyframes cmdk-terminal-blink {
+  50% { opacity: 0.25; }
+}
+
+.cmdk-terminal [cmdk-input] {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 8px 0 12px;
+  font: inherit;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  color: #bbf7d0;
+  caret-color: #4ade80;
+}
+
+.cmdk-terminal [cmdk-input]::placeholder {
+  color: rgb(74 222 128 / 0.35);
+}
+
+.cmdk-terminal [cmdk-list] {
+  height: min(330px, var(--cmdk-list-height));
+  max-height: 330px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transition: height 100ms ease;
+  padding-top: 6px;
+}
+
+.cmdk-terminal [cmdk-group-heading] {
+  padding: 12px 8px 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: rgb(74 222 128 / 0.5);
+  user-select: none;
+}
+
+.cmdk-terminal [cmdk-group-heading]::before {
+  content: '# ';
+}
+
+.cmdk-terminal [cmdk-item] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 8px;
+  font-size: 14px;
+  color: #86efac;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cmdk-terminal [cmdk-item]::before {
+  content: '  ';
+  white-space: pre;
+  color: #4ade80;
+}
+
+.cmdk-terminal [cmdk-item][data-selected='true'] {
+  background: rgb(74 222 128 / 0.14);
+  color: #dcfce7;
+  text-shadow: 0 0 10px rgb(74 222 128 / 0.55);
+}
+
+.cmdk-terminal [cmdk-item][data-selected='true']::before {
+  content: '❯ ';
+}
+
+.cmdk-terminal [cmdk-item][data-disabled='true'] {
+  color: rgb(74 222 128 / 0.3);
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.cmdk-terminal [cmdk-separator] {
+  height: 0;
+  border-top: 1px dashed #14532d;
+  margin: 8px;
+}
+
+.cmdk-terminal [cmdk-empty] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  font-size: 13px;
+  color: rgb(74 222 128 / 0.45);
+}
+
+.cmdk-terminal [cmdk-empty]::before {
+  content: 'sh: ';
+}
+
+.cmdk-terminal [cmdk-footer] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px -8px -8px;
+  padding: 8px 16px;
+  border-top: 1px dashed #14532d;
+  font-size: 12px;
+  color: rgb(74 222 128 / 0.55);
+}
+
+.cmdk-terminal [cmdk-footer-hint] {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: #86efac;
+}
+
+.cmdk-terminal [cmdk-footer-hint] kbd {
+  padding: 1px 6px;
+  font: inherit;
+  font-size: 11px;
+  border: 1px solid #14532d;
+  border-radius: 3px;
+  background: rgb(74 222 128 / 0.08);
+  color: #4ade80;
+}
+
+.cmdk-terminal [cmdk-footer-hint][data-empty] {
+  display: none;
+}
+/* <<< cmdk-terminal */
+
+/* Code reveal panels on the examples page. */
+.code-panel pre {
+  background: light-dark(#ffffff, #18181b);
+  border: 1px solid light-dark(#e5e5e5, #27272a);
+  border-radius: 8px;
+  padding: 12px 16px;
+  overflow: auto;
+  max-height: 420px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.code-tab {
+  padding: 3px 10px;
+  font-size: 11px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  color: light-dark(#737373, #a1a1aa);
+  cursor: pointer;
+}
+
+.code-tab.active {
+  border-color: light-dark(#e5e5e5, #3f3f46);
+  background: light-dark(#ffffff, #27272a);
+  color: light-dark(#171717, #fafafa);
+}

@@ -248,6 +248,36 @@ module Scenarios
     end
   end
 
+  # A fully custom look: plain CSS against the [cmdk-*] attribute contract.
+  # See the cmdk-terminal block in demo/assets/application.css.
+  class CustomTheme < Phlex::HTML
+    def view_template
+      Cmdk::Root(label: 'Terminal', loop: true, class: 'cmdk-terminal w-[40rem] max-w-full') do
+        div(class: 'term-row') do
+          span(class: 'term-prompt', aria_hidden: 'true') { '❯' }
+          Cmdk::Input(placeholder: 'type a command_')
+        end
+        Cmdk::List() do
+          Cmdk::Empty() { 'command not found' }
+          Cmdk::Group(heading: 'processes') do
+            Cmdk::Item(value: 'deploy production', hint: 'execute', kbd: '⏎') { plain 'bin/deploy --production' }
+            Cmdk::Item(value: 'tail logs', hint: 'execute', kbd: '⏎') { plain 'tail -f log/production.log' }
+            Cmdk::Item(value: 'rails console', hint: 'execute', kbd: '⏎') { plain 'bin/rails console' }
+            Cmdk::Item(value: 'run tests', hint: 'execute', kbd: '⏎') { plain 'bundle exec rake test' }
+          end
+          Cmdk::Separator()
+          Cmdk::Group(heading: 'danger zone') do
+            Cmdk::Item(value: 'drop database', disabled: true) { plain 'bin/rails db:drop' }
+          end
+        end
+        Cmdk::Footer() do
+          span { 'guest@phlex-cmdk' }
+          div('cmdk-footer-hint' => '')
+        end
+      end
+    end
+  end
+
   class Events < Phlex::HTML
     def view_template
       div(class: 'flex w-[28rem] max-w-full flex-col gap-4') do

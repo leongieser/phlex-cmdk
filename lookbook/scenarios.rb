@@ -293,7 +293,7 @@ module Scenarios
           tracking-wide text-black outline-none placeholder:text-neutral-400
           focus:bg-yellow-200 focus:shadow-[4px_4px_0_rgb(0,0,0)]
         CLASSES
-        Cmdk::List(class: 'h-[min(360px,var(--cmdk-list-height))] max-h-[360px] overflow-y-auto overscroll-contain pt-3 transition-[height] duration-100') do
+        Cmdk::List(class: 'h-[min(360px,calc(var(--cmdk-list-height)+16px))] max-h-[360px] overflow-y-auto overscroll-contain pt-3 pb-1 transition-[height] duration-100') do
           Cmdk::Empty(class: 'mx-1 flex h-16 items-center justify-center border-4 border-dashed border-black text-sm font-black uppercase text-black') do
             plain 'absolutely nothing'
           end

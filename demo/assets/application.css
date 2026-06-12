@@ -197,7 +197,7 @@ pre.has-copy {
 }
 
 .cmdk-terminal [cmdk-list] {
-  height: min(330px, var(--cmdk-list-height));
+  height: min(330px, calc(var(--cmdk-list-height) + 6px));
   max-height: 330px;
   overflow-y: auto;
   overscroll-behavior: contain;

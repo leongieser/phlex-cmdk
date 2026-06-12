@@ -945,6 +945,9 @@ function injectBaseStyles() {
 :where(dialog[cmdk-dialog])::backdrop {
   background: transparent;
 }
+:where([cmdk-list-sizer]) {
+  display: flow-root; /* child margins must count into --cmdk-list-height */
+}
 @media (max-width: 640px) {
   :where(dialog[cmdk-dialog]) {
     margin: 0.5rem auto auto;

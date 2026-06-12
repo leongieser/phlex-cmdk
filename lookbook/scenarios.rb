@@ -278,6 +278,71 @@ module Scenarios
     end
   end
 
+  # The same terminal look, but with no stylesheet at all: Tailwind utilities
+  # and data-[...] variants directly on the components.
+  # Gotcha: inside Ruby heredocs Tailwind's scanner treats '#' as a comment
+  # and drops the rest of the line, so hex colors are written as rgb().
+  class TailwindTheme < Phlex::HTML
+    def view_template
+      Cmdk::Root(label: 'Terminal (Tailwind)', loop: true, class: <<~CLASSES.split.join(' ')) do
+        w-[40rem] max-w-full relative overflow-hidden rounded-md border border-green-900
+        bg-[rgb(4,16,10)] p-2 font-mono text-green-400
+        shadow-[0_0_50px_rgba(74,222,128,0.18),inset_0_0_90px_rgba(74,222,128,0.05)]
+        after:pointer-events-none after:absolute after:inset-0 after:content-['']
+        after:bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.22)_0_1px,transparent_1px_3px)]
+      CLASSES
+        div(class: 'flex items-center gap-2.5 border-b border-dashed border-green-900 px-2 pt-1') do
+          span(class: 'animate-pulse text-green-400', aria_hidden: 'true') { '❯' }
+          Cmdk::Input(placeholder: 'type a command_', class: <<~CLASSES.split.join(' '))
+            flex-1 border-none bg-transparent pt-2 pb-3 font-mono text-sm tracking-wide
+            text-green-200 caret-green-400 outline-none placeholder:text-green-400/35
+          CLASSES
+        end
+        Cmdk::List(class: 'h-[min(330px,var(--cmdk-list-height))] max-h-[330px] overflow-y-auto overscroll-contain pt-1.5 transition-[height] duration-100') do
+          Cmdk::Empty(class: "flex h-14 items-center justify-center text-[13px] text-green-400/45 before:content-['sh:_']") do
+            plain 'command not found'
+          end
+          Cmdk::Group(heading: 'processes',
+                      class: '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:pb-1 ' \
+                             '[&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:uppercase ' \
+                             "[&_[cmdk-group-heading]]:tracking-[0.25em] [&_[cmdk-group-heading]]:text-green-400/50 [&_[cmdk-group-heading]]:before:content-['#_']") do
+            Cmdk::Item(value: 'deploy production', hint: 'execute', kbd: '⏎', class: item_classes) { plain 'bin/deploy --production' }
+            Cmdk::Item(value: 'tail logs', hint: 'execute', kbd: '⏎', class: item_classes) { plain 'tail -f log/production.log' }
+            Cmdk::Item(value: 'rails console', hint: 'execute', kbd: '⏎', class: item_classes) { plain 'bin/rails console' }
+          end
+          Cmdk::Separator(class: 'mx-2 my-2 border-t border-dashed border-green-900')
+          Cmdk::Group(heading: 'danger zone',
+                      class: '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:pb-1 ' \
+                             '[&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:uppercase ' \
+                             "[&_[cmdk-group-heading]]:tracking-[0.25em] [&_[cmdk-group-heading]]:text-green-400/50 [&_[cmdk-group-heading]]:before:content-['#_']") do
+            Cmdk::Item(value: 'drop database', disabled: true, class: item_classes) { plain 'bin/rails db:drop' }
+          end
+        end
+        Cmdk::Footer(class: '-m-2 mt-1.5 flex items-center gap-2 border-t border-dashed border-green-900 px-4 py-2 text-xs text-green-400/55') do
+          span { 'guest@phlex-cmdk' }
+          div('cmdk-footer-hint' => '', class: <<~CLASSES.split.join(' '))
+            ml-auto flex items-center gap-1.5 text-green-300 data-empty:hidden
+            [&_kbd]:rounded-[3px] [&_kbd]:border [&_kbd]:border-green-900 [&_kbd]:bg-green-400/10
+            [&_kbd]:px-1.5 [&_kbd]:text-[11px] [&_kbd]:text-green-400
+          CLASSES
+        end
+      end
+    end
+
+    private
+
+    def item_classes
+      <<~CLASSES.split.join(' ')
+        flex min-h-8 cursor-pointer items-center gap-2 px-2 text-sm text-green-300 select-none
+        before:whitespace-pre before:text-green-400 before:content-['__']
+        data-[selected=true]:bg-green-400/15 data-[selected=true]:text-green-100
+        data-[selected=true]:before:content-['❯_']
+        data-[selected=true]:[text-shadow:0_0_10px_rgba(74,222,128,0.55)]
+        data-[disabled=true]:text-green-400/30 data-[disabled=true]:line-through data-[disabled=true]:cursor-not-allowed
+      CLASSES
+    end
+  end
+
   class Events < Phlex::HTML
     def view_template
       div(class: 'flex w-[28rem] max-w-full flex-col gap-4') do

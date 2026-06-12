@@ -115,6 +115,13 @@
   @apply hidden;
 }
 
+/* Prevent iOS Safari from zooming into the focused input (needs ≥16px). */
+@media (max-width: 640px) {
+  .cmdk-vercel [cmdk-input] {
+    font-size: 16px;
+  }
+}
+
 /* Native <dialog> replaces the Radix overlay/content pair. Placement comes
    from the runtime's zero-specificity defaults (top third, centered) — set
    e.g. `@apply mt-[30vh]` here to override it. */

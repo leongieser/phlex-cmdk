@@ -3,8 +3,10 @@ module Cmdk
   # `id`, `aria-controls`, `aria-labelledby` and `aria-activedescendant`
   # are wired up by the JS runtime at init.
   class Input < Base
-    def initialize(value: nil, **attributes)
+    # `enterkeyhint:` labels the mobile keyboard's action key (pass nil to omit).
+    def initialize(value: nil, enterkeyhint: 'go', **attributes)
       @value = value
+      @enterkeyhint = enterkeyhint
       @attributes = attributes
     end
 
@@ -24,7 +26,8 @@ module Cmdk
         spellcheck: 'false',
         role: 'combobox',
         aria_autocomplete: 'list',
-        aria_expanded: 'true'
+        aria_expanded: 'true',
+        enterkeyhint: @enterkeyhint
       }
     end
   end

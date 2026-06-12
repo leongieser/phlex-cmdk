@@ -843,6 +843,8 @@ function onClick(e) {
 
 function onPointerMove(e) {
   if (!(e.target instanceof Element)) return
+  // Touch "hover" is just scrolling — don't drag the selection under the finger.
+  if (e.pointerType === 'touch') return
   const item = e.target.closest(ITEM_SELECTOR)
   const root = item?.closest(ROOT_SELECTOR)
   if (!item || !root) return
@@ -925,14 +927,22 @@ function injectBaseStyles() {
 :where(dialog[cmdk-dialog]) {
   position: fixed;
   inset: 0;
-  margin: 16vh auto auto;
+  margin: 16dvh auto auto;
   width: fit-content;
   height: fit-content;
   max-width: calc(100vw - 2rem);
-  max-height: calc(84vh - 2rem);
+  max-height: calc(84dvh - 2rem);
 }
 :where(dialog[cmdk-dialog])::backdrop {
   background: transparent;
+}
+@media (max-width: 640px) {
+  :where(dialog[cmdk-dialog]) {
+    margin: 0.5rem auto auto;
+    width: calc(100vw - 1rem);
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100dvh - 1rem);
+  }
 }`
   document.head.appendChild(style)
 }

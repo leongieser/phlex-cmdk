@@ -83,6 +83,13 @@ class InputTest < Minitest::Test
     assert_includes html, 'autocomplete="off"'
     assert_includes html, 'spellcheck="false"'
     assert_includes html, 'placeholder="Search..."'
+    assert_includes html, 'enterkeyhint="go"'
+  end
+
+  def test_enterkeyhint_can_be_omitted
+    html = render { Cmdk::Input(enterkeyhint: nil) }
+
+    refute_includes html, 'enterkeyhint'
   end
 end
 

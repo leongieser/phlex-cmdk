@@ -110,10 +110,17 @@ Extensions beyond the React API: `Cmdk::Item(href:)` visits a URL on select (via
 present), and clearing the search restores the server-rendered order (React leaves the
 sorted order in place).
 
-## Demo & tests
+## Demo, previews & tests
 
 ```sh
 bundle install
-bundle exec rake test   # component markup contract tests
-bundle exec rake demo   # builds Tailwind CSS, serves http://localhost:9292
+bundle exec rake test      # component markup contract tests
+bundle exec rake demo      # builds Tailwind CSS, serves http://localhost:9292
+bundle exec rake lookbook  # Lookbook component previews on http://localhost:9293
 ```
+
+The [Lookbook](https://lookbook.build) previews live in [lookbook/](lookbook/) — Lookbook is a
+Rails engine, so a minimal single-file Rails host ([lookbook/app.rb](lookbook/app.rb)) boots it;
+the gem itself stays Rails-free. Scenarios cover the default menu (with live params for
+placeholder/loop/vim bindings), ungrouped items, `should_filter: false`, force-mounted
+items, loading, the empty state, the event log, and the ⌘K dialog.

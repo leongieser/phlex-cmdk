@@ -16,3 +16,8 @@ desc 'Run the demo app on http://localhost:9292'
 task demo: :css do
   sh 'bundle exec rackup demo/config.ru'
 end
+
+desc 'Run Lookbook component previews on http://localhost:9293'
+task lookbook: :css do
+  sh 'bundle exec rackup lookbook/config.ru -p 9293'
+end

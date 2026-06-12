@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @source '../app.rb';
+@source '../../lookbook/scenarios.rb';
 
 /*
  * A Vercel-flavored cmdk theme written with Tailwind v4 @apply rules against

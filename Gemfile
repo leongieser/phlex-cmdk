@@ -9,4 +9,10 @@ group :development, :test do
   gem 'rackup'
   gem 'rake'
   gem 'tailwindcss-ruby'
+
+  # Lookbook component previews (Rails host lives in lookbook/)
+  gem 'actionpack'
+  gem 'lookbook'
+  gem 'phlex-rails'
+  gem 'railties'
 end

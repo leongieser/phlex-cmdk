@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%# Built demo theme + runtime are inlined so no asset pipeline is needed.
+      Run `bundle exec rake css` if the stylesheet is missing. %>
+  <% css_path = File.expand_path('../demo/public/application.css', Rails.root) %>
+  <% if File.exist?(css_path) %>
+    <style><%= File.read(css_path).html_safe %></style>
+  <% else %>
+    <style>body::before { content: "Missing demo/public/application.css — run: bundle exec rake css"; color: red; }</style>
+  <% end %>
+  <script type="module"><%= File.read(Cmdk.javascript_path).html_safe %></script>
+</head>
+<body class="bg-neutral-100 antialiased">
+  <main class="flex min-h-screen items-start justify-center px-4 py-10">
+    <%= yield %>
+  </main>
+</body>
+</html>

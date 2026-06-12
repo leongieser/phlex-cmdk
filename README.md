@@ -180,6 +180,19 @@ See [demo/assets/application.css](demo/assets/application.css) for a complete Ta
 theme, and [demo/assets/themes.css](demo/assets/themes.css) for ports of the original cmdk
 Linear and Raycast themes — all three are browsable in Lookbook under "Themes".
 
+**Dark mode** — the shipped themes declare every color with `light-dark()` and resolve
+through `color-scheme`, giving the standard tri-state:
+
+```css
+:root { color-scheme: light dark; }              /* "system": the OS decides */
+:root[data-theme='light'] { color-scheme: light; }
+:root[data-theme='dark']  { color-scheme: dark; }
+```
+
+Leave `data-theme` off (or `system`) to follow the OS preference; set
+`<html data-theme="dark">` to force a side — no duplicated selectors, one declaration
+per color. The Lookbook previews expose this as a Theme dropdown in the preview toolbar.
+
 ## React → Phlex parity map
 
 | React | Here |

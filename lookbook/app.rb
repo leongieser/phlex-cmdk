@@ -30,6 +30,8 @@ module CmdkPhlex
     config.lookbook.preview_paths = [File.expand_path('previews', __dir__)]
     config.lookbook.preview_layout = 'preview'
     config.lookbook.live_updates = false
+    # Theme dropdown in the preview toolbar; the layout maps it to data-theme.
+    config.lookbook.preview_display_options = { theme: %w[system light dark] }
   end
 end
 

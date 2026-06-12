@@ -1,14 +1,35 @@
 /*
  * Ports of the original cmdk themes (website/styles/cmdk/*.scss) for the
- * Phlex port — same [cmdk-*] attribute contract, light palette, plus styles
- * for the [cmdk-footer] / [cmdk-footer-hint] extension.
+ * Phlex port — same [cmdk-*] attribute contract, plus styles for the
+ * [cmdk-footer] / [cmdk-footer-hint] extension.
+ *
+ * Theming: every color is declared with light-dark(). `color-scheme` decides
+ * which side applies — "system" by default, forced via data-theme on <html>.
  */
+
+:root {
+  color-scheme: light dark;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* Page canvas for the demo and Lookbook previews. */
+.cmdk-canvas {
+  background: light-dark(#f5f5f5, #0b0b0d);
+  color: light-dark(#171717, #e4e4e7);
+}
 
 /* ── Linear ─────────────────────────────────────────────────────────── */
 
 .cmdk-linear[cmdk-root] {
   width: 100%;
-  background: #ffffff;
+  background: light-dark(#ffffff, #27282b);
   border-radius: 8px;
   overflow: hidden;
   padding: 0;
@@ -22,15 +43,15 @@
   padding: 20px;
   outline: none;
   background: transparent;
-  color: #282a30;
-  border-bottom: 1px solid #e9e8ea;
+  color: light-dark(#282a30, #ededef);
+  border-bottom: 1px solid light-dark(#e9e8ea, #3c3d40);
   border-radius: 0;
   caret-color: #6e5ed2;
   margin: 0;
 }
 
 .cmdk-linear [cmdk-input]::placeholder {
-  color: #8a8f98;
+  color: light-dark(#8a8f98, #6f7177);
 }
 
 .cmdk-linear [cmdk-item] {
@@ -42,13 +63,13 @@
   align-items: center;
   gap: 12px;
   padding: 0 16px;
-  color: #282a30;
+  color: light-dark(#282a30, #ededef);
   user-select: none;
   position: relative;
 }
 
 .cmdk-linear [cmdk-item][data-selected='true'] {
-  background: #f0f0f1;
+  background: light-dark(#f0f0f1, #313135);
 }
 
 .cmdk-linear [cmdk-item][data-selected='true']::after {
@@ -61,12 +82,12 @@
 }
 
 .cmdk-linear [cmdk-item][data-disabled='true'] {
-  color: #b9bbc1;
+  color: light-dark(#b9bbc1, #55565b);
   cursor: not-allowed;
 }
 
 .cmdk-linear [cmdk-item]:active {
-  background: #e9e8ea;
+  background: light-dark(#e9e8ea, #37383c);
 }
 
 .cmdk-linear [cmdk-list] {
@@ -80,7 +101,7 @@
 .cmdk-linear [cmdk-group-heading] {
   user-select: none;
   font-size: 12px;
-  color: #6f7177;
+  color: light-dark(#6f7177, #8a8f98);
   padding: 8px;
   display: flex;
   align-items: center;
@@ -93,7 +114,7 @@
   justify-content: center;
   height: 64px;
   white-space: pre-wrap;
-  color: #6f7177;
+  color: light-dark(#6f7177, #8a8f98);
 }
 
 .cmdk-linear [cmdk-footer] {
@@ -102,9 +123,9 @@
   gap: 8px;
   height: 40px;
   padding: 0 12px;
-  border-top: 1px solid #e9e8ea;
+  border-top: 1px solid light-dark(#e9e8ea, #3c3d40);
   font-size: 12px;
-  color: #6f7177;
+  color: light-dark(#6f7177, #8a8f98);
 }
 
 .cmdk-linear [cmdk-footer-hint] {
@@ -116,8 +137,8 @@
 
 .cmdk-linear [cmdk-footer-hint] kbd {
   font-size: 12px;
-  color: #6f7177;
-  background: #f0f0f1;
+  color: light-dark(#6f7177, #8a8f98);
+  background: light-dark(#f0f0f1, #313135);
   border-radius: 4px;
   padding: 2px 5px;
 }
@@ -126,17 +147,17 @@
 
 .cmdk-raycast[cmdk-root] {
   width: 100%;
-  background: #fdfcfd;
+  background: light-dark(#fdfcfd, #1c1c1f);
   border-radius: 12px;
   padding: 8px 0 48px; /* bottom inset hosts the absolute footer */
-  border: 1px solid #e4e2e4;
+  border: 1px solid light-dark(#e4e2e4, #2e2e32);
   box-shadow: 0 16px 70px rgb(0 0 0 / 20%);
   position: relative;
 }
 
 .cmdk-raycast kbd {
-  background: #f0f0f1;
-  color: #6f7177;
+  background: light-dark(#f0f0f1, #2e2e32);
+  color: light-dark(#6f7177, #a0a0a8);
   min-width: 20px;
   height: 20px;
   border-radius: 4px;
@@ -154,12 +175,12 @@
   padding: 8px 16px;
   outline: none;
   background: transparent;
-  color: #282a30;
-  border-bottom: 1px solid #e4e2e4;
+  color: light-dark(#282a30, #ededef);
+  border-bottom: 1px solid light-dark(#e4e2e4, #2e2e32);
 }
 
 .cmdk-raycast [cmdk-input]::placeholder {
-  color: #8a8f98;
+  color: light-dark(#8a8f98, #6f7177);
 }
 
 .cmdk-raycast [cmdk-list] {
@@ -181,16 +202,16 @@
   align-items: center;
   gap: 8px;
   padding: 0 8px;
-  color: #282a30;
+  color: light-dark(#282a30, #ededef);
   user-select: none;
 }
 
 .cmdk-raycast [cmdk-item][data-selected='true'] {
-  background: #ededee;
+  background: light-dark(#ededee, #2c2c30);
 }
 
 .cmdk-raycast [cmdk-item][data-disabled='true'] {
-  color: #b9bbc1;
+  color: light-dark(#b9bbc1, #55565b);
   cursor: not-allowed;
 }
 
@@ -204,21 +225,21 @@
 
 .cmdk-raycast .cmdk-raycast-meta {
   margin-left: auto;
-  color: #6f7177;
+  color: light-dark(#6f7177, #8a8f98);
   font-size: 13px;
 }
 
 .cmdk-raycast [cmdk-separator] {
   height: 1px;
   width: 100%;
-  background: #e9e8ea;
+  background: light-dark(#e9e8ea, #2e2e32);
   margin: 4px 0;
 }
 
 .cmdk-raycast [cmdk-group-heading] {
   user-select: none;
   font-size: 12px;
-  color: #6f7177;
+  color: light-dark(#6f7177, #8a8f98);
   padding: 8px;
   display: flex;
   align-items: center;
@@ -231,7 +252,7 @@
   justify-content: center;
   height: 64px;
   white-space: pre-wrap;
-  color: #6f7177;
+  color: light-dark(#6f7177, #8a8f98);
 }
 
 .cmdk-raycast [cmdk-footer] {
@@ -241,14 +262,14 @@
   gap: 8px;
   width: 100%;
   position: absolute;
-  background: #fdfcfd;
+  background: light-dark(#fdfcfd, #1c1c1f);
   bottom: 0;
   left: 0;
   padding: 8px;
-  border-top: 1px solid #e4e2e4;
+  border-top: 1px solid light-dark(#e4e2e4, #2e2e32);
   border-radius: 0 0 12px 12px;
   font-size: 13px;
-  color: #6f7177;
+  color: light-dark(#6f7177, #8a8f98);
 }
 
 .cmdk-raycast [cmdk-footer-hint] {
@@ -256,7 +277,7 @@
   align-items: center;
   gap: 4px;
   margin-left: auto;
-  color: #282a30;
+  color: light-dark(#282a30, #ededef);
 }
 
 .cmdk-raycast [cmdk-footer-hint][data-empty] {

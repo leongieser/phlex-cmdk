@@ -111,9 +111,9 @@ module Scenarios
       div(class: 'flex flex-col items-center gap-4') do
         button(
           id: 'cmdk-dialog-trigger',
-          class: 'rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm shadow-sm hover:bg-neutral-50',
+          class: 'demo-panel px-4 py-2 text-sm shadow-sm',
         ) { 'Open Command Menu' }
-        p(class: 'text-xs text-neutral-500') { 'or press ⌘K / Ctrl+K — Esc or backdrop click closes' }
+        p(class: 'text-xs demo-hint') { 'or press ⌘K / Ctrl+K — Esc or backdrop click closes' }
         script { raw safe(<<~JS) }
           document.getElementById('cmdk-dialog-trigger').addEventListener('click', () => {
             Cmdk.openDialog(document.querySelector('dialog[cmdk-dialog]'))
@@ -140,12 +140,12 @@ module Scenarios
   class ScopedSearch < Phlex::HTML
     def view_template
       div(class: 'flex w-[28rem] max-w-full flex-col gap-3') do
-        div(class: 'flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-500') do
+        div(class: 'flex flex-wrap items-center gap-x-2 gap-y-1 text-xs demo-hint') do
           plain 'Type'
-          code(class: 'rounded bg-neutral-200 px-1') { '/' }
+          code(class: 'demo-chip') { '/' }
           plain 'to pick a scope, Enter to pin it as a pill, Backspace on empty input to leave.'
           plain 'Typing it out ('
-          code(class: 'rounded bg-neutral-200 px-1') { '/user ' }
+          code(class: 'demo-chip') { '/user ' }
           plain ') works too.'
         end
 
@@ -245,7 +245,7 @@ module Scenarios
       div(class: 'flex w-[28rem] max-w-full flex-col gap-4') do
         render Menu.new
         pre(id: 'event-log',
-            class: 'h-32 overflow-y-auto rounded-lg border border-neutral-200 bg-white p-3 text-xs text-neutral-600')
+            class: 'demo-panel h-32 overflow-y-auto p-3 text-xs')
         script { raw safe(<<~JS) }
           const log = document.getElementById('event-log')
           for (const type of ['cmdk-item-select', 'cmdk-value-change', 'cmdk-search-change']) {

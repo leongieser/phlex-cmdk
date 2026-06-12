@@ -18,7 +18,7 @@ module Views
           script(type: 'module', src: 'https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/+esm')
           script(type: 'module', src: '/cmdk.js')
         end
-        body(class: 'min-h-screen bg-neutral-100 text-neutral-900 antialiased') do
+        body(class: 'cmdk-canvas min-h-screen antialiased') do
           yield_content(&block)
         end
       end
@@ -37,11 +37,11 @@ module Views
         main(class: 'mx-auto flex max-w-2xl flex-col items-center gap-8 px-4 py-16') do
           header(class: 'text-center') do
             h1(class: 'text-3xl font-semibold tracking-tight') { '⌘K for Phlex' }
-            p(class: 'mt-2 text-sm text-neutral-500') do
+            p(class: 'demo-hint mt-2 text-sm') do
               plain 'A Phlex + vanilla JS port of '
               a(href: 'https://cmdk.paco.me', class: 'underline') { 'cmdk' }
               plain ' — press '
-              kbd(class: 'rounded border border-neutral-300 bg-white px-1.5 py-0.5 font-sans text-xs') { '⌘K' }
+              kbd(class: 'demo-chip px-1.5 py-0.5 font-sans text-xs') { '⌘K' }
               plain ' for the dialog version.'
             end
           end
@@ -50,7 +50,7 @@ module Views
 
           section(class: 'w-full max-w-xl') do
             h2(class: 'mb-2 text-xs font-medium uppercase tracking-wide text-neutral-400') { 'Events' }
-            pre(id: 'event-log', class: 'h-28 overflow-y-auto rounded-lg border border-neutral-200 bg-white p-3 text-xs text-neutral-600')
+            pre(id: 'event-log', class: 'demo-panel h-28 overflow-y-auto p-3 text-xs')
           end
 
           command_dialog

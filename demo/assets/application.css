@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+@source '../app.rb';
+
+/*
+ * A Vercel-flavored cmdk theme written with Tailwind v4 @apply rules against
+ * the cmdk-* attribute contract. The same selectors work for the React
+ * package — themes are interchangeable between the two.
+ */
+
+.cmdk-vercel[cmdk-root] {
+  @apply rounded-xl border border-neutral-200 bg-white p-2 shadow-2xl;
+}
+
+.cmdk-vercel [cmdk-input] {
+  @apply w-full border-b border-neutral-100 bg-transparent px-2 pt-1 pb-3 text-base text-neutral-900 outline-none placeholder:text-neutral-400;
+}
+
+.cmdk-vercel [cmdk-list] {
+  @apply overflow-y-auto overscroll-contain pt-2;
+  height: min(330px, calc(var(--cmdk-list-height) + 8px));
+  max-height: 330px;
+  transition: height 100ms ease;
+}
+
+.cmdk-vercel [cmdk-item] {
+  @apply flex h-10 cursor-pointer items-center gap-2 rounded-lg px-3 text-sm text-neutral-700 select-none;
+  content-visibility: auto;
+}
+
+.cmdk-vercel [cmdk-item][data-selected='true'] {
+  @apply bg-neutral-100 text-neutral-950;
+}
+
+.cmdk-vercel [cmdk-item][data-disabled='true'] {
+  @apply cursor-not-allowed text-neutral-300;
+}
+
+.cmdk-vercel [cmdk-item]:active {
+  @apply bg-neutral-200;
+}
+
+.cmdk-vercel [cmdk-group-heading] {
+  @apply px-3 pt-2 pb-1.5 text-xs font-medium text-neutral-400 select-none;
+}
+
+.cmdk-vercel [cmdk-separator] {
+  @apply mx-1 my-2 h-px bg-neutral-100;
+}
+
+.cmdk-vercel [cmdk-empty] {
+  @apply flex h-12 items-center justify-center text-sm text-neutral-400;
+}
+
+.cmdk-vercel [cmdk-loading] {
+  @apply flex h-12 items-center justify-center text-sm text-neutral-400;
+}
+
+/* Native <dialog> replaces the Radix overlay/content pair. */
+dialog.cmdk-dialog-frame {
+  @apply fixed top-[20vh] mx-auto w-auto max-w-full border-0 bg-transparent p-0;
+  animation: cmdk-dialog-in 120ms ease;
+}
+
+dialog.cmdk-dialog-frame::backdrop {
+  @apply bg-neutral-900/40;
+  backdrop-filter: blur(2px);
+}
+
+@keyframes cmdk-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

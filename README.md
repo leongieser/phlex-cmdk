@@ -1,0 +1,119 @@
+# ⌘K for Phlex <img src="https://img.shields.io/badge/port%20of-cmdk-blue" align="right">
+
+A feature-parity port of the [cmdk](https://cmdk.paco.me) React command menu for Ruby projects
+using [Phlex](https://www.phlex.fun), [Turbo](https://turbo.hotwired.dev) and Tailwind.
+
+Two pieces:
+
+- **Phlex components** (`Cmdk::Root`, `Input`, `List`, `Item`, `Group`, `Separator`, `Empty`,
+  `Loading`, `Dialog`) render the exact same markup contract as the React package — the
+  `cmdk-*` attributes and ARIA roles. Existing cmdk themes work unchanged.
+- **One dependency-free ES module** ([assets/js/cmdk.js](assets/js/cmdk.js)) ports
+  `command-score` and the React runtime: fuzzy filtering, score-based sorting of items and
+  groups, keyboard navigation (arrows, `ctrl+n/j/p/k` vim bindings, Home/End, `alt` = group
+  jump, `meta` = first/last), pointer selection, empty state, IME composition guard,
+  `--cmdk-list-height`, and a native `<dialog>` command palette.
+
+No Stimulus required (it composes fine with it). The runtime uses event delegation and
+MutationObservers, so it survives Turbo navigation and morphing, and items appended via
+Turbo Streams are registered, filtered and sorted automatically.
+
+## Install
+
+```ruby
+# Gemfile
+gem 'cmdk-phlex', path: '...' # or from your git source
+```
+
+Serve or bundle the runtime once per page. Its path is exposed as `Cmdk.javascript_path`
+(copy it into your assets, pin it in your importmap, or serve it directly):
+
+```html
+<script type="module" src="/cmdk.js"></script> <!-- auto-starts on import -->
+```
+
+## Use
+
+```ruby
+class CommandMenu < Phlex::HTML
+  def view_template
+    Cmdk::Root(label: 'Global Command Menu', loop: true) do
+      Cmdk::Input(placeholder: 'What do you need?')
+      Cmdk::List() do
+        Cmdk::Empty { 'No results found.' }
+
+        Cmdk::Group(heading: 'Suggestions') do
+          Cmdk::Item(value: 'linear', keywords: %w[issue tracker]) { 'Linear' }
+          Cmdk::Item(value: 'figma', disabled: true) { 'Figma' }
+        end
+
+        Cmdk::Separator()
+        Cmdk::Item(href: '/settings') { 'Settings' } # Turbo.visit on select
+      end
+    end
+  end
+end
+```
+
+React's callbacks are DOM events; all bubble, so listen on the root, the document, or via a
+Stimulus action (`data-action="cmdk-item-select->palette#run"`):
+
+```js
+root.addEventListener('cmdk-item-select', (e) => run(e.detail.value)) // cancelable
+root.addEventListener('cmdk-value-change', (e) => preview(e.detail.value))
+root.addEventListener('cmdk-search-change', (e) => e.detail.search)
+```
+
+### Dialog
+
+```ruby
+Cmdk::Dialog(label: 'Command Menu', hotkey: 'k') do  # ⌘K / ctrl+K toggles it
+  Cmdk::Input()
+  Cmdk::List() { ... }
+end
+```
+
+Renders a native `<dialog cmdk-dialog>`: Escape and backdrop clicks close it, and
+`Cmdk.openDialog(el)` / `Cmdk.closeDialog(el)` toggle it programmatically. Style the
+backdrop with `dialog[cmdk-dialog]::backdrop` (replaces Radix's `[cmdk-overlay]`).
+
+### Styling
+
+Unstyled, exactly like the React package. Target the attribute contract from Tailwind:
+
+```css
+[cmdk-item][data-selected='true'] { @apply bg-neutral-100; }
+[cmdk-group-heading]              { @apply px-3 text-xs text-neutral-400; }
+[cmdk-list] { height: min(330px, var(--cmdk-list-height)); transition: height 100ms ease; }
+```
+
+See [demo/assets/application.css](demo/assets/application.css) for a complete Tailwind v4 theme.
+
+## React → Phlex parity map
+
+| React | Here |
+|---|---|
+| `<Command label shouldFilter loop vimBindings disablePointerSelection defaultValue>` | `Cmdk::Root(label:, should_filter:, loop:, vim_bindings:, disable_pointer_selection:, default_value:)` |
+| `<Command value onValueChange>` (controlled) | `Cmdk.setValue(root, v)` + `cmdk-value-change` event |
+| `filter={fn}` | `Cmdk.setFilter(fn)` or `Cmdk.setFilter(root, fn)` — same `(value, search, keywords) → 0..1` signature |
+| `<Command.Input value onValueChange>` | `Cmdk::Input(value:)`; `Cmdk.setSearch(root, q)`; `cmdk-search-change` |
+| `<Command.List label>` | `Cmdk::List(label:)` |
+| `<Command.Item value keywords disabled forceMount onSelect>` | `Cmdk::Item(value:, keywords:, disabled:, force_mount:)`; `cmdk-item-select` event; value inferred from text content when omitted |
+| `<Command.Group heading value forceMount>` | `Cmdk::Group(heading:, value:, force_mount:)` |
+| `<Command.Separator alwaysRender>` | `Cmdk::Separator(always_render:)` |
+| `<Command.Empty>` / `<Command.Loading progress label>` | `Cmdk::Empty()` / `Cmdk::Loading(progress:, label:)` |
+| `<Command.Dialog open onOpenChange container>` | `Cmdk::Dialog(open:, hotkey:)` — native `<dialog>`, no portal needed |
+| `useCommandState(selector)` | `Cmdk.getState(root)` + the events above |
+| vim bindings, Home/End, alt/meta arrows, IME guard | identical, ported from the same keydown logic |
+
+Extensions beyond the React API: `Cmdk::Item(href:)` visits a URL on select (via Turbo when
+present), and clearing the search restores the server-rendered order (React leaves the
+sorted order in place).
+
+## Demo & tests
+
+```sh
+bundle install
+bundle exec rake test   # component markup contract tests
+bundle exec rake demo   # builds Tailwind CSS, serves http://localhost:9292
+```

@@ -1,0 +1,199 @@
+require 'minitest/autorun'
+require_relative '../lib/cmdk'
+
+# Renders a block as a Phlex view so kit methods (Cmdk::Item(...)) work.
+def render(&block)
+  Class.new(Phlex::HTML) { define_method(:view_template, &block) }.new.call
+end
+
+class RootTest < Minitest::Test
+  def test_renders_markup_contract
+    html = render do
+      Cmdk::Root(label: 'Menu') { Cmdk::Input() }
+    end
+
+    assert_includes html, 'cmdk-root=""'
+    assert_includes html, 'tabindex="-1"'
+    assert_includes html, '<label cmdk-label='
+    assert_includes html, '>Menu</label>'
+    # Accessible label is visually hidden, like React's srOnlyStyles
+    assert_includes html, 'position:absolute;width:1px;height:1px'
+  end
+
+  def test_options_become_data_attributes
+    html = render do
+      Cmdk::Root(should_filter: false, loop: true, vim_bindings: false,
+                 disable_pointer_selection: true, default_value: 'b')
+    end
+
+    assert_includes html, 'data-cmdk-should-filter="false"'
+    assert_includes html, 'data-cmdk-loop=""'
+    assert_includes html, 'data-cmdk-vim-bindings="false"'
+    assert_includes html, 'data-cmdk-disable-pointer-selection=""'
+    assert_includes html, 'data-cmdk-default-value="b"'
+  end
+
+  def test_defaults_render_no_data_attributes
+    html = render { Cmdk::Root() }
+
+    refute_includes html, 'data-cmdk-should-filter'
+    refute_includes html, 'data-cmdk-loop'
+    refute_includes html, 'data-cmdk-vim-bindings'
+  end
+
+  def test_merges_custom_attributes
+    html = render { Cmdk::Root(class: 'raycast', id: 'menu') }
+
+    assert_includes html, 'class="raycast"'
+    assert_includes html, 'id="menu"'
+  end
+end
+
+class InputTest < Minitest::Test
+  def test_renders_combobox_contract
+    html = render { Cmdk::Input(placeholder: 'Search...') }
+
+    assert_includes html, 'cmdk-input=""'
+    assert_includes html, 'role="combobox"'
+    assert_includes html, 'aria-autocomplete="list"'
+    assert_includes html, 'aria-expanded="true"'
+    assert_includes html, 'autocomplete="off"'
+    assert_includes html, 'spellcheck="false"'
+    assert_includes html, 'placeholder="Search..."'
+  end
+end
+
+class ListTest < Minitest::Test
+  def test_renders_listbox_with_sizer
+    html = render { Cmdk::List() { Cmdk::Item { 'A' } } }
+
+    assert_includes html, 'cmdk-list=""'
+    assert_includes html, 'role="listbox"'
+    assert_includes html, 'aria-label="Suggestions"'
+    assert_includes html, 'cmdk-list-sizer=""'
+  end
+end
+
+class ItemTest < Minitest::Test
+  def test_renders_option_contract
+    html = render { Cmdk::Item { 'Apple' } }
+
+    assert_includes html, 'cmdk-item=""'
+    assert_includes html, 'role="option"'
+    assert_includes html, 'aria-disabled="false"'
+    assert_includes html, 'aria-selected="false"'
+    assert_includes html, 'data-disabled="false"'
+    assert_includes html, 'data-selected="false"'
+    assert_includes html, '>Apple</div>'
+  end
+
+  def test_value_keywords_disabled_force_mount
+    html = render do
+      Cmdk::Item(value: 'apple', keywords: %w[fruit red], disabled: true, force_mount: true) { 'Apple' }
+    end
+
+    assert_includes html, 'data-value="apple"'
+    assert_includes html, 'data-cmdk-keywords="fruit red"'
+    assert_includes html, 'aria-disabled="true"'
+    assert_includes html, 'data-disabled="true"'
+    assert_includes html, 'data-cmdk-force-mount=""'
+  end
+
+  def test_href_extension
+    html = render { Cmdk::Item(href: '/settings') { 'Settings' } }
+
+    assert_includes html, 'data-href="/settings"'
+  end
+end
+
+class GroupTest < Minitest::Test
+  def test_renders_heading_and_items_container
+    html = render { Cmdk::Group(heading: 'Fruits') { Cmdk::Item { 'Apple' } } }
+
+    assert_includes html, 'cmdk-group=""'
+    assert_includes html, 'role="presentation"'
+    assert_includes html, 'data-value="Fruits"'
+    assert_includes html, 'cmdk-group-heading=""'
+    assert_includes html, 'aria-hidden="true"'
+    assert_includes html, 'cmdk-group-items=""'
+    assert_includes html, 'role="group"'
+    assert_match(/aria-labelledby="cmdk-heading-\h{8}"/, html)
+  end
+
+  def test_without_heading_uses_explicit_value
+    html = render { Cmdk::Group(value: 'misc') { Cmdk::Item { 'A' } } }
+
+    assert_includes html, 'data-value="misc"'
+    refute_includes html, 'cmdk-group-heading'
+    refute_includes html, 'aria-labelledby'
+  end
+end
+
+class SeparatorTest < Minitest::Test
+  def test_renders_separator
+    html = render { Cmdk::Separator() }
+
+    assert_includes html, 'cmdk-separator=""'
+    assert_includes html, 'role="separator"'
+    refute_includes html, 'data-cmdk-always-render'
+  end
+
+  def test_always_render
+    html = render { Cmdk::Separator(always_render: true) }
+
+    assert_includes html, 'data-cmdk-always-render=""'
+  end
+end
+
+class EmptyTest < Minitest::Test
+  def test_renders_hidden_by_default
+    html = render { Cmdk::Empty { 'No results found.' } }
+
+    assert_includes html, 'cmdk-empty=""'
+    assert_includes html, 'role="presentation"'
+    assert_includes html, 'style="display:none"'
+    assert_includes html, 'No results found.'
+  end
+end
+
+class LoadingTest < Minitest::Test
+  def test_renders_progressbar
+    html = render { Cmdk::Loading(progress: 50) { 'Fetching...' } }
+
+    assert_includes html, 'cmdk-loading=""'
+    assert_includes html, 'role="progressbar"'
+    assert_includes html, 'aria-valuenow="50"'
+    assert_includes html, 'aria-valuemin="0"'
+    assert_includes html, 'aria-valuemax="100"'
+    assert_includes html, 'aria-label="Loading..."'
+    assert_includes html, '<div aria-hidden="true">Fetching...</div>'
+  end
+end
+
+class DialogTest < Minitest::Test
+  def test_renders_native_dialog_wrapping_root
+    html = render do
+      Cmdk::Dialog(label: 'Command Menu', hotkey: 'k', loop: true) { Cmdk::Input() }
+    end
+
+    assert_includes html, '<dialog cmdk-dialog=""'
+    assert_includes html, 'aria-label="Command Menu"'
+    assert_includes html, 'data-cmdk-dialog-hotkey="k"'
+    assert_includes html, 'cmdk-root=""'
+    assert_includes html, 'data-cmdk-loop=""'
+    assert_includes html, 'cmdk-input=""'
+  end
+
+  def test_open_renders_open_marker
+    html = render { Cmdk::Dialog(open: true) }
+
+    assert_includes html, 'data-cmdk-open=""'
+  end
+end
+
+class JavascriptTest < Minitest::Test
+  def test_runtime_asset_exists
+    assert File.exist?(Cmdk.javascript_path)
+    assert_includes File.read(Cmdk.javascript_path), 'commandScore'
+  end
+end

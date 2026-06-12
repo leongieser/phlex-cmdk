@@ -77,6 +77,46 @@ Renders a native `<dialog cmdk-dialog>`: Escape and backdrop clicks close it, an
 `Cmdk.openDialog(el)` / `Cmdk.closeDialog(el)` toggle it programmatically. Style the
 backdrop with `dialog[cmdk-dialog]::backdrop` (replaces Radix's `[cmdk-overlay]`).
 
+### Scoped search
+
+cmdk deliberately keeps its filter vanilla; modes like `user: <query>` are userland.
+This port gives you both levels:
+
+**Declarative scopes** — declare them on the root, tag items or groups:
+
+```ruby
+Cmdk::Root(label: 'Search', scopes: %w[user doc]) do   # triggers "user:" / "doc:"
+  Cmdk::Input()
+  Cmdk::List() do
+    Cmdk::Group(heading: 'Users', scope: 'user') { ... }
+    Cmdk::Group(heading: 'Docs',  scope: 'doc')  { ... }
+  end
+end
+```
+
+Typing `user: le` matches only user-scoped items against `le`. The root gets
+`data-cmdk-active-scope="user"` (style a chip/badge off it), and events carry the
+parsed parts — ideal for a server-backed lookup in a Turbo app, since streamed-in
+items register automatically:
+
+```js
+root.addEventListener('cmdk-scope-change', (e) => {
+  if (e.detail.scope === 'user') frame.src = `/search/users?q=${e.detail.query}`
+})
+```
+
+Custom triggers: `scopes: { 'user' => '@' }`. Deleting the trigger text exits the scope.
+
+**Fully custom syntax** — the filter function receives the item element as a 4th
+argument (an extension over the React signature), so any operator grammar is possible:
+
+```js
+Cmdk.setFilter(root, (value, query, keywords, item) => {
+  // parse your own syntax here; return 0 to hide, 0..1 to rank
+  return Cmdk.defaultFilter(value, query, keywords)
+})
+```
+
 ### Styling
 
 Unstyled, exactly like the React package. Target the attribute contract from Tailwind:

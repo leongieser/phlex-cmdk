@@ -15,7 +15,14 @@
  * Events (all bubble from within the root):
  *   cmdk-item-select   detail: { value }  — item chosen via click or Enter (cancelable)
  *   cmdk-value-change  detail: { value }  — selection (highlight) changed
- *   cmdk-search-change detail: { search } — search query changed
+ *   cmdk-search-change detail: { search, scope, query } — search query changed
+ *   cmdk-scope-change  detail: { scope, query } — active search scope entered/left
+ *
+ * Scoped search: declare scopes on the root (`data-cmdk-scopes="user doc"`, or a
+ * JSON object mapping scope names to custom trigger strings) and tag items or
+ * groups with `data-cmdk-scope="user"`. Typing `user: ...` then only matches
+ * items in that scope, with the text after the trigger as the query. Listen to
+ * cmdk-search-change to fetch scoped results from the server (e.g. via Turbo).
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -143,6 +150,55 @@ const knownDialogs = new WeakSet()
 let globalFilter = defaultFilter
 let uid = 0
 
+/** Scope declarations on the root: { name: trigger }. `"user doc"` → user:/doc: triggers. */
+function scopesOf(root) {
+  const attr = root.getAttribute('data-cmdk-scopes')
+  if (!attr) return null
+  let scopes = null
+  if (attr.trim().startsWith('{')) {
+    try {
+      scopes = JSON.parse(attr)
+    } catch {
+      scopes = null
+    }
+  }
+  if (!scopes) {
+    scopes = {}
+    for (const name of attr.split(/\s+/).filter(Boolean)) scopes[name] = `${name}:`
+  }
+  return scopes
+}
+
+/** Split the raw search into an active scope and the remaining query. */
+function parseScope(root, search) {
+  const scopes = scopesOf(root)
+  if (scopes && search) {
+    const entries = Object.entries(scopes).sort((a, b) => b[1].length - a[1].length)
+    for (const [name, trigger] of entries) {
+      if (trigger && search.startsWith(trigger)) {
+        return { scope: name, query: search.slice(trigger.length).replace(/^\s+/, '') }
+      }
+    }
+  }
+  return { scope: null, query: search }
+}
+
+/** The scope an item belongs to (own attribute or inherited from its group). */
+function itemScope(item) {
+  return item.closest('[data-cmdk-scope]')?.getAttribute('data-cmdk-scope') ?? null
+}
+
+/** Re-parse the search, mirror the active scope onto the root, emit on change. */
+function syncScope(inst) {
+  const { scope, query } = parseScope(inst.root, inst.search)
+  const changed = (inst.scope ?? null) !== scope
+  inst.scope = scope
+  inst.query = query
+  if (scope) inst.root.setAttribute('data-cmdk-active-scope', scope)
+  else inst.root.removeAttribute('data-cmdk-active-scope')
+  return changed
+}
+
 function config(root) {
   return {
     shouldFilter: root.getAttribute('data-cmdk-should-filter') !== 'false',
@@ -170,6 +226,8 @@ function createInstance(root) {
   const inst = {
     root,
     search: '',
+    scope: null, // active search scope (see scopesOf/parseScope)
+    query: '', // search with any scope trigger stripped
     value: (root.getAttribute('data-cmdk-default-value') || '').trim(),
     count: 0,
     filter: null, // per-root custom filter, see setFilter()
@@ -185,6 +243,7 @@ function createInstance(root) {
   registerNodes(inst)
   // A server-rendered input value is the initial search (React: <Command.Input value>).
   inst.search = root.querySelector(INPUT_SELECTOR)?.value || ''
+  syncScope(inst)
   filterItems(inst)
   sortItems(inst)
   if (!inst.value || !getSelectedItem(inst)) selectFirstItem(inst, { scroll: false, emit: false })
@@ -275,20 +334,23 @@ function getSelectedItem(inst) {
   return Array.from(inst.root.querySelectorAll(ITEM_SELECTOR)).find((item) => itemValue(item) === inst.value) || null
 }
 
-function score(inst, value, keywords) {
+function score(inst, value, keywords, item) {
   const filter = inst.filter || globalFilter
-  return value ? filter(value, inst.search, keywords) : 0
+  // The query (scope trigger stripped) is what gets matched; the item element
+  // is an extension over the React filter signature for userland scoping.
+  return value ? filter(value, inst.query, keywords, item) : 0
 }
 
 /** Port of filterItems(): score items, toggle item/group/separator/empty visibility. */
 function filterItems(inst) {
-  const { root, search } = inst
+  const { root, search, scope } = inst
   const filtering = Boolean(search) && config(root).shouldFilter
   let count = 0
 
   for (const item of root.querySelectorAll(ITEM_SELECTOR)) {
     const fm = forceMounted(item)
-    const rank = filtering ? score(inst, itemValue(item), itemKeywords(item)) : 1
+    const outOfScope = filtering && scope && itemScope(item) !== scope
+    const rank = filtering ? (outOfScope ? 0 : score(inst, itemValue(item), itemKeywords(item), item)) : 1
     inst.scores.set(item, rank)
     const shown = fm || !filtering || rank > 0
     // React removes filtered items from the DOM; we hide them with an inline
@@ -406,10 +468,18 @@ function setValueState(inst, value, { scroll = true, emit = true } = {}) {
 function setSearchState(inst, search) {
   if (Object.is(inst.search, search)) return
   inst.search = search
+  const scopeChanged = syncScope(inst)
   filterItems(inst)
   sortItems(inst)
   selectFirstItem(inst)
-  inst.root.dispatchEvent(new CustomEvent(SEARCH_CHANGE_EVENT, { bubbles: true, detail: { search } }))
+  if (scopeChanged) {
+    inst.root.dispatchEvent(
+      new CustomEvent('cmdk-scope-change', { bubbles: true, detail: { scope: inst.scope, query: inst.query } }),
+    )
+  }
+  inst.root.dispatchEvent(
+    new CustomEvent(SEARCH_CHANGE_EVENT, { bubbles: true, detail: { search, scope: inst.scope, query: inst.query } }),
+  )
 }
 
 function selectFirstItem(inst, opts) {
@@ -683,13 +753,15 @@ export function setValue(target, value) {
 export function getState(target) {
   const inst = getInstance(target)
   if (!inst) return null
-  return { search: inst.search, value: inst.value, filtered: { count: inst.count } }
+  return { search: inst.search, scope: inst.scope, query: inst.query, value: inst.value, filtered: { count: inst.count } }
 }
 
 /**
  * Override the filter function: `setFilter(fn)` replaces the default for all
  * menus, `setFilter(rootEl, fn)` for one. Pass `null` to reset.
- * fn(value, search, keywords) → number in [0, 1], 0 hides the item.
+ * fn(value, query, keywords, item) → number in [0, 1], 0 hides the item.
+ * The item element (4th arg, an extension over the React signature) enables
+ * fully custom search syntax — scoping, operators, per-item logic.
  */
 export function setFilter(target, fn) {
   if (typeof target === 'function' || target === null) {

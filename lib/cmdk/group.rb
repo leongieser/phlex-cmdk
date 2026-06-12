@@ -5,10 +5,11 @@ module Cmdk
   # Provide `value:` when there is no heading (it is used for sorting groups);
   # with a string heading the value is inferred from it, matching React cmdk.
   class Group < Base
-    def initialize(heading: nil, value: nil, force_mount: false, **attributes)
+    def initialize(heading: nil, value: nil, force_mount: false, scope: nil, **attributes)
       @heading = heading
       @value = value
       @force_mount = force_mount
+      @scope = scope
       @attributes = attributes
     end
 
@@ -32,6 +33,7 @@ module Cmdk
       value = @value || (@heading if @heading.is_a?(String))
       data[:value] = value if value
       data[:cmdk_force_mount] = '' if @force_mount
+      data[:cmdk_scope] = @scope if @scope
 
       { 'cmdk-group' => '', role: 'presentation', data: data }
     end

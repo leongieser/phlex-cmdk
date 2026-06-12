@@ -1,3 +1,5 @@
+require 'json'
+
 module Cmdk
   # Command menu root. Port of `<Command>` from cmdk.
   #
@@ -5,15 +7,22 @@ module Cmdk
   # shouldFilter, loop, vimBindings, disablePointerSelection, defaultValue.
   # `onValueChange` becomes a bubbling `cmdk-value-change` CustomEvent;
   # a custom `filter` can be registered via `Cmdk.setFilter(rootEl, fn)` in JS.
+  #
+  # `scopes:` enables scoped search (an extension over the React API): pass
+  # scope names (`scopes: %w[user doc]`, triggers default to "user:"/"doc:")
+  # or a hash with custom triggers (`scopes: { 'user' => '@' }`). Typing the
+  # trigger narrows matching to items/groups tagged with the same `scope:`,
+  # using the rest of the input as the query.
   class Root < Base
     def initialize(label: nil, default_value: nil, should_filter: true, loop: false,
-                   vim_bindings: true, disable_pointer_selection: false, **attributes)
+                   vim_bindings: true, disable_pointer_selection: false, scopes: nil, **attributes)
       @label = label
       @default_value = default_value
       @should_filter = should_filter
       @loop = loop
       @vim_bindings = vim_bindings
       @disable_pointer_selection = disable_pointer_selection
+      @scopes = scopes
       @attributes = attributes
     end
 
@@ -37,6 +46,9 @@ module Cmdk
       data[:cmdk_vim_bindings] = 'false' unless @vim_bindings
       data[:cmdk_disable_pointer_selection] = '' if @disable_pointer_selection
       data[:cmdk_default_value] = @default_value if @default_value
+      if @scopes
+        data[:cmdk_scopes] = @scopes.is_a?(Hash) ? JSON.generate(@scopes) : Array(@scopes).join(' ')
+      end
 
       { 'cmdk-root' => '', tabindex: '-1', data: data }
     end

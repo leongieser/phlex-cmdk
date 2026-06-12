@@ -49,6 +49,14 @@ class CmdkPreview < Lookbook::Preview
     render Scenarios::Empty.new
   end
 
+  # Scoped search (extension over the React API): the root declares
+  # `scopes: %w[user doc]`, groups/items are tagged with `scope:`.
+  # Typing `user: le` matches only user-scoped items against "le";
+  # `cmdk-scope-change` fires for server-backed lookups via Turbo.
+  def scoped_search
+    render Scenarios::ScopedSearch.new
+  end
+
   # All React callbacks are DOM events here: cmdk-item-select, cmdk-value-change
   # and cmdk-search-change bubble up from the root. Interact with the menu and
   # watch the log below.

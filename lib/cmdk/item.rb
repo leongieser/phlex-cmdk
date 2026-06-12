@@ -6,12 +6,14 @@ module Cmdk
   # becomes a bubbling `cmdk-item-select` CustomEvent with `detail.value`.
   # `href:` is a Turbo-friendly extension: the runtime visits the URL on select.
   class Item < Base
-    def initialize(value: nil, keywords: nil, disabled: false, force_mount: false, href: nil, **attributes)
+    def initialize(value: nil, keywords: nil, disabled: false, force_mount: false, href: nil,
+                   scope: nil, **attributes)
       @value = value
       @keywords = keywords
       @disabled = disabled
       @force_mount = force_mount
       @href = href
+      @scope = scope
       @attributes = attributes
     end
 
@@ -27,6 +29,7 @@ module Cmdk
       data[:cmdk_keywords] = Array(@keywords).join(' ') if @keywords
       data[:cmdk_force_mount] = '' if @force_mount
       data[:href] = @href if @href
+      data[:cmdk_scope] = @scope if @scope
 
       {
         'cmdk-item' => '',

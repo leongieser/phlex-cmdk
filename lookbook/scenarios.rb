@@ -137,6 +137,49 @@ module Scenarios
     end
   end
 
+  class ScopedSearch < Phlex::HTML
+    def view_template
+      div(class: 'flex w-[28rem] max-w-full flex-col gap-3') do
+        div(class: 'flex items-center gap-2 text-xs text-neutral-500') do
+          plain 'Active scope:'
+          span(id: 'scope-badge', class: 'rounded bg-neutral-200 px-1.5 py-0.5 font-mono') { '—' }
+          plain 'Try typing'
+          code(class: 'rounded bg-neutral-200 px-1') { 'user: le' }
+          plain 'or'
+          code(class: 'rounded bg-neutral-200 px-1') { 'doc: arch' }
+        end
+
+        Cmdk::Root(label: 'Scoped search', scopes: %w[user doc], class: 'cmdk-vercel w-full') do
+          Cmdk::Input(placeholder: "Search, or scope with 'user: ' / 'doc: '")
+          Cmdk::List() do
+            Cmdk::Empty { 'No results found.' }
+            Cmdk::Group(heading: 'Actions') do
+              Cmdk::Item() { '➕ New Issue' }
+              Cmdk::Item() { '🔍 Search Everything' }
+            end
+            Cmdk::Group(heading: 'Users', scope: 'user') do
+              Cmdk::Item() { '🧑 Leon Gieser' }
+              Cmdk::Item() { '🧑 Anna Schmidt' }
+              Cmdk::Item() { '🧑 Marc Weber' }
+            end
+            Cmdk::Group(heading: 'Documents', scope: 'doc') do
+              Cmdk::Item() { '📄 README' }
+              Cmdk::Item() { '📄 Architecture Notes' }
+            end
+          end
+        end
+
+        script { raw safe(<<~JS) }
+          document.addEventListener('cmdk-scope-change', (e) => {
+            document.getElementById('scope-badge').textContent = e.detail.scope ?? '—'
+            // In a real app this is where you would kick off a server-backed
+            // search, e.g. frame.src = `/search/users?q=${e.detail.query}`
+          })
+        JS
+      end
+    end
+  end
+
   class Events < Phlex::HTML
     def view_template
       div(class: 'flex w-[28rem] max-w-full flex-col gap-4') do

@@ -47,6 +47,18 @@ class RootTest < Minitest::Test
     assert_includes html, 'class="raycast"'
     assert_includes html, 'id="menu"'
   end
+
+  def test_scopes_as_names
+    html = render { Cmdk::Root(scopes: %w[user doc]) }
+
+    assert_includes html, 'data-cmdk-scopes="user doc"'
+  end
+
+  def test_scopes_with_custom_triggers
+    html = render { Cmdk::Root(scopes: { 'user' => '@' }) }
+
+    assert_includes html, 'data-cmdk-scopes="{&quot;user&quot;:&quot;@&quot;}"'
+  end
 end
 
 class InputTest < Minitest::Test
@@ -104,6 +116,12 @@ class ItemTest < Minitest::Test
 
     assert_includes html, 'data-href="/settings"'
   end
+
+  def test_scope
+    html = render { Cmdk::Item(scope: 'user') { 'Leon' } }
+
+    assert_includes html, 'data-cmdk-scope="user"'
+  end
 end
 
 class GroupTest < Minitest::Test
@@ -126,6 +144,12 @@ class GroupTest < Minitest::Test
     assert_includes html, 'data-value="misc"'
     refute_includes html, 'cmdk-group-heading'
     refute_includes html, 'aria-labelledby'
+  end
+
+  def test_scope
+    html = render { Cmdk::Group(heading: 'Users', scope: 'user') { Cmdk::Item { 'Leon' } } }
+
+    assert_includes html, 'data-cmdk-scope="user"'
   end
 end
 

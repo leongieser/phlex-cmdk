@@ -199,11 +199,21 @@ selected item declares no hint. For anything richer, drive your own footer from 
 
 ### Styling
 
-Unstyled, exactly like the React package. Target the attribute contract from Tailwind:
+Unstyled, exactly like the React package. With Tailwind, the idiomatic way is
+utilities on the components themselves — the runtime toggles `data-*` attributes,
+so Tailwind's data variants cover the states:
+
+```ruby
+Cmdk::Item(class: 'flex h-10 items-center rounded-lg px-3
+                   data-[selected=true]:bg-neutral-100
+                   data-[disabled=true]:text-neutral-300') { 'Apple' }
+```
+
+Or target the attribute contract from a stylesheet (plain CSS, no build needed):
 
 ```css
-[cmdk-item][data-selected='true'] { @apply bg-neutral-100; }
-[cmdk-group-heading]              { @apply px-3 text-xs text-neutral-400; }
+[cmdk-item][data-selected='true'] { background: #f5f5f5; }
+[cmdk-group-heading] { padding: 8px 12px 6px; font-size: 12px; color: #a3a3a3; }
 [cmdk-list] { height: min(330px, var(--cmdk-list-height)); transition: height 100ms ease; }
 ```
 

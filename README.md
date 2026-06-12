@@ -194,6 +194,28 @@ from the result count) unless its scope is active:
 Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) { ... }
 ```
 
+**Server-backed scopes** — for data that lives in your database (users, documents),
+mark the scoped group `server_filtered: true` and put a turbo-frame inside it. The
+runtime then shows the streamed-in items as-is instead of fuzzy-matching them against
+the query — which means the query can be a *server-side grammar*, e.g. `age > 21
+role:admin anna`:
+
+```ruby
+Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true, server_filtered: true) do
+  turbo_frame(id: 'user-results')
+end
+```
+
+```js
+searchChanged({ detail: { scope, query } }) {       // Stimulus base controller hook
+  if (scope === 'user') frame.src = `/search/users?q=${encodeURIComponent(query)}`
+}
+```
+
+The endpoint parses the predicates, queries the database and renders `Cmdk::Item`s
+into the frame; selection, keyboard navigation, footer hints and the empty state all
+work on the streamed items automatically.
+
 **Fully custom syntax** — the filter function receives the item element as a 4th
 argument (an extension over the React signature), so any operator grammar is possible:
 

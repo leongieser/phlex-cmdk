@@ -419,6 +419,10 @@ function filterItems(inst) {
         : 0
     } else if (scope && itemScope(item) !== scope) {
       rank = 0
+    } else if (item.closest('[data-cmdk-server-filtered]')) {
+      // The server already filtered these (e.g. a Turbo-framed scope search);
+      // don't fuzzy-match them against the query again.
+      rank = 1
     } else {
       rank = filtering ? score(inst, itemValue(item), itemKeywords(item), item) : 1
     }

@@ -212,6 +212,12 @@ class GroupTest < Minitest::Test
 
     assert_includes html, 'data-cmdk-scope-only=""'
   end
+
+  def test_server_filtered
+    html = render { Cmdk::Group(heading: 'Users', scope: 'user', server_filtered: true) { Cmdk::Item() { 'Leon' } } }
+
+    assert_includes html, 'data-cmdk-server-filtered=""'
+  end
 end
 
 class SeparatorTest < Minitest::Test

@@ -74,9 +74,11 @@
   @apply flex h-12 items-center justify-center text-sm text-neutral-400;
 }
 
-/* Native <dialog> replaces the Radix overlay/content pair. */
+/* Native <dialog> replaces the Radix overlay/content pair. Placement comes
+   from the runtime's zero-specificity defaults (top third, centered) — set
+   e.g. `@apply mt-[30vh]` here to override it. */
 dialog.cmdk-dialog-frame {
-  @apply fixed top-[20vh] mx-auto w-auto max-w-full border-0 bg-transparent p-0;
+  @apply border-0 bg-transparent p-0;
   animation: cmdk-dialog-in 120ms ease;
 }
 

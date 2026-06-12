@@ -77,6 +77,15 @@ Renders a native `<dialog cmdk-dialog>`: Escape and backdrop clicks close it, an
 `Cmdk.openDialog(el)` / `Cmdk.closeDialog(el)` toggle it programmatically. Style the
 backdrop with `dialog[cmdk-dialog]::backdrop` (replaces Radix's `[cmdk-overlay]`).
 
+By default the dialog renders as a top-third, horizontally centered palette. CSS
+resets (e.g. Tailwind preflight's universal `margin: 0`) break native `<dialog>`
+centering, so the runtime injects these defaults with zero specificity (`:where()`)
+— any rule of yours wins, even a bare element selector:
+
+```css
+dialog[cmdk-dialog] { margin-top: 30vh; }   /* overrides the default placement */
+```
+
 ### Scoped search
 
 cmdk deliberately keeps its filter vanilla; modes like `user: <query>` are userland.

@@ -888,11 +888,36 @@ export function setFilter(target, fn) {
   selectFirstItem(inst)
 }
 
+/**
+ * Sensible default dialog placement: a top-third command palette, centered
+ * horizontally. CSS resets (e.g. Tailwind preflight's universal `margin: 0`)
+ * destroy the native <dialog> centering, so the runtime re-asserts it here.
+ * `:where()` keeps specificity at zero — any consumer rule on
+ * `dialog[cmdk-dialog]` or a class overrides these.
+ */
+function injectBaseStyles() {
+  if (document.getElementById('cmdk-base-styles')) return
+  const style = document.createElement('style')
+  style.id = 'cmdk-base-styles'
+  style.textContent = `
+:where(dialog[cmdk-dialog]) {
+  position: fixed;
+  inset: 0;
+  margin: 16vh auto auto;
+  width: fit-content;
+  height: fit-content;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(84vh - 2rem);
+}`
+  document.head.appendChild(style)
+}
+
 let started = false
 
 export function start() {
   if (started || typeof document === 'undefined') return
   started = true
+  injectBaseStyles()
 
   document.addEventListener('keydown', onKeydown)
   document.addEventListener('input', onInput)

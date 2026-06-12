@@ -278,52 +278,41 @@ module Scenarios
     end
   end
 
-  # The same terminal look, but with no stylesheet at all: Tailwind utilities
-  # and data-[...] variants directly on the components.
-  # Gotcha: inside Ruby heredocs Tailwind's scanner treats '#' as a comment
-  # and drops the rest of the line, so hex colors are written as rgb().
+  # A second fully custom look, this time with no stylesheet at all:
+  # neo-brutalism via Tailwind utilities and data-[...] variants on the
+  # components. Gotcha: inside Ruby heredocs Tailwind's scanner treats '#'
+  # as a comment and drops the rest of the line, so colors avoid hex.
   class TailwindTheme < Phlex::HTML
     def view_template
-      Cmdk::Root(label: 'Terminal (Tailwind)', loop: true, class: <<~CLASSES.split.join(' ')) do
-        w-[40rem] max-w-full relative overflow-hidden rounded-md border border-green-900
-        bg-[rgb(4,16,10)] p-2 font-mono text-green-400
-        shadow-[0_0_50px_rgba(74,222,128,0.18),inset_0_0_90px_rgba(74,222,128,0.05)]
-        after:pointer-events-none after:absolute after:inset-0 after:content-['']
-        after:bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.22)_0_1px,transparent_1px_3px)]
+      Cmdk::Root(label: 'Brutal Menu', loop: true, class: <<~CLASSES.split.join(' ')) do
+        w-[40rem] max-w-full border-4 border-black bg-amber-50 p-3
+        shadow-[10px_10px_0_rgb(0,0,0)]
       CLASSES
-        div(class: 'flex items-center gap-2.5 border-b border-dashed border-green-900 px-2 pt-1') do
-          span(class: 'animate-pulse text-green-400', aria_hidden: 'true') { '❯' }
-          Cmdk::Input(placeholder: 'type a command_', class: <<~CLASSES.split.join(' '))
-            flex-1 border-none bg-transparent pt-2 pb-3 font-mono text-sm tracking-wide
-            text-green-200 caret-green-400 outline-none placeholder:text-green-400/35
-          CLASSES
-        end
-        Cmdk::List(class: 'h-[min(330px,var(--cmdk-list-height))] max-h-[330px] overflow-y-auto overscroll-contain pt-1.5 transition-[height] duration-100') do
-          Cmdk::Empty(class: "flex h-14 items-center justify-center text-[13px] text-green-400/45 before:content-['sh:_']") do
-            plain 'command not found'
+        Cmdk::Input(placeholder: 'TYPE SOMETHING LOUD', class: <<~CLASSES.split.join(' '))
+          w-full border-4 border-black bg-white px-3 py-2 text-base font-extrabold uppercase
+          tracking-wide text-black outline-none placeholder:text-neutral-400
+          focus:bg-yellow-200 focus:shadow-[4px_4px_0_rgb(0,0,0)]
+        CLASSES
+        Cmdk::List(class: 'h-[min(360px,var(--cmdk-list-height))] max-h-[360px] overflow-y-auto overscroll-contain pt-3 transition-[height] duration-100') do
+          Cmdk::Empty(class: 'mx-1 flex h-16 items-center justify-center border-4 border-dashed border-black text-sm font-black uppercase text-black') do
+            plain 'absolutely nothing'
           end
-          Cmdk::Group(heading: 'processes',
-                      class: '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:pb-1 ' \
-                             '[&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:uppercase ' \
-                             "[&_[cmdk-group-heading]]:tracking-[0.25em] [&_[cmdk-group-heading]]:text-green-400/50 [&_[cmdk-group-heading]]:before:content-['#_']") do
-            Cmdk::Item(value: 'deploy production', hint: 'execute', kbd: '⏎', class: item_classes) { plain 'bin/deploy --production' }
-            Cmdk::Item(value: 'tail logs', hint: 'execute', kbd: '⏎', class: item_classes) { plain 'tail -f log/production.log' }
-            Cmdk::Item(value: 'rails console', hint: 'execute', kbd: '⏎', class: item_classes) { plain 'bin/rails console' }
+          Cmdk::Group(heading: 'loud actions', class: group_classes) do
+            Cmdk::Item(value: 'Ship It', hint: 'No Regrets', kbd: '↵', class: item_classes) { entry('🚢', 'Ship It') }
+            Cmdk::Item(value: 'Make It Pop', hint: 'More Contrast', kbd: '↵', class: item_classes) { entry('🎨', 'Make It Pop') }
+            Cmdk::Item(value: 'Big Red Button', hint: 'Press It', kbd: '↵', class: item_classes) { entry('🔴', 'Big Red Button') }
           end
-          Cmdk::Separator(class: 'mx-2 my-2 border-t border-dashed border-green-900')
-          Cmdk::Group(heading: 'danger zone',
-                      class: '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:pb-1 ' \
-                             '[&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:uppercase ' \
-                             "[&_[cmdk-group-heading]]:tracking-[0.25em] [&_[cmdk-group-heading]]:text-green-400/50 [&_[cmdk-group-heading]]:before:content-['#_']") do
-            Cmdk::Item(value: 'drop database', disabled: true, class: item_classes) { plain 'bin/rails db:drop' }
+          Cmdk::Separator(class: 'mx-1 my-3 h-1 bg-black')
+          Cmdk::Group(heading: 'regrets', class: group_classes) do
+            Cmdk::Item(value: 'Undo Everything', disabled: true, class: item_classes) { entry('↩️', 'Undo Everything') }
           end
         end
-        Cmdk::Footer(class: '-m-2 mt-1.5 flex items-center gap-2 border-t border-dashed border-green-900 px-4 py-2 text-xs text-green-400/55') do
-          span { 'guest@phlex-cmdk' }
+        Cmdk::Footer(class: '-m-3 mt-3 flex items-center gap-2 border-t-4 border-black bg-fuchsia-300 px-4 py-2 text-xs font-black uppercase text-black') do
+          span { 'brutal.exe' }
           div('cmdk-footer-hint' => '', class: <<~CLASSES.split.join(' '))
-            ml-auto flex items-center gap-1.5 text-green-300 data-empty:hidden
-            [&_kbd]:rounded-[3px] [&_kbd]:border [&_kbd]:border-green-900 [&_kbd]:bg-green-400/10
-            [&_kbd]:px-1.5 [&_kbd]:text-[11px] [&_kbd]:text-green-400
+            ml-auto flex items-center gap-2 data-empty:hidden
+            [&_kbd]:border-2 [&_kbd]:border-black [&_kbd]:bg-white [&_kbd]:px-1.5
+            [&_kbd]:shadow-[2px_2px_0_rgb(0,0,0)]
           CLASSES
         end
       end
@@ -331,15 +320,33 @@ module Scenarios
 
     private
 
+    def group_classes
+      <<~CLASSES.split.join(' ')
+        [&_[cmdk-group-heading]]:m-2 [&_[cmdk-group-heading]]:inline-block
+        [&_[cmdk-group-heading]]:-rotate-2 [&_[cmdk-group-heading]]:bg-black
+        [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-0.5
+        [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-black
+        [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest
+        [&_[cmdk-group-heading]]:text-amber-50
+      CLASSES
+    end
+
     def item_classes
       <<~CLASSES.split.join(' ')
-        flex min-h-8 cursor-pointer items-center gap-2 px-2 text-sm text-green-300 select-none
-        before:whitespace-pre before:text-green-400 before:content-['__']
-        data-[selected=true]:bg-green-400/15 data-[selected=true]:text-green-100
-        data-[selected=true]:before:content-['❯_']
-        data-[selected=true]:[text-shadow:0_0_10px_rgba(74,222,128,0.55)]
-        data-[disabled=true]:text-green-400/30 data-[disabled=true]:line-through data-[disabled=true]:cursor-not-allowed
+        mx-1 mb-2 flex min-h-11 cursor-pointer items-center gap-2 border-2 border-black bg-white
+        px-3 text-sm font-bold text-black select-none shadow-[4px_4px_0_rgb(0,0,0)]
+        transition-[transform,box-shadow,background-color] duration-75
+        data-[selected=true]:translate-x-[2px] data-[selected=true]:translate-y-[2px]
+        data-[selected=true]:bg-yellow-300 data-[selected=true]:shadow-[2px_2px_0_rgb(0,0,0)]
+        data-[disabled=true]:cursor-not-allowed data-[disabled=true]:bg-neutral-200
+        data-[disabled=true]:text-neutral-500 data-[disabled=true]:shadow-none
+        data-[disabled=true]:line-through
       CLASSES
+    end
+
+    def entry(icon, text)
+      span(class: 'text-base', aria_hidden: 'true') { icon }
+      span { text }
     end
   end
 

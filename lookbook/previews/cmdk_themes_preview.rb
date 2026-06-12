@@ -25,9 +25,9 @@ class CmdkThemesPreview < Lookbook::Preview
     render Scenarios::CustomTheme.new
   end
 
-  # The same terminal look, built purely with Tailwind utilities and
-  # data-[...] variants on the components; no stylesheet involved.
-  def custom_terminal_tailwind
+  # Neo-brutalism built purely with Tailwind utilities and data-[...]
+  # variants on the components; no stylesheet involved.
+  def custom_brutalism
     render Scenarios::TailwindTheme.new
   end
 end

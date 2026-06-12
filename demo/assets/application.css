@@ -305,29 +305,103 @@ pre.has-copy {
 }
 /* <<< cmdk-terminal */
 
-/* Code reveal panels on the examples page. */
-.code-panel pre {
+/* Segmented view switcher and code panes on the examples page. */
+.seg-group {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid light-dark(#e5e5e5, #3f3f46);
+  border-radius: 8px;
+  background: light-dark(#ffffff, #18181b);
+}
+
+.seg-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: light-dark(#737373, #a1a1aa);
+  cursor: pointer;
+}
+
+.seg-btn + .seg-btn {
+  border-left: 1px solid light-dark(#e5e5e5, #3f3f46);
+}
+
+.seg-btn.active {
+  background: light-dark(#f5f5f5, #27272a);
+  color: light-dark(#171717, #fafafa);
+}
+
+.seg-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.code-pane {
   background: light-dark(#ffffff, #18181b);
   border: 1px solid light-dark(#e5e5e5, #27272a);
   border-radius: 8px;
   padding: 12px 16px;
   overflow: auto;
-  max-height: 420px;
+  max-height: 480px;
   font-size: 12px;
   line-height: 1.55;
 }
 
-.code-tab {
-  padding: 3px 10px;
-  font-size: 11px;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  color: light-dark(#737373, #a1a1aa);
-  cursor: pointer;
+[data-pane][hidden] {
+  display: none !important;
 }
 
-.code-tab.active {
-  border-color: light-dark(#e5e5e5, #3f3f46);
-  background: light-dark(#ffffff, #27272a);
-  color: light-dark(#171717, #fafafa);
+/* Syntax highlighting palette (highlight.js classes), light-dark aware. */
+pre code.hljs {
+  background: transparent;
+  padding: 0;
+  color: light-dark(#1f2328, #e6edf3);
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: light-dark(#59636e, #8b949e);
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-meta {
+  color: light-dark(#cf222e, #ff7b72);
+}
+
+.hljs-string,
+.hljs-regexp {
+  color: light-dark(#0a3069, #a5d6ff);
+}
+
+.hljs-symbol,
+.hljs-number,
+.hljs-literal,
+.hljs-attribute,
+.hljs-built_in {
+  color: light-dark(#0550ae, #79c0ff);
+}
+
+.hljs-title,
+.hljs-title.class_,
+.hljs-section {
+  color: light-dark(#6639ba, #d2a8ff);
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-params {
+  color: light-dark(#953800, #ffa657);
+}
+
+.hljs-selector-class,
+.hljs-selector-id,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  color: light-dark(#116329, #7ee787);
 }

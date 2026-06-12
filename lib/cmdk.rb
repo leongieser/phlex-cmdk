@@ -18,6 +18,12 @@ module Cmdk
   def self.stylesheet_path
     File.expand_path('../assets/css/themes.css', __dir__)
   end
+
+  # Absolute path to the optional Stimulus base controller (requires
+  # @hotwired/stimulus and the runtime served alongside it as ./cmdk.js).
+  def self.stimulus_controller_path
+    File.expand_path('../assets/js/cmdk_controller.js', __dir__)
+  end
 end
 
 require_relative 'cmdk/version'

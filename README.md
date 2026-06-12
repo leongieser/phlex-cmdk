@@ -197,6 +197,33 @@ The runtime fills `[cmdk-footer-hint]` as the selection moves — the hint text 
 selected item declares no hint. For anything richer, drive your own footer from the
 `cmdk-value-change` event.
 
+### With Stimulus
+
+The bubbling events work with plain action descriptors — no controller required:
+
+```html
+<div data-controller="palette"
+     data-action="cmdk-item-select->palette#run cmdk-scope-change->palette#search">
+```
+
+For more structure, the gem ships an optional base controller
+(`Cmdk.stimulus_controller_path`; serve it next to the runtime, it imports
+`./cmdk.js` and `@hotwired/stimulus`). Extend it and override the hooks:
+
+```js
+import CmdkController from 'cmdk_controller' // pin to Cmdk.stimulus_controller_path
+
+export default class extends CmdkController {
+  itemSelected({ detail: { value } }) { this.run(value) }
+  scopeChanged({ detail: { scope, query } }) { /* server-backed lookup */ }
+}
+```
+
+Hooks: `itemSelected`, `valueChanged`, `searchChanged`, `scopeChanged`. API and
+actions: `open`/`close`/`toggle` (dialog), `setSearch`, `setValue`, `enterScope`
+(param-friendly: `data-action="cmdk#enterScope" data-cmdk-scope-param="user"`),
+`exitScope`, and a `state` getter.
+
 ### Styling
 
 Unstyled, exactly like the React package. With Tailwind, the idiomatic way is

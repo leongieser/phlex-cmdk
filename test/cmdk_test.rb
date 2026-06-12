@@ -282,6 +282,13 @@ class AssetsTest < Minitest::Test
     assert_includes File.read(Cmdk.javascript_path), 'commandScore'
   end
 
+  def test_stimulus_controller_exists
+    assert File.exist?(Cmdk.stimulus_controller_path)
+    js = File.read(Cmdk.stimulus_controller_path)
+    assert_includes js, 'extends Controller'
+    assert_includes js, "from '@hotwired/stimulus'"
+  end
+
   def test_themes_stylesheet_exists_and_is_plain_css
     assert File.exist?(Cmdk.stylesheet_path)
     css = File.read(Cmdk.stylesheet_path)

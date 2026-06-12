@@ -1,10 +1,12 @@
+require 'json'
 require 'rack'
 require_relative '../lib/cmdk'
 
 module Views
   class Layout < Phlex::HTML
-    def initialize(title: 'phlex-cmdk')
+    def initialize(title: 'phlex-cmdk', importmap: nil)
       @title = title
+      @importmap = importmap
     end
 
     def view_template(&block)
@@ -15,6 +17,9 @@ module Views
           meta(name: 'viewport', content: 'width=device-width, initial-scale=1')
           title { @title }
           link(rel: 'stylesheet', href: '/application.css')
+          if @importmap
+            script(type: 'importmap') { raw safe(JSON.generate(imports: @importmap)) }
+          end
           script(type: 'module', src: 'https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/+esm')
           script(type: 'module', src: '/cmdk.js')
         end
@@ -114,6 +119,78 @@ module Views
       span { text }
     end
   end
+
+  # Demonstrates the optional Stimulus base controller (/cmdk_controller.js):
+  # a subclass overrides the event hooks and the buttons use controller actions.
+  class StimulusDemo < Phlex::HTML
+    def view_template
+      render Layout.new(
+        title: 'Stimulus — phlex-cmdk',
+        importmap: { '@hotwired/stimulus' => 'https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.2/+esm' },
+      ) do
+        main(class: 'mx-auto flex max-w-2xl flex-col items-center gap-6 px-4 py-16') do
+          header(class: 'text-center') do
+            h1(class: 'text-2xl font-semibold tracking-tight') { 'Stimulus base controller' }
+            p(class: 'demo-hint mt-2 text-sm') do
+              plain 'A subclass of '
+              code(class: 'demo-chip') { 'CmdkController' }
+              plain ' logs the overridable hooks; the buttons are controller actions.'
+            end
+          end
+
+          div(data: { controller: 'demo-cmdk' }, class: 'flex w-full max-w-xl flex-col gap-4') do
+            div(class: 'flex gap-2') do
+              button(class: 'demo-panel px-3 py-1.5 text-sm',
+                     data: { action: 'demo-cmdk#enterScope', demo_cmdk_scope_param: 'user' }) { 'Enter user scope' }
+              button(class: 'demo-panel px-3 py-1.5 text-sm',
+                     data: { action: 'demo-cmdk#exitScope' }) { 'Exit scope' }
+            end
+
+            Cmdk::Root(label: 'Stimulus demo', scopes: %w[user], class: 'cmdk-vercel w-full') do
+              div(class: 'cmdk-search-row') { Cmdk::Input(placeholder: 'Stimulus-managed menu…') }
+              Cmdk::List() do
+                Cmdk::Empty() { 'No results found.' }
+                Cmdk::Group(heading: 'Actions') do
+                  Cmdk::Item() { '➕ New Issue' }
+                  Cmdk::Item() { '🔍 Search Everything' }
+                end
+                Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) do
+                  Cmdk::Item() { '🧑 Leon Gieser' }
+                  Cmdk::Item() { '🧑 Anna Schmidt' }
+                end
+              end
+            end
+
+            pre(id: 'hook-log', class: 'demo-panel h-32 overflow-y-auto p-3 text-xs')
+          end
+
+          script(type: 'module') { raw safe(<<~JS) }
+            import { Application } from '@hotwired/stimulus'
+            import CmdkController from '/cmdk_controller.js'
+
+            const log = (msg) => {
+              const el = document.getElementById('hook-log')
+              el.textContent = `${msg}\\n` + el.textContent
+            }
+
+            class DemoCmdkController extends CmdkController {
+              connect() {
+                super.connect()
+                log('connected')
+              }
+              itemSelected(e) { log(`itemSelected  ${e.detail.value}`) }
+              valueChanged(e) { log(`valueChanged  ${e.detail.value}`) }
+              searchChanged(e) { log(`searchChanged ${JSON.stringify(e.detail)}`) }
+              scopeChanged(e) { log(`scopeChanged  ${JSON.stringify(e.detail)}`) }
+            }
+
+            window.Stimulus = Application.start()
+            Stimulus.register('demo-cmdk', DemoCmdkController)
+          JS
+        end
+      end
+    end
+  end
 end
 
 class DemoApp
@@ -125,8 +202,12 @@ class DemoApp
       html Views::Home.new.call
     when '/profile'
       html profile_page
+    when '/stimulus'
+      html Views::StimulusDemo.new.call
     when '/cmdk.js'
       file Cmdk.javascript_path, 'text/javascript'
+    when '/cmdk_controller.js'
+      file Cmdk.stimulus_controller_path, 'text/javascript'
     when '/application.css'
       file File.expand_path('public/application.css', __dir__), 'text/css'
     else

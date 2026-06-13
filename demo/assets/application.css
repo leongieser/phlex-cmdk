@@ -405,3 +405,69 @@ pre code.hljs {
 .hljs-selector-pseudo {
   color: light-dark(#116329, #7ee787);
 }
+
+/* Landing hero: a faux command bar that previews the real input and opens
+   the palette on click. cursor:text sells the "this is the search" read. */
+.hero-trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 30rem;
+  padding: 14px 16px;
+  cursor: text;
+  border: 1px solid light-dark(#e5e5e5, #27272a);
+  border-radius: 14px;
+  background: light-dark(#ffffff, #18181b);
+  color: light-dark(#a3a3a3, #71717a);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.hero-trigger:hover {
+  border-color: light-dark(#d4d4d4, #3f3f46);
+  box-shadow: 0 10px 34px rgb(0 0 0 / 0.09);
+  transform: translateY(-1px);
+}
+
+.hero-trigger:focus-visible {
+  outline: 2px solid light-dark(#5f6ad2, #818cf8);
+  outline-offset: 2px;
+}
+
+.hero-trigger-icon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.hero-trigger-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.hero-trigger-text {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  font-size: 15px;
+  text-align: left;
+}
+
+.hero-caret {
+  display: inline-block;
+  width: 1px;
+  height: 1.1em;
+  margin-left: 1px;
+  background: light-dark(#5f6ad2, #818cf8);
+  animation: hero-caret-blink 1.1s steps(2, start) infinite;
+}
+
+@keyframes hero-caret-blink {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-caret { animation: none; }
+  .hero-trigger:hover { transform: none; }
+}

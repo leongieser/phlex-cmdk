@@ -941,6 +941,9 @@ function injectBaseStyles() {
   height: fit-content;
   max-width: calc(100vw - 2rem);
   max-height: calc(84dvh - 2rem);
+  /* The list scrolls internally; keep the dialog itself unclipped so a themed
+     root's border-radius and drop-shadow are not squared off at the corners. */
+  overflow: visible;
 }
 :where(dialog[cmdk-dialog])::backdrop {
   background: transparent;

@@ -6,10 +6,12 @@ Gem::Specification.new do |spec|
   spec.authors = ['Leon Gieser']
   spec.email = ['leon.gieser@gmail.com']
 
-  spec.summary = 'Fast, composable command menu for Phlex — a port of cmdk (React).'
+  spec.summary = 'Fast, composable command menu for Phlex: a port of cmdk (React).'
   spec.description = 'Phlex components and a dependency-free JS runtime providing ' \
                      'feature parity with the cmdk React command menu, plus scoped search, ' \
-                     'footer hints and ready-made themes. Works with Turbo and Tailwind.'
+                     'footer hints and ready-made themes. Agnostic about styling (CSS, SCSS ' \
+                     'or Tailwind) and JS wiring (plain listeners or Stimulus); progressively ' \
+                     'enhances with Turbo when present.'
   spec.homepage = 'https://github.com/leongieser/phlex-cmdk'
   spec.license = 'MIT'
   spec.required_ruby_version = '>= 3.2'

@@ -1,12 +1,10 @@
 # ⌘K for Phlex <img src="https://img.shields.io/badge/port%20of-cmdk-blue" align="right">
 
-A feature-parity port of the [cmdk](https://cmdk.paco.me) React command menu for Ruby projects
-using [Phlex](https://www.phlex.fun), [Turbo](https://turbo.hotwired.dev) and Tailwind.
-
-Two pieces:
+A feature-parity port of the [cmdk](https://cmdk.paco.me) React command menu, built for
+[Phlex](https://www.phlex.fun). Two pieces, and that is the whole dependency surface:
 
 - **Phlex components** (`Cmdk::Root`, `Input`, `List`, `Item`, `Group`, `Separator`, `Empty`,
-  `Loading`, `Dialog`) render the exact same markup contract as the React package - the
+  `Loading`, `Dialog`, `Footer`) render the exact same markup contract as the React package - the
   `cmdk-*` attributes and ARIA roles. Existing cmdk themes work unchanged.
 - **One dependency-free ES module** ([assets/js/cmdk.js](assets/js/cmdk.js)) ports
   `command-score` verbatim and reimplements the cmdk component's behavior in vanilla JS: fuzzy filtering, score-based sorting of items and
@@ -14,9 +12,18 @@ Two pieces:
   jump, `meta` = first/last), pointer selection, empty state, IME composition guard,
   `--cmdk-list-height`, and a native `<dialog>` command palette.
 
-No Stimulus required (it composes fine with it). The runtime uses event delegation and
-MutationObservers, so it survives Turbo navigation and morphing, and items appended via
-Turbo Streams are registered, filtered and sorted automatically.
+The only runtime dependency is `phlex`. Everything past that is your choice:
+
+- **Styling** - the components ship no styles of their own, only the `cmdk-*` attribute
+  contract. Bring plain CSS, SCSS or Tailwind, or drop in one of the [ready-made themes](#styling).
+- **Behavior** - every interaction is a bubbling DOM event. Wire it with a plain
+  `addEventListener`, the [optional Stimulus base controller](#with-stimulus), or any framework.
+- **Navigation** - `href:` items use Turbo's `visit` when [Turbo](https://turbo.hotwired.dev)
+  is on the page and fall back to a normal navigation when it is not. Nothing to configure either way.
+
+The runtime uses event delegation and MutationObservers rather than mounting, so it survives
+Turbo navigation and morphing with no per-page setup, and items appended later (Turbo Streams,
+your own DOM writes) are registered, filtered and sorted automatically.
 
 ## Install
 

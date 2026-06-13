@@ -97,7 +97,7 @@ module Views
 
     def command_dialog
       Cmdk::Dialog(label: 'Command Menu', hotkey: 'k', loop: true,
-                   dialog_attributes: { class: 'cmdk-dialog-frame' }, class: 'cmdk-vercel w-[36rem] max-w-full') do
+                   dialog_attributes: { class: 'cmdk-dialog-frame' }, class: 'cmdk-vercel w-144 max-w-full') do
         Cmdk::Input(placeholder: 'Type a command or search...')
         Cmdk::List() do
           Cmdk::Empty() { 'No results found.' }

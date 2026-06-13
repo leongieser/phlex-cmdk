@@ -15,7 +15,7 @@ module Scenarios
     def view_template
       Cmdk::Root(label: 'Command Menu', loop: @loop, vim_bindings: @vim_bindings,
                  disable_pointer_selection: @disable_pointer_selection, should_filter: @should_filter,
-                 class: 'cmdk-vercel w-[40rem] max-w-full') do
+                 class: 'cmdk-vercel w-160 max-w-full') do
         Cmdk::Input(placeholder: @placeholder)
         Cmdk::List() do
           Cmdk::Empty() { 'No results found.' }
@@ -48,7 +48,7 @@ module Scenarios
 
   class PlainItems < Phlex::HTML
     def view_template
-      Cmdk::Root(label: 'Fruits', class: 'cmdk-vercel w-[40rem] max-w-full') do
+      Cmdk::Root(label: 'Fruits', class: 'cmdk-vercel w-160 max-w-full') do
         Cmdk::Input(placeholder: 'Search fruit...')
         Cmdk::List() do
           Cmdk::Empty() { 'No results found.' }
@@ -62,7 +62,7 @@ module Scenarios
 
   class ForceMount < Phlex::HTML
     def view_template
-      Cmdk::Root(label: 'Force mount', class: 'cmdk-vercel w-[40rem] max-w-full') do
+      Cmdk::Root(label: 'Force mount', class: 'cmdk-vercel w-160 max-w-full') do
         Cmdk::Input(placeholder: "Type 'zzz': Help stays visible")
         Cmdk::List() do
           Cmdk::Empty() { 'No results found.' }
@@ -86,7 +86,7 @@ module Scenarios
     end
 
     def view_template
-      Cmdk::Root(label: 'Loading', class: 'cmdk-vercel w-[40rem] max-w-full') do
+      Cmdk::Root(label: 'Loading', class: 'cmdk-vercel w-160 max-w-full') do
         Cmdk::Input(placeholder: 'Fetching results...')
         Cmdk::List() do
           Cmdk::Loading(progress: @progress) { 'Hang on, loading results…' }
@@ -97,7 +97,7 @@ module Scenarios
 
   class Empty < Phlex::HTML
     def view_template
-      Cmdk::Root(label: 'Empty', class: 'cmdk-vercel w-[40rem] max-w-full') do
+      Cmdk::Root(label: 'Empty', class: 'cmdk-vercel w-160 max-w-full') do
         Cmdk::Input(placeholder: 'No items were rendered at all')
         Cmdk::List() do
           Cmdk::Empty() { 'No results found.' }
@@ -130,7 +130,7 @@ module Scenarios
 
         Cmdk::Dialog(label: 'Command Menu', hotkey: 'k', loop: true,
                      dialog_attributes: { class: 'cmdk-dialog-frame' },
-                     class: 'cmdk-vercel w-[36rem] max-w-full') do
+                     class: 'cmdk-vercel w-144 max-w-full') do
           Cmdk::Input(placeholder: 'Type a command or search...')
           Cmdk::List() do
             Cmdk::Empty() { 'No results found.' }
@@ -147,7 +147,7 @@ module Scenarios
 
   class ScopedSearch < Phlex::HTML
     def view_template
-      div(class: 'flex w-[40rem] max-w-full flex-col gap-3') do
+      div(class: 'flex w-160 max-w-full flex-col gap-3') do
         div(class: 'flex flex-wrap items-center gap-x-2 gap-y-1 text-xs demo-hint') do
           plain 'Type'
           code(class: 'demo-chip') { '/' }
@@ -202,7 +202,7 @@ module Scenarios
     end
 
     def view_template
-      Cmdk::Root(label: 'Command Menu', loop: true, class: "#{@theme} w-[40rem] max-w-full") do
+      Cmdk::Root(label: 'Command Menu', loop: true, class: "#{@theme} w-160 max-w-full") do
         Cmdk::Input(placeholder: 'Search for apps and commands...')
         Cmdk::List() do
           Cmdk::Empty() { 'No results found.' }
@@ -252,7 +252,7 @@ module Scenarios
   # See the cmdk-terminal block in demo/assets/application.css.
   class CustomTheme < Phlex::HTML
     def view_template
-      Cmdk::Root(label: 'Terminal', loop: true, class: 'cmdk-terminal w-[40rem] max-w-full') do
+      Cmdk::Root(label: 'Terminal', loop: true, class: 'cmdk-terminal w-160 max-w-full') do
         div(class: 'term-row') do
           span(class: 'term-prompt', aria_hidden: 'true') { '❯' }
           Cmdk::Input(placeholder: 'type a command_')
@@ -285,7 +285,7 @@ module Scenarios
   class TailwindTheme < Phlex::HTML
     def view_template
       Cmdk::Root(label: 'Brutal Menu', loop: true, class: <<~CLASSES.split.join(' ')) do
-        w-[40rem] max-w-full border-4 border-black bg-amber-50 p-3
+        w-160 max-w-full border-4 border-black bg-amber-50 p-3
         shadow-[10px_10px_0_rgb(0,0,0)]
       CLASSES
         Cmdk::Input(placeholder: 'TYPE SOMETHING LOUD', class: <<~CLASSES.split.join(' '))
@@ -352,7 +352,7 @@ module Scenarios
 
   class Events < Phlex::HTML
     def view_template
-      div(class: 'flex w-[40rem] max-w-full flex-col gap-4') do
+      div(class: 'flex w-160 max-w-full flex-col gap-4') do
         render Menu.new
         pre(id: 'event-log',
             class: 'demo-panel h-32 overflow-y-auto p-3 text-xs')

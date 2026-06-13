@@ -471,3 +471,138 @@ pre code.hljs {
   .hero-caret { animation: none; }
   .hero-trigger:hover { transform: none; }
 }
+
+/* >>> cmdk-brutal */
+/* Neo-brutalism as a swappable root-class theme (the examples page shows the
+   same look built with Tailwind utilities instead). A statement theme: its
+   own palette regardless of light/dark mode. */
+.cmdk-brutal[cmdk-root] {
+  border: 4px solid #000;
+  border-radius: 0;
+  background: #fffbeb;
+  padding: 12px;
+  color: #000;
+  box-shadow: 10px 10px 0 #000;
+}
+
+.cmdk-brutal [cmdk-input] {
+  width: 100%;
+  border: 4px solid #000;
+  background: #fff;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #000;
+  outline: none;
+}
+
+.cmdk-brutal [cmdk-input]::placeholder {
+  color: #a3a3a3;
+}
+
+.cmdk-brutal [cmdk-list] {
+  height: min(360px, calc(var(--cmdk-list-height) + 16px));
+  max-height: 360px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 4px 4px;
+  transition: height 100ms ease;
+}
+
+.cmdk-brutal [cmdk-group-heading] {
+  display: inline-block;
+  margin: 8px;
+  padding: 2px 8px;
+  background: #000;
+  color: #fffbeb;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transform: rotate(-2deg);
+}
+
+.cmdk-brutal [cmdk-item] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 4px 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 2px solid #000;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  color: #000;
+  box-shadow: 4px 4px 0 #000;
+  cursor: pointer;
+  transition: transform 75ms ease, box-shadow 75ms ease, background-color 75ms ease;
+}
+
+.cmdk-brutal [cmdk-item][data-selected='true'] {
+  background: #fde047;
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+.cmdk-brutal [cmdk-item][data-disabled='true'] {
+  background: #e5e5e5;
+  color: #737373;
+  box-shadow: none;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+.cmdk-brutal [cmdk-separator] {
+  height: 4px;
+  margin: 8px 4px;
+  background: #000;
+}
+
+.cmdk-brutal [cmdk-empty] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.cmdk-brutal [cmdk-footer] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px -12px -12px;
+  padding: 8px 16px;
+  border-top: 4px solid #000;
+  background: #f0abfc;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.cmdk-brutal [cmdk-footer-hint] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  color: #000;
+}
+
+.cmdk-brutal [cmdk-footer-hint][data-empty] {
+  display: none;
+}
+
+.cmdk-brutal [cmdk-footer-hint] kbd {
+  border: 2px solid #000;
+  background: #fff;
+  padding: 1px 6px;
+  font-family: inherit;
+  font-size: 11px;
+  box-shadow: 2px 2px 0 #000;
+}
+/* <<< cmdk-brutal */

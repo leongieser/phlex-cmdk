@@ -77,7 +77,21 @@ Cmdk::Root(class: 'cmdk-vercel w-full max-w-xl') do ... end
 ```
 
 No `@source` configuration is needed for the gem - its components emit no
-Tailwind utilities of their own. (Heads-up: Tailwind's preflight resets break
+Tailwind utilities of their own.
+
+**Do I need tailwind-merge / cn()?** No, by design. That pattern exists because
+React component libraries ship utility-class defaults which consumers override
+in the same class attribute; which one wins depends on stylesheet order, so
+tailwind-merge rewrites the string. cmdk-phlex components emit no utility
+classes at all - your `class:` passes through untouched, so there is nothing to
+conflict with. The shipped themes live in `@layer components` while Tailwind's
+utilities layer comes later, so a utility on a component
+(`Cmdk::Item(class: 'pt-3')`) overrides the theme without any merging - and
+without Tailwind, your own unlayered CSS overrides the layered themes just the
+same. If you build your own variant components with conditional utility
+defaults on top, that is regular Phlex + Tailwind territory: reach for the
+[tailwind_merge](https://github.com/gjtorikian/tailwind_merge) gem exactly
+where you would reach for cn(). (Heads-up: Tailwind's preflight resets break
 native `<dialog>` centering; the runtime ships zero-specificity defaults that
 handle this - see [Dialog](#dialog).)
 

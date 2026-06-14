@@ -125,7 +125,7 @@ html {
 /* Copy-to-clipboard button injected into code blocks on the site. */
 pre.has-copy {
   position: relative;
-  padding-right: 2.75rem;
+  padding-right: 2.25rem;
 }
 
 /* Code panes scroll horizontally, so let the code run full width and let the
@@ -134,34 +134,45 @@ pre.has-copy {
   padding-right: 16px;
 }
 
-/* Icon-only copy button: stacks the copy + check glyphs in one cell. */
+/* Icon-only copy button: borderless, just the glyph, with a subtle hover wash.
+   Stacks the copy + check glyphs in one cell. */
 .copy-button {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   padding: 0;
+  border: 0;
   border-radius: 6px;
-  border: 1px solid light-dark(#d4d4d4, #3f3f46);
-  background: light-dark(#ffffff, #27272a);
-  color: light-dark(#525252, #d4d4d8);
+  background: transparent;
+  color: light-dark(#8a8f98, #71717a);
   cursor: pointer;
 }
 
 /* Floated top-right inside a code block; static elsewhere (e.g. the builder bar). */
 .has-copy .copy-button {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 5px;
+  right: 5px;
 }
 
 .copy-button:hover {
-  background: light-dark(#f5f5f5, #3f3f46);
+  background: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.08));
+  color: light-dark(#404040, #ededef);
+}
+
+/* Over horizontally-scrolling code, back the glyph with the pane colour so the
+   code underneath doesn't bleed through it. */
+.code-pane .copy-button {
+  background: light-dark(#ffffff, #18181b);
+}
+
+.code-pane .copy-button:hover {
+  background: light-dark(#f0f0f1, #27272a);
 }
 
 .copy-button.copied {
   color: light-dark(#15803d, #4ade80);
-  border-color: light-dark(#86efac, #166534);
 }
 
 .copy-button svg {

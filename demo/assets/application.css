@@ -25,15 +25,21 @@ html {
   color: light-dark(#171717, #e4e4e7);
 }
 
-/* Frosted sticky header (the canvas colour at low opacity + blur). */
+/* Sticky header: transparent at the top so the dot-grid glow shows through,
+   frosting up (canvas colour at low opacity + blur) only once scrolled. */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 30;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.site-header.is-scrolled {
   background: light-dark(rgba(245, 245, 245, 0.72), rgba(11, 11, 13, 0.72));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.07));
+  border-bottom-color: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.07));
 }
 
 .demo-hint {

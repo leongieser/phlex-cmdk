@@ -311,9 +311,19 @@ pre.has-copy {
 /* <<< cmdk-terminal */
 
 /* Segmented view switcher and code panes on the examples page. */
-/* Examples side nav: sticky list of jump links, active one accented. */
-.examples-nav {
+/* Examples side nav: sticky list of jump links, active one accented. A spacer
+   of equal width on the right keeps the content column page-centered. */
+.examples-nav,
+.examples-nav-spacer {
   display: none;
+}
+
+@media (min-width: 1024px) {
+  .examples-nav-spacer {
+    display: block;
+    width: 12rem;
+    flex-shrink: 0;
+  }
 }
 
 @media (min-width: 1024px) {

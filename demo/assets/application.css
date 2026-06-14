@@ -874,3 +874,91 @@ pre code.hljs {
     align-items: baseline;
   }
 }
+
+/* Theme builder on the Styling page. */
+.builder {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .builder { grid-template-columns: minmax(0, 17rem) 1fr; }
+}
+
+.builder-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid light-dark(#e5e5e5, #27272a);
+  border-radius: 10px;
+  background: light-dark(#ffffff, #18181b);
+}
+
+.builder-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.builder-control-label {
+  font-size: 13px;
+  color: light-dark(#404040, #d4d4d8);
+}
+
+.builder-swatch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.builder-control-value {
+  min-width: 4.5rem;
+  text-align: right;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  color: light-dark(#737373, #a1a1aa);
+}
+
+.builder-swatch input[type='color'] {
+  width: 38px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid light-dark(#d4d4d4, #3f3f46);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+.builder-swatch input[type='color']::-webkit-color-swatch-wrapper { padding: 2px; }
+.builder-swatch input[type='color']::-webkit-color-swatch { border: 0; border-radius: 4px; }
+
+.builder-swatch input[type='range'] {
+  width: 110px;
+  accent-color: light-dark(#5f6ad2, #818cf8);
+  cursor: pointer;
+}
+
+.builder-preview {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.builder-output {
+  width: 100%;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid light-dark(#e5e5e5, #27272a);
+  border-radius: 10px;
+  background: light-dark(#ffffff, #18181b);
+  color: light-dark(#404040, #d4d4d8);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  overflow: auto;
+  max-height: 320px;
+}

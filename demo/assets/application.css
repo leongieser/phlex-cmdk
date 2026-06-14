@@ -1080,8 +1080,8 @@ pre code.hljs {
 
 @media (min-width: 768px) {
   .builder { grid-template-columns: minmax(0, 19rem) 1fr; }
-  /* Keep the (now larger) preview in view while scrolling the controls. */
-  .builder-preview { position: sticky; top: 16px; }
+  /* Keep the preview in view while scrolling the controls, clearing the header. */
+  .builder-preview { position: sticky; top: 6rem; }
 }
 
 .builder-controls {

@@ -166,48 +166,48 @@ around while scrolling (only real pointer hover selects).
 
 ### Scoped search
 
-cmdk deliberately keeps its filter vanilla; modes like `user: <query>` are userland.
+cmdk deliberately keeps its filter vanilla; modes like `fruit: <query>` are userland.
 This port gives you both levels:
 
 **Declarative scopes** - declare them on the root, tag items or groups, and offer
 scope-entry items for the picker:
 
 ```ruby
-Cmdk::Root(label: 'Search', scopes: %w[user doc]) do
+Cmdk::Root(label: 'Search', scopes: %w[fruits doc]) do
   div(class: 'cmdk-search-row') { Cmdk::Input() }     # flex row hosts the pill
   Cmdk::List() do
-    Cmdk::Item(enters_scope: 'user') { 'Search users…' }
-    Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) { ... }
-    Cmdk::Group(heading: 'Docs',  scope: 'doc') { ... }
+    Cmdk::Item(enters_scope: 'fruits') { 'Search fruits…' }
+    Cmdk::Group(heading: 'Fruits', scope: 'fruits', scope_only: true) { ... }
+    Cmdk::Group(heading: 'Docs',   scope: 'doc') { ... }
   end
 end
 ```
 
 The flow follows the Linear/Slack/Raycast pattern (and cmdk's own "pages" recipe):
 
-- Typing `/` suggests the `enters_scope:` items; `/u` narrows them.
+- Typing `/` suggests the `enters_scope:` items; `/f` narrows them.
 - Enter (or click) pins the scope as a **pill** (`[cmdk-scope-pill]`, a button
   inserted before the input) and clears the input - typing then filters only
   items/groups tagged with that `scope:`. The pill carries
-  `data-scope="user"`, so you can style each scope distinctly
-  (`[cmdk-scope-pill][data-scope="user"]`) and fall back to the bare
+  `data-scope="fruits"`, so you can style each scope distinctly
+  (`[cmdk-scope-pill][data-scope="fruits"]`) and fall back to the bare
   `[cmdk-scope-pill]` rule.
-- Typing the name out (`/user `) commits too.
+- Typing the name out (`/fruits `) commits too.
 - Backspace on an empty input or clicking the pill leaves the scope.
 
-The root mirrors the state as `data-cmdk-active-scope="user"`, and events carry the
+The root mirrors the state as `data-cmdk-active-scope="fruits"`, and events carry the
 parsed parts - ideal for a server-backed lookup in a Turbo app, since streamed-in
 items register automatically:
 
 ```js
 root.addEventListener('cmdk-scope-change', (e) => {
-  if (e.detail.scope === 'user') frame.src = `/search/users?q=${e.detail.query}`
+  if (e.detail.scope === 'fruits') frame.src = `/search/fruits?q=${e.detail.query}`
 })
 ```
 
 The picker prefix is configurable (`scope_picker: ':'`) or can be turned off
 (`scope_picker: false`). Server-render an already-pinned scope with
-`Cmdk::Root(active_scope: 'user')`. Programmatic: `Cmdk.enterScope(root, 'user')` /
+`Cmdk::Root(active_scope: 'fruits')`. Programmatic: `Cmdk.enterScope(root, 'fruits')` /
 `Cmdk.exitScope(root)`.
 
 By default scoped items also match global (unscoped) searches. Mark a group or item
@@ -215,24 +215,24 @@ with `scope_only: true` to require deliberate entry - it stays hidden (and exclu
 from the result count) unless its scope is active:
 
 ```ruby
-Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) { ... }
+Cmdk::Group(heading: 'Fruits', scope: 'fruits', scope_only: true) { ... }
 ```
 
-**Server-backed scopes** - for data that lives in your database (users, documents),
+**Server-backed scopes** - for data that lives in your database (fruits, documents),
 mark the scoped group `server_filtered: true` and put a turbo-frame inside it. The
 runtime then shows the streamed-in items as-is instead of fuzzy-matching them against
-the query - which means the query can be a *server-side grammar*, e.g. `age > 21
-role:admin anna`:
+the query - which means the query can be a *server-side grammar*, e.g. `color:red
+sweet`:
 
 ```ruby
-Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true, server_filtered: true) do
-  turbo_frame(id: 'user-results')
+Cmdk::Group(heading: 'Fruits', scope: 'fruits', scope_only: true, server_filtered: true) do
+  turbo_frame(id: 'fruit-results')
 end
 ```
 
 ```js
 searchChanged({ detail: { scope, query } }) {       // Stimulus base controller hook
-  if (scope === 'user') frame.src = `/search/users?q=${encodeURIComponent(query)}`
+  if (scope === 'fruits') frame.src = `/search/fruits?q=${encodeURIComponent(query)}`
 }
 ```
 
@@ -293,7 +293,7 @@ export default class extends CmdkController {
 
 Hooks: `itemSelected`, `valueChanged`, `searchChanged`, `scopeChanged`. API and
 actions: `open`/`close`/`toggle` (dialog), `setSearch`, `setValue`, `enterScope`
-(param-friendly: `data-action="cmdk#enterScope" data-cmdk-scope-param="user"`),
+(param-friendly: `data-action="cmdk#enterScope" data-cmdk-scope-param="fruits"`),
 `exitScope`, and a `state` getter.
 
 ### Styling

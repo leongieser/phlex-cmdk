@@ -136,22 +136,22 @@ class ItemTest < Minitest::Test
   end
 
   def test_scope
-    html = render { Cmdk::Item(scope: 'user') { 'Leon' } }
+    html = render { Cmdk::Item(scope: 'fruits') { 'Apple' } }
 
-    assert_includes html, 'data-cmdk-scope="user"'
+    assert_includes html, 'data-cmdk-scope="fruits"'
     refute_includes html, 'data-cmdk-scope-only'
   end
 
   def test_scope_only
-    html = render { Cmdk::Item(scope: 'user', scope_only: true) { 'Leon' } }
+    html = render { Cmdk::Item(scope: 'fruits', scope_only: true) { 'Apple' } }
 
     assert_includes html, 'data-cmdk-scope-only=""'
   end
 
   def test_enters_scope
-    html = render { Cmdk::Item(enters_scope: 'user') { 'Search users…' } }
+    html = render { Cmdk::Item(enters_scope: 'fruits') { 'Search fruits…' } }
 
-    assert_includes html, 'data-cmdk-enters-scope="user"'
+    assert_includes html, 'data-cmdk-enters-scope="fruits"'
   end
 
   def test_hint_and_kbd
@@ -202,19 +202,19 @@ class GroupTest < Minitest::Test
   end
 
   def test_scope
-    html = render { Cmdk::Group(heading: 'Users', scope: 'user') { Cmdk::Item() { 'Leon' } } }
+    html = render { Cmdk::Group(heading: 'Fruits', scope: 'fruits') { Cmdk::Item() { 'Apple' } } }
 
-    assert_includes html, 'data-cmdk-scope="user"'
+    assert_includes html, 'data-cmdk-scope="fruits"'
   end
 
   def test_scope_only
-    html = render { Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) { Cmdk::Item() { 'Leon' } } }
+    html = render { Cmdk::Group(heading: 'Fruits', scope: 'fruits', scope_only: true) { Cmdk::Item() { 'Apple' } } }
 
     assert_includes html, 'data-cmdk-scope-only=""'
   end
 
   def test_server_filtered
-    html = render { Cmdk::Group(heading: 'Users', scope: 'user', server_filtered: true) { Cmdk::Item() { 'Leon' } } }
+    html = render { Cmdk::Group(heading: 'Fruits', scope: 'fruits', server_filtered: true) { Cmdk::Item() { 'Apple' } } }
 
     assert_includes html, 'data-cmdk-server-filtered=""'
   end

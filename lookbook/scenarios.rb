@@ -153,28 +153,28 @@ module Scenarios
           code(class: 'demo-chip') { '/' }
           plain 'to pick a scope, Enter to pin it as a pill, Backspace on empty input to leave. '
           plain 'Typing it out ('
-          code(class: 'demo-chip') { '/user ' }
+          code(class: 'demo-chip') { '/fruits ' }
           plain ') works too.'
         end
 
-        Cmdk::Root(label: 'Scoped search', scopes: %w[user doc], class: 'cmdk-vercel w-full') do
+        Cmdk::Root(label: 'Scoped search', scopes: %w[fruits doc], class: 'cmdk-vercel w-full') do
           div(class: 'cmdk-search-row') do
             Cmdk::Input(placeholder: "Search, or type '/' for scopes…")
           end
           Cmdk::List() do
             Cmdk::Empty() { 'No results found.' }
             Cmdk::Group(heading: 'Jump to') do
-              Cmdk::Item(value: 'user', enters_scope: 'user', keywords: %w[people members]) { '🧑 Search users…' }
+              Cmdk::Item(value: 'fruits', enters_scope: 'fruits', keywords: %w[apple banana orange]) { '🍎 Search fruits…' }
               Cmdk::Item(value: 'doc', enters_scope: 'doc', keywords: %w[files pages]) { '📄 Search documents…' }
             end
             Cmdk::Group(heading: 'Actions') do
               Cmdk::Item() { '➕ New Issue' }
               Cmdk::Item() { '🔍 Search Everything' }
             end
-            Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) do
-              Cmdk::Item() { '🧑 Leon Gieser' }
-              Cmdk::Item() { '🧑 Anna Schmidt' }
-              Cmdk::Item() { '🧑 Marc Weber' }
+            Cmdk::Group(heading: 'Fruits', scope: 'fruits', scope_only: true) do
+              Cmdk::Item() { '🍎 Apple' }
+              Cmdk::Item() { '🍌 Banana' }
+              Cmdk::Item() { '🍊 Orange' }
             end
             Cmdk::Group(heading: 'Documents', scope: 'doc') do
               Cmdk::Item() { '📄 README' }
@@ -186,7 +186,7 @@ module Scenarios
         script { raw safe(<<~JS) }
           document.addEventListener('cmdk-scope-change', (e) => {
             // In a real app this is where you would kick off a server-backed
-            // search, e.g. frame.src = `/search/users?q=${e.detail.query}`
+            // search, e.g. frame.src = `/search/fruits?q=${e.detail.query}`
             console.log('cmdk-scope-change', e.detail)
           })
         JS

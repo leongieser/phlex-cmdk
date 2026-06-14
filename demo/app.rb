@@ -144,12 +144,12 @@ module Views
           div(data: { controller: 'demo-cmdk' }, class: 'flex w-full max-w-xl flex-col gap-4') do
             div(class: 'flex gap-2') do
               button(class: 'demo-panel px-3 py-1.5 text-sm',
-                     data: { action: 'demo-cmdk#enterScope', demo_cmdk_scope_param: 'user' }) { 'Enter user scope' }
+                     data: { action: 'demo-cmdk#enterScope', demo_cmdk_scope_param: 'fruits' }) { 'Enter fruits scope' }
               button(class: 'demo-panel px-3 py-1.5 text-sm',
                      data: { action: 'demo-cmdk#exitScope' }) { 'Exit scope' }
             end
 
-            Cmdk::Root(label: 'Stimulus demo', scopes: %w[user], class: 'cmdk-vercel w-full') do
+            Cmdk::Root(label: 'Stimulus demo', scopes: %w[fruits], class: 'cmdk-vercel w-full') do
               div(class: 'cmdk-search-row') { Cmdk::Input(placeholder: 'Stimulus-managed menu…') }
               Cmdk::List() do
                 Cmdk::Empty() { 'No results found.' }
@@ -157,9 +157,10 @@ module Views
                   Cmdk::Item() { '➕ New Issue' }
                   Cmdk::Item() { '🔍 Search Everything' }
                 end
-                Cmdk::Group(heading: 'Users', scope: 'user', scope_only: true) do
-                  Cmdk::Item() { '🧑 Leon Gieser' }
-                  Cmdk::Item() { '🧑 Anna Schmidt' }
+                Cmdk::Group(heading: 'Fruits', scope: 'fruits', scope_only: true) do
+                  Cmdk::Item() { '🍎 Apple' }
+                  Cmdk::Item() { '🍌 Banana' }
+                  Cmdk::Item() { '🍊 Orange' }
                 end
               end
             end

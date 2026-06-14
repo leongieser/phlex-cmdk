@@ -699,3 +699,50 @@ pre code.hljs {
 @media (prefers-reduced-motion: reduce) {
   .theme-menu-trigger svg { transition: none; }
 }
+
+/* Theme preset pills on the landing (mark + label). */
+.theme-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px 5px 9px;
+  border-radius: 9999px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+  border: 1px solid light-dark(#e5e5e5, #27272a);
+  background: light-dark(#ffffff, #18181b);
+  color: light-dark(#525252, #a1a1aa);
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.theme-pill:hover {
+  background: light-dark(#fafafa, #1f1f23);
+  color: light-dark(#171717, #e4e4e7);
+}
+
+.theme-pill:has(:checked) {
+  border-color: light-dark(#a3a3a3, #52525b);
+  background: light-dark(#ffffff, #27272a);
+  color: light-dark(#0a0a0a, #fafafa);
+  font-weight: 600;
+}
+
+.theme-pill:has(:focus-visible) {
+  outline: 2px solid light-dark(#5f6ad2, #818cf8);
+  outline-offset: 2px;
+}
+
+.theme-pill-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.theme-pill-mark svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}

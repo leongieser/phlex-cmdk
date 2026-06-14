@@ -101,6 +101,12 @@ pre.has-copy {
   padding-right: 4.5rem;
 }
 
+/* Code panes scroll horizontally, so let the code run full width and let the
+   button float over it (it has its own background) rather than reserving a gutter. */
+.code-pane.has-copy {
+  padding-right: 16px;
+}
+
 .copy-button {
   position: absolute;
   top: 6px;

@@ -926,48 +926,6 @@ pre code.hljs {
 }
 
 /* Theme builder on the Styling page. */
-.builder-presets {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.builder-presets-label {
-  font-size: 13px;
-  margin-right: 2px;
-}
-
-/* Each preset previews a shipped theme in its own palette (via inline --p-*
-   vars) and seeds the builder tokens when clicked. */
-.builder-preset {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 11px 5px 9px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  color: var(--p-fg);
-  background: var(--p-bg);
-  border: 1px solid var(--p-border);
-  border-radius: var(--p-radius);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-.builder-preset:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
-}
-
-.builder-preset-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--p-accent);
-  border: 1px solid var(--p-border);
-}
-
 .builder {
   display: grid;
   grid-template-columns: 1fr;

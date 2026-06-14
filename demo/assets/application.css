@@ -789,6 +789,9 @@ pre code.hljs {
   height: 100%;
   overflow: visible;
   pointer-events: none;
+  /* Above the menu so the leader dots are never clipped by a row's
+     selected/hover background. */
+  z-index: 2;
 }
 
 .anatomy-line {

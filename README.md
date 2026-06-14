@@ -319,12 +319,14 @@ Or target the attribute contract from a stylesheet (plain CSS, no build needed):
 
 The gem also ships a default theme as plain, dependency-free CSS
 ([assets/css/cmdk_themes.css](assets/css/cmdk_themes.css), path via
-`Cmdk.stylesheet_path`). Importing it styles every `[cmdk-root]` with a sensible
-default that is driven by CSS variables, so you re-theme by overriding a handful
-of tokens instead of rewriting selectors:
+`Cmdk.stylesheet_path`). Opt in with `class: 'cmdk'` on the root - it only
+styles menus you ask it to, never the ones you style yourself. The look is
+driven by CSS variables, so you re-theme by overriding a handful of tokens
+instead of rewriting selectors:
 
 ```css
-[cmdk-root] {
+/* The defaults (override any of these to re-theme): */
+:root {
   --cmdk-radius: 12px;   --cmdk-item-radius: 8px;   --cmdk-pill-radius: 6px;
   --cmdk-bg:        light-dark(#ffffff, #18181b);
   --cmdk-fg:        light-dark(#171717, #ededef);
@@ -340,8 +342,8 @@ of tokens instead of rewriting selectors:
 :root { --cmdk-accent: #ffe08a; --cmdk-radius: 6px; }
 ```
 
-Two ready-made looks ship as token presets: add `class: 'cmdk-linear'` or
-`'cmdk-raycast'` (`'cmdk-vercel'` is the default and needs no class). All are
+Two ready-made looks ship as token presets: `class: 'cmdk-linear'` or
+`'cmdk-raycast'` (`'cmdk-vercel'` is an alias for the default). All are
 browsable in Lookbook under "Themes". The
 [styling page](https://leongieser.github.io/phlex-cmdk/styling.html) has a live
 token builder that emits these overrides as CSS or Tailwind.

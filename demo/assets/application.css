@@ -451,6 +451,10 @@ pre code.hljs {
   align-items: center;
   min-width: 0;
   font-size: 15px;
+  line-height: 1.4;
+  /* Hold one full line so the row does not shrink when the typed
+     placeholder empties out between phrases (no layout shift). */
+  min-height: 1.4em;
   text-align: left;
 }
 

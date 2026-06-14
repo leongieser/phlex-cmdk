@@ -302,12 +302,11 @@
   }
 
   .cmdk-linear [cmdk-list] {
-    height: min(300px, calc(var(--cmdk-list-height) + 12px));
+    height: min(300px, var(--cmdk-list-height));
     max-height: 400px;
     overflow: auto;
     overscroll-behavior: contain;
     transition: height 100ms ease;
-    padding: 6px 0;
   }
 
   .cmdk-linear [cmdk-group-heading] {
@@ -334,7 +333,7 @@
     align-items: center;
     gap: 8px;
     height: 40px;
-    padding: 0 16px;
+    padding: 0 12px;
     border-top: 1px solid light-dark(#e9e8ea, #3c3d40);
     font-size: 12px;
     color: light-dark(#6f7177, #8a8f98);
@@ -399,8 +398,8 @@
   }
 
   .cmdk-raycast [cmdk-list] {
-    padding: 0 8px;
-    height: min(330px, var(--cmdk-list-height));
+    padding: 8px;
+    height: min(330px, calc(var(--cmdk-list-height) + 16px));
     overflow: auto;
     overscroll-behavior: contain;
     scroll-padding-block-end: 8px;
@@ -428,10 +427,6 @@
   .cmdk-raycast [cmdk-item][data-disabled='true'] {
     color: light-dark(#b9bbc1, #55565b);
     cursor: not-allowed;
-  }
-
-  .cmdk-raycast [cmdk-item]:first-child {
-    margin-top: 8px;
   }
 
   .cmdk-raycast [cmdk-item] + [cmdk-item] {

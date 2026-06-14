@@ -330,14 +330,20 @@ pre.has-copy {
 }
 
 .code-pane {
+  position: relative; /* anchors the copy button */
   background: light-dark(#ffffff, #18181b);
   border: 1px solid light-dark(#e5e5e5, #27272a);
   border-radius: 8px;
   padding: 12px 16px;
-  overflow: auto;
-  max-height: 480px;
+  overflow: hidden; /* the inner <code> scrolls, so the button stays put */
   font-size: 12px;
   line-height: 1.55;
+}
+
+.code-pane > code {
+  display: block;
+  overflow: auto;
+  max-height: 456px;
 }
 
 [data-pane][hidden] {

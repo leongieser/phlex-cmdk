@@ -805,6 +805,41 @@ pre code.hljs {
   fill: light-dark(#5f6ad2, #818cf8);
 }
 
+.anatomy-bracket {
+  fill: none;
+  stroke: light-dark(#5f6ad2, #818cf8);
+  stroke-width: 1.4;
+}
+
+/* Hover a label to isolate its element: unrelated parts dim, the active
+   leader stays bright, the rest fade back. */
+.anatomy-label,
+.anatomy-line,
+.anatomy-dot,
+.anatomy-bracket,
+.anatomy-menu [cmdk-root] * {
+  transition: opacity 0.15s ease;
+}
+
+.anatomy-label { cursor: default; }
+.anatomy-dim { opacity: 0.22; }
+.anatomy-isolating .anatomy-label:not(.is-active) { opacity: 0.4; }
+.anatomy-isolating .anatomy-line:not(.is-active),
+.anatomy-isolating .anatomy-dot:not(.is-active),
+.anatomy-isolating .anatomy-bracket:not(.is-active) {
+  opacity: 0.15;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anatomy-label,
+  .anatomy-line,
+  .anatomy-dot,
+  .anatomy-bracket,
+  .anatomy-menu [cmdk-root] * {
+    transition: none;
+  }
+}
+
 .anatomy-menu {
   grid-column: 1;
   display: flex;

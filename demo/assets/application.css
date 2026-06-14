@@ -331,6 +331,20 @@ pre.has-copy {
   }
 }
 
+.examples-nav-group {
+  margin: 14px 0 4px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: light-dark(#a3a3a3, #71717a);
+}
+
+.examples-nav-group:first-child {
+  margin-top: 0;
+}
+
 .examples-nav a {
   padding: 4px 12px;
   border-left: 2px solid transparent;

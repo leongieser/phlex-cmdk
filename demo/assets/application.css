@@ -351,9 +351,9 @@ pre.has-copy {
     width: 12rem;
     flex-shrink: 0;
     position: sticky;
-    top: 4.5rem; /* clears the sticky header */
+    top: 6rem; /* clears the sticky header with breathing room */
     align-self: flex-start;
-    max-height: calc(100vh - 6rem);
+    max-height: calc(100vh - 7.5rem);
     overflow: auto;
   }
 }

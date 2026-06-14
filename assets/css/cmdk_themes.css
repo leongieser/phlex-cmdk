@@ -358,6 +358,46 @@
     display: none;
   }
 
+  /* Scoped search: row holds the pill + input; pill in the Linear accent. */
+  .cmdk-linear .cmdk-search-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 20px;
+    border-bottom: 1px solid light-dark(#e9e8ea, #3c3d40);
+  }
+
+  .cmdk-linear .cmdk-search-row [cmdk-input] {
+    flex: 1;
+    padding-left: 0;
+    padding-right: 0;
+    border-bottom: 0;
+  }
+
+  .cmdk-linear [cmdk-scope-pill] {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    height: 26px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    background: light-dark(#ecedf6, #34364d);
+    color: light-dark(#5e6ad2, #b1b8f5);
+  }
+
+  .cmdk-linear [cmdk-scope-pill]:hover {
+    background: light-dark(#e1e3f1, #3d3f59);
+  }
+
+  .cmdk-linear [cmdk-scope-pill]::after {
+    content: '×';
+    color: light-dark(#8a8f98, #8a8f98);
+  }
+
   /* ── Raycast ────────────────────────────────────────────────────────── */
 
   .cmdk-raycast[cmdk-root] {
@@ -492,6 +532,45 @@
 
   .cmdk-raycast [cmdk-footer-hint][data-empty] {
     display: none;
+  }
+
+  /* Scoped search: row holds the pill + input; pill as a subtle Raycast chip. */
+  .cmdk-raycast .cmdk-search-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    border-bottom: 1px solid light-dark(#e4e2e4, #2e2e32);
+  }
+
+  .cmdk-raycast .cmdk-search-row [cmdk-input] {
+    flex: 1;
+    padding: 8px 0;
+    border-bottom: 0;
+  }
+
+  .cmdk-raycast [cmdk-scope-pill] {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    height: 24px;
+    padding: 0 9px;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    background: light-dark(#ededee, #2c2c30);
+    color: light-dark(#282a30, #ededef);
+  }
+
+  .cmdk-raycast [cmdk-scope-pill]:hover {
+    background: light-dark(#e2e2e4, #38383d);
+  }
+
+  .cmdk-raycast [cmdk-scope-pill]::after {
+    content: '×';
+    color: light-dark(#8a8f98, #8a8f98);
   }
 
   /* Prevent iOS Safari from zooming into the focused input (needs ≥16px). */

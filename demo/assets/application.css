@@ -813,18 +813,24 @@ pre code.hljs {
   stroke-linejoin: round;
 }
 
-/* Hover a label to isolate its element: unrelated parts dim, the active
-   leader stays bright, the rest fade back. */
+/* Hover a label to isolate its element: a scrim darkens the menu with a
+   hole around the target, the active leader stays bright, the rest fade. */
 .anatomy-label,
 .anatomy-line,
 .anatomy-dot,
-.anatomy-bracket,
-.anatomy-menu [cmdk-root] * {
+.anatomy-bracket {
   transition: opacity 0.15s ease;
 }
 
 .anatomy-label { cursor: default; }
-.anatomy-dim { opacity: 0.22; }
+
+.anatomy-scrim {
+  fill: light-dark(rgba(17, 17, 17, 0.13), rgba(0, 0, 0, 0.5));
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.anatomy-scrim.is-on { opacity: 1; }
+
 .anatomy-isolating .anatomy-label:not(.is-active) { opacity: 0.4; }
 .anatomy-isolating .anatomy-line:not(.is-active),
 .anatomy-isolating .anatomy-dot:not(.is-active),
@@ -837,7 +843,7 @@ pre code.hljs {
   .anatomy-line,
   .anatomy-dot,
   .anatomy-bracket,
-  .anatomy-menu [cmdk-root] * {
+  .anatomy-scrim {
     transition: none;
   }
 }

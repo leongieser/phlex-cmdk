@@ -806,6 +806,10 @@ pre code.hljs {
   grid-column: 1;
   display: flex;
   justify-content: center;
+  /* Presentational only: the runtime still seeds the selected row and footer
+     hint, but no hover/click/focus can disturb the labelled states. */
+  pointer-events: none;
+  user-select: none;
 }
 
 .anatomy-col {

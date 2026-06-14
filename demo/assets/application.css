@@ -125,7 +125,7 @@ html {
 /* Copy-to-clipboard button injected into code blocks on the site. */
 pre.has-copy {
   position: relative;
-  padding-right: 4.5rem;
+  padding-right: 2.75rem;
 }
 
 /* Code panes scroll horizontally, so let the code run full width and let the
@@ -134,17 +134,25 @@ pre.has-copy {
   padding-right: 16px;
 }
 
+/* Icon-only copy button: stacks the copy + check glyphs in one cell. */
 .copy-button {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  padding: 2px 8px;
-  font-size: 11px;
-  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 6px;
   border: 1px solid light-dark(#d4d4d4, #3f3f46);
   background: light-dark(#ffffff, #27272a);
   color: light-dark(#525252, #d4d4d8);
   cursor: pointer;
+}
+
+/* Floated top-right inside a code block; static elsewhere (e.g. the builder bar). */
+.has-copy .copy-button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
 }
 
 .copy-button:hover {
@@ -153,6 +161,52 @@ pre.has-copy {
 
 .copy-button.copied {
   color: light-dark(#15803d, #4ade80);
+  border-color: light-dark(#86efac, #166534);
+}
+
+.copy-button svg {
+  grid-area: 1 / 1;
+  width: 15px;
+  height: 15px;
+  transition: opacity 0.18s ease;
+}
+
+/* Show the check (and hide the copy) once copied. */
+.copy-button .check-icon { opacity: 0; }
+.copy-button.copied .copy-icon { opacity: 0; }
+.copy-button.copied .check-icon { opacity: 1; }
+
+/* Copy glyph: the two cards spring apart on hover (back-out easing ~= a spring). */
+.copy-button .copy-front,
+.copy-button .copy-back {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.copy-button:hover .copy-front { transform: translate(-3px, -3px); }
+.copy-button:hover .copy-back { transform: translate(3px, 3px); }
+
+/* Check glyph: draws in (pathLength normalised to 1) and scales up. */
+.copy-button .check-path {
+  transform-box: fill-box;
+  transform-origin: center;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.copy-button.copied .check-path {
+  animation: copy-check 0.4s ease forwards;
+}
+
+@keyframes copy-check {
+  from { stroke-dashoffset: 1; opacity: 0; transform: scale(0.5); }
+  to { stroke-dashoffset: 0; opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy-button .copy-front,
+  .copy-button .copy-back,
+  .copy-button svg { transition: none; }
+  .copy-button.copied .check-path { animation: none; stroke-dashoffset: 0; opacity: 1; }
 }
 
 /* Site background: a dot grid under a soft indigo glow, both fading out
@@ -1229,19 +1283,6 @@ pre code.hljs {
   background: light-dark(#f5f5f5, #27272a);
   color: light-dark(#171717, #ededef);
 }
-
-.builder-copy {
-  padding: 5px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid light-dark(#e5e5e5, #27272a);
-  border-radius: 8px;
-  background: light-dark(#ffffff, #18181b);
-  color: light-dark(#404040, #d4d4d8);
-}
-
-.builder-copy.copied { color: light-dark(#15803d, #4ade80); }
 
 .builder-output {
   width: 100%;

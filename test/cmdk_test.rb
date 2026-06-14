@@ -298,7 +298,8 @@ class AssetsTest < Minitest::Test
   def test_themes_stylesheet_exists_and_is_plain_css
     assert File.exist?(Cmdk.stylesheet_path)
     css = File.read(Cmdk.stylesheet_path)
-    assert_includes css, '.cmdk-vercel[cmdk-root]'
+    assert_includes css, '[cmdk-root]'        # variable-driven default theme
+    assert_includes css, '--cmdk-accent:'     # overridable design tokens
     assert_includes css, '.cmdk-linear[cmdk-root]'
     assert_includes css, '.cmdk-raycast[cmdk-root]'
     refute_includes css, '@apply' # must not require a Tailwind build

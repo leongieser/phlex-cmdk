@@ -317,10 +317,34 @@ Or target the attribute contract from a stylesheet (plain CSS, no build needed):
 [cmdk-list] { height: min(330px, var(--cmdk-list-height)); transition: height 100ms ease; }
 ```
 
-Three ready-made themes ship with the gem as plain, dependency-free CSS
-([assets/css/cmdk_themes.css](assets/css/cmdk_themes.css), path via `Cmdk.stylesheet_path`):
-`cmdk-vercel`, plus ports of the original cmdk `cmdk-linear` and `cmdk-raycast`
-themes. Apply one via the root's class; all are browsable in Lookbook under "Themes".
+The gem also ships a default theme as plain, dependency-free CSS
+([assets/css/cmdk_themes.css](assets/css/cmdk_themes.css), path via
+`Cmdk.stylesheet_path`). Importing it styles every `[cmdk-root]` with a sensible
+default that is driven by CSS variables, so you re-theme by overriding a handful
+of tokens instead of rewriting selectors:
+
+```css
+[cmdk-root] {
+  --cmdk-radius: 12px;   --cmdk-item-radius: 8px;   --cmdk-pill-radius: 6px;
+  --cmdk-bg:        light-dark(#ffffff, #18181b);
+  --cmdk-fg:        light-dark(#171717, #ededef);
+  --cmdk-muted:     light-dark(#a3a3a3, #71717a);   /* headings, footer, placeholder */
+  --cmdk-border:    light-dark(#e5e5e5, #27272a);
+  --cmdk-accent:    light-dark(#f5f5f5, #27272a);   /* selected row */
+  --cmdk-accent-fg: light-dark(#0a0a0a, #fafafa);
+  --cmdk-pill:      light-dark(#e5e5e5, #3f3f46);
+  --cmdk-pill-fg:   light-dark(#404040, #d4d4d8);
+}
+
+/* Re-theme globally or on a wrapper by overriding tokens: */
+:root { --cmdk-accent: #ffe08a; --cmdk-radius: 6px; }
+```
+
+Two ready-made looks ship as token presets: add `class: 'cmdk-linear'` or
+`'cmdk-raycast'` (`'cmdk-vercel'` is the default and needs no class). All are
+browsable in Lookbook under "Themes". The
+[styling page](https://leongieser.github.io/phlex-cmdk/styling.html) has a live
+token builder that emits these overrides as CSS or Tailwind.
 
 **Dark mode** - the shipped themes declare every color with `light-dark()` and resolve
 through `color-scheme`, giving the standard tri-state:

@@ -1,25 +1,29 @@
 /*
- * phlex-cmdk themes — Vercel, Linear and Raycast looks for the command menu,
- * ported from the original cmdk themes and styled purely via the [cmdk-*]
- * attribute contract (they work with the React package too).
+ * phlex-cmdk theme — a sensible default command-menu style, driven by CSS
+ * variables so it is trivial to re-theme. Styled purely via the [cmdk-*]
+ * attribute contract (works with the React package too).
  *
  * Plain, dependency-free CSS: import it into any build (Tailwind v4:
  * `@import '<path>'`), serve it, or copy it as a starting point. The path is
  * exposed in Ruby as `Cmdk.stylesheet_path`.
  *
- * Apply a theme by putting its class on the root:
- *   Cmdk::Root(class: 'cmdk-vercel') / 'cmdk-linear' / 'cmdk-raycast'
+ * Importing this file styles every `[cmdk-root]` with the default look. To
+ * re-theme, override the tokens below — globally or on a wrapper:
  *
- * Dark mode: every color is declared with light-dark() and resolves through
- * color-scheme — the OS decides by default ("system"); force a side with
- * <html data-theme="light"> or <html data-theme="dark">.
+ *   :root        { --cmdk-accent: #ffe08a; --cmdk-radius: 6px; }
+ *   .my-palette  { --cmdk-bg: #0b1020; --cmdk-fg: #e5e7eb; ... }
+ *
+ * Two ready-made looks ship as overrides: add `class: 'cmdk-linear'` or
+ * `'cmdk-raycast'` (`'cmdk-vercel'` is the default and needs no class).
+ *
+ * Dark mode: tokens use light-dark() and resolve through color-scheme — the OS
+ * decides by default ("system"); force a side with <html data-theme="dark">.
  */
 
 /*
- * Everything lives in @layer components: under Tailwind, the utilities layer
- * comes later, so classes like h-14 on an item override the theme; without
- * Tailwind, your own unlayered CSS overrides it just the same. No
- * tailwind-merge needed - the components themselves ship no utility classes.
+ * Everything lives in @layer components: under Tailwind the utilities layer
+ * comes later, so a utility class on an element overrides the theme; without
+ * Tailwind your own unlayered CSS overrides it just the same.
  */
 
 @layer components {
@@ -35,13 +39,9 @@
     color-scheme: dark;
   }
 
-  /* The themes assume border-box sizing (a no-op under Tailwind preflight). */
-  .cmdk-vercel[cmdk-root],
-  .cmdk-vercel[cmdk-root] *,
-  .cmdk-linear[cmdk-root],
-  .cmdk-linear[cmdk-root] *,
-  .cmdk-raycast[cmdk-root],
-  .cmdk-raycast[cmdk-root] * {
+  /* The theme assumes border-box sizing (a no-op under Tailwind preflight). */
+  [cmdk-root],
+  [cmdk-root] * {
     box-sizing: border-box;
   }
 
@@ -71,49 +71,67 @@
     }
   }
 
-  /* ── Vercel ─────────────────────────────────────────────────────────── */
+  /* ── Default theme ──────────────────────────────────────────────────────
+     Tokens on the root with sensible defaults; every rule below reads them, so
+     overriding a token re-themes the whole menu. */
 
-  .cmdk-vercel[cmdk-root] {
+  [cmdk-root] {
+    --cmdk-radius: 12px;
+    --cmdk-item-radius: 8px;
+    --cmdk-pill-radius: 6px;
+    --cmdk-item-height: 40px;
+
+    --cmdk-bg: light-dark(#ffffff, #18181b);
+    --cmdk-fg: light-dark(#171717, #ededef);
+    --cmdk-muted: light-dark(#a3a3a3, #71717a);
+    --cmdk-border: light-dark(#e5e5e5, #27272a);
+    --cmdk-accent: light-dark(#f5f5f5, #27272a);
+    --cmdk-accent-fg: light-dark(#0a0a0a, #fafafa);
+    --cmdk-pill: light-dark(#e5e5e5, #3f3f46);
+    --cmdk-pill-fg: light-dark(#404040, #d4d4d8);
+    --cmdk-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
     padding: 8px;
-    border-radius: 12px;
-    border: 1px solid light-dark(#e5e5e5, #27272a);
-    background: light-dark(#ffffff, #18181b);
-    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    border: 1px solid var(--cmdk-border);
+    border-radius: var(--cmdk-radius);
+    background: var(--cmdk-bg);
+    color: var(--cmdk-fg);
+    box-shadow: var(--cmdk-shadow);
   }
 
-  .cmdk-vercel [cmdk-input] {
+  [cmdk-root] [cmdk-input] {
     width: 100%;
     border: none;
-    border-bottom: 1px solid light-dark(#f5f5f5, #27272a);
+    border-bottom: 1px solid var(--cmdk-border);
     background: transparent;
     padding: 4px 8px 12px;
     font-size: 16px;
     line-height: 1.5;
     outline: none;
-    color: light-dark(#171717, #ededef);
+    color: var(--cmdk-fg);
   }
 
-  .cmdk-vercel [cmdk-input]::placeholder {
-    color: light-dark(#a3a3a3, #71717a);
+  [cmdk-root] [cmdk-input]::placeholder {
+    color: var(--cmdk-muted);
   }
 
   /* Flex row hosting the scope pill + input (the runtime inserts the pill before the input). */
-  .cmdk-vercel .cmdk-search-row {
+  [cmdk-root] .cmdk-search-row {
     display: flex;
     align-items: center;
     gap: 4px;
-    border-bottom: 1px solid light-dark(#f5f5f5, #27272a);
+    border-bottom: 1px solid var(--cmdk-border);
     padding: 0 8px;
   }
 
-  .cmdk-vercel .cmdk-search-row [cmdk-input] {
+  [cmdk-root] .cmdk-search-row [cmdk-input] {
     flex: 1;
     border: none;
     padding-left: 0;
     padding-right: 0;
   }
 
-  .cmdk-vercel [cmdk-scope-pill] {
+  [cmdk-root] [cmdk-scope-pill] {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -122,25 +140,25 @@
     margin-bottom: 8px;
     cursor: pointer;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--cmdk-pill-radius);
     padding: 0 8px;
     font-size: 12px;
     line-height: 16px;
     font-weight: 500;
-    background: light-dark(#e5e5e5, #3f3f46);
-    color: light-dark(#404040, #d4d4d8);
+    background: var(--cmdk-pill);
+    color: var(--cmdk-pill-fg);
   }
 
-  .cmdk-vercel [cmdk-scope-pill]:hover {
-    background: light-dark(#d4d4d4, #52525b);
+  [cmdk-root] [cmdk-scope-pill]:hover {
+    filter: brightness(0.96);
   }
 
-  .cmdk-vercel [cmdk-scope-pill]::after {
+  [cmdk-root] [cmdk-scope-pill]::after {
     content: '×';
-    color: light-dark(#a3a3a3, #a1a1aa);
+    color: var(--cmdk-muted);
   }
 
-  .cmdk-vercel [cmdk-list] {
+  [cmdk-root] [cmdk-list] {
     overflow-y: auto;
     overscroll-behavior: contain;
     padding-top: 8px;
@@ -149,141 +167,128 @@
     transition: height 100ms ease;
   }
 
-  .cmdk-vercel [cmdk-item] {
+  [cmdk-root] [cmdk-item] {
     display: flex;
     align-items: center;
     gap: 8px;
-    height: 40px;
+    height: var(--cmdk-item-height);
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: var(--cmdk-item-radius);
     padding: 0 12px;
     font-size: 14px;
     line-height: 20px;
     user-select: none;
-    color: light-dark(#404040, #d4d4d8);
+    color: var(--cmdk-fg);
     content-visibility: auto;
   }
 
-  .cmdk-vercel [cmdk-item][data-selected='true'] {
-    background: light-dark(#f5f5f5, #27272a);
-    color: light-dark(#0a0a0a, #fafafa);
+  [cmdk-root] [cmdk-item][data-selected='true'] {
+    background: var(--cmdk-accent);
+    color: var(--cmdk-accent-fg);
   }
 
-  .cmdk-vercel [cmdk-item][data-disabled='true'] {
+  [cmdk-root] [cmdk-item][data-disabled='true'] {
     cursor: not-allowed;
-    color: light-dark(#d4d4d4, #52525b);
+    color: var(--cmdk-muted);
+    opacity: 0.6;
   }
 
-  .cmdk-vercel [cmdk-item]:active {
-    background: light-dark(#e5e5e5, #3f3f46);
-  }
-
-  .cmdk-vercel [cmdk-group-heading] {
+  [cmdk-root] [cmdk-group-heading] {
     padding: 8px 12px 6px;
     font-size: 12px;
     line-height: 16px;
     font-weight: 500;
     user-select: none;
-    color: light-dark(#a3a3a3, #71717a);
+    color: var(--cmdk-muted);
   }
 
-  .cmdk-vercel [cmdk-separator] {
+  [cmdk-root] [cmdk-separator] {
     height: 1px;
     margin: 8px 4px;
-    background: light-dark(#f5f5f5, #27272a);
+    background: var(--cmdk-border);
   }
 
-  .cmdk-vercel [cmdk-empty],
-  .cmdk-vercel [cmdk-loading] {
+  [cmdk-root] [cmdk-empty],
+  [cmdk-root] [cmdk-loading] {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 48px;
     font-size: 14px;
-    color: light-dark(#a3a3a3, #71717a);
+    color: var(--cmdk-muted);
   }
 
-  .cmdk-vercel [cmdk-footer] {
+  [cmdk-root] [cmdk-footer] {
     display: flex;
     align-items: center;
     gap: 8px;
     height: 40px;
     margin: 8px -8px -8px;
-    border-top: 1px solid light-dark(#f5f5f5, #27272a);
-    border-radius: 0 0 12px 12px;
+    border-top: 1px solid var(--cmdk-border);
+    border-radius: 0 0 var(--cmdk-radius) var(--cmdk-radius);
     padding: 0 12px;
     font-size: 12px;
-    color: light-dark(#a3a3a3, #71717a);
+    color: var(--cmdk-muted);
   }
 
-  .cmdk-vercel [cmdk-footer-hint] {
+  [cmdk-root] [cmdk-footer-hint] {
     display: flex;
     align-items: center;
     gap: 6px;
     margin-left: auto;
-    color: light-dark(#525252, #a1a1aa);
   }
 
-  .cmdk-vercel [cmdk-footer-hint] kbd {
+  [cmdk-root] [cmdk-footer-hint] kbd {
     border-radius: 4px;
     padding: 2px 6px;
     font-family: inherit;
     font-size: 11px;
-    background: light-dark(#f5f5f5, #27272a);
-    color: light-dark(#737373, #a1a1aa);
+    background: var(--cmdk-accent);
+    color: var(--cmdk-muted);
   }
 
-  .cmdk-vercel [cmdk-footer-hint][data-empty] {
+  [cmdk-root] [cmdk-footer-hint][data-empty] {
     display: none;
   }
 
-  /* ── Linear ─────────────────────────────────────────────────────────── */
+  /* ── Linear ─────────────────────────────────────────────────────────────
+     Token overrides + the structural bits that differ from the default. */
 
   .cmdk-linear[cmdk-root] {
-    background: light-dark(#ffffff, #27282b);
-    border-radius: 8px;
+    --cmdk-radius: 8px;
+    --cmdk-item-radius: 0;
+    --cmdk-item-height: 48px;
+    --cmdk-bg: light-dark(#ffffff, #27282b);
+    --cmdk-fg: light-dark(#282a30, #ededef);
+    --cmdk-muted: light-dark(#6f7177, #8a8f98);
+    --cmdk-border: light-dark(#e9e8ea, #3c3d40);
+    --cmdk-accent: light-dark(#f0f0f1, #313135);
+    --cmdk-accent-fg: light-dark(#282a30, #ededef);
+    --cmdk-pill: light-dark(#ecedf6, #34364d);
+    --cmdk-pill-fg: light-dark(#5e6ad2, #b1b8f5);
+    --cmdk-shadow: 0 16px 70px rgb(0 0 0 / 20%);
     overflow: hidden;
-    padding: 0;
-    box-shadow: 0 16px 70px rgb(0 0 0 / 20%);
   }
 
-  .cmdk-linear [cmdk-input] {
-    border: none;
-    width: 100%;
+  .cmdk-linear[cmdk-root] [cmdk-input] {
     font-size: 18px;
     padding: 20px;
-    outline: none;
-    background: transparent;
-    color: light-dark(#282a30, #ededef);
-    border-bottom: 1px solid light-dark(#e9e8ea, #3c3d40);
-    border-radius: 0;
     caret-color: #6e5ed2;
-    margin: 0;
   }
 
-  .cmdk-linear [cmdk-input]::placeholder {
-    color: light-dark(#8a8f98, #6f7177);
+  .cmdk-linear[cmdk-root] .cmdk-search-row {
+    gap: 8px;
+    padding: 0 20px;
   }
 
-  .cmdk-linear [cmdk-item] {
-    content-visibility: auto;
-    cursor: pointer;
-    height: 48px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
+  .cmdk-linear[cmdk-root] [cmdk-item] {
     gap: 12px;
     padding: 0 16px;
-    color: light-dark(#282a30, #ededef);
-    user-select: none;
     position: relative;
   }
 
-  .cmdk-linear [cmdk-item][data-selected='true'] {
-    background: light-dark(#f0f0f1, #313135);
-  }
-
-  .cmdk-linear [cmdk-item][data-selected='true']::after {
+  /* Accent bar on the selected row. */
+  .cmdk-linear[cmdk-root] [cmdk-item][data-selected='true']::after {
     content: '';
     position: absolute;
     left: 0;
@@ -292,124 +297,48 @@
     background: #5f6ad2;
   }
 
-  .cmdk-linear [cmdk-item][data-disabled='true'] {
-    color: light-dark(#b9bbc1, #55565b);
-    cursor: not-allowed;
-  }
-
-  .cmdk-linear [cmdk-item]:active {
-    background: light-dark(#e9e8ea, #37383c);
-  }
-
-  .cmdk-linear [cmdk-list] {
-    height: min(300px, var(--cmdk-list-height));
-    max-height: 400px;
-    overflow: auto;
-    overscroll-behavior: contain;
-    transition: height 100ms ease;
-  }
-
-  .cmdk-linear [cmdk-group-heading] {
-    user-select: none;
-    font-size: 12px;
-    color: light-dark(#6f7177, #8a8f98);
+  .cmdk-linear[cmdk-root] [cmdk-group-heading] {
     padding: 8px;
-    display: flex;
-    align-items: center;
   }
 
-  .cmdk-linear [cmdk-empty] {
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .cmdk-linear[cmdk-root] [cmdk-empty] {
     height: 64px;
     white-space: pre-wrap;
-    color: light-dark(#6f7177, #8a8f98);
   }
 
-  .cmdk-linear [cmdk-footer] {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .cmdk-linear[cmdk-root] [cmdk-footer] {
     height: 40px;
+    margin: 0;
     padding: 0 12px;
-    border-top: 1px solid light-dark(#e9e8ea, #3c3d40);
-    font-size: 12px;
-    color: light-dark(#6f7177, #8a8f98);
+    border-radius: 0;
   }
 
-  .cmdk-linear [cmdk-footer-hint] {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-left: auto;
-  }
-
-  .cmdk-linear [cmdk-footer-hint] kbd {
-    font-size: 12px;
-    color: light-dark(#6f7177, #8a8f98);
-    background: light-dark(#f0f0f1, #313135);
-    border-radius: 4px;
-    padding: 2px 5px;
-  }
-
-  .cmdk-linear [cmdk-footer-hint][data-empty] {
-    display: none;
-  }
-
-  /* Scoped search: row holds the pill + input; pill in the Linear accent. */
-  .cmdk-linear .cmdk-search-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 20px;
-    border-bottom: 1px solid light-dark(#e9e8ea, #3c3d40);
-  }
-
-  .cmdk-linear .cmdk-search-row [cmdk-input] {
-    flex: 1;
-    padding-left: 0;
-    padding-right: 0;
-    border-bottom: 0;
-  }
-
-  .cmdk-linear [cmdk-scope-pill] {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    flex: none;
+  .cmdk-linear[cmdk-root] [cmdk-scope-pill] {
     height: 26px;
+    gap: 6px;
     padding: 0 10px;
-    border: 0;
-    border-radius: 6px;
-    cursor: pointer;
     font-size: 13px;
-    background: light-dark(#ecedf6, #34364d);
-    color: light-dark(#5e6ad2, #b1b8f5);
   }
 
-  .cmdk-linear [cmdk-scope-pill]:hover {
-    background: light-dark(#e1e3f1, #3d3f59);
-  }
-
-  .cmdk-linear [cmdk-scope-pill]::after {
-    content: '×';
-    color: light-dark(#8a8f98, #8a8f98);
-  }
-
-  /* ── Raycast ────────────────────────────────────────────────────────── */
+  /* ── Raycast ────────────────────────────────────────────────────────────
+     Token overrides + the structural bits that differ from the default. */
 
   .cmdk-raycast[cmdk-root] {
-    background: light-dark(#fdfcfd, #1c1c1f);
-    border-radius: 12px;
+    --cmdk-radius: 12px;
+    --cmdk-bg: light-dark(#fdfcfd, #1c1c1f);
+    --cmdk-fg: light-dark(#282a30, #ededef);
+    --cmdk-muted: light-dark(#6f7177, #8a8f98);
+    --cmdk-border: light-dark(#e4e2e4, #2e2e32);
+    --cmdk-accent: light-dark(#ededee, #2c2c30);
+    --cmdk-accent-fg: light-dark(#282a30, #ededef);
+    --cmdk-pill: light-dark(#ededee, #2c2c30);
+    --cmdk-pill-fg: light-dark(#282a30, #ededef);
+    --cmdk-shadow: 0 16px 70px rgb(0 0 0 / 20%);
     padding: 8px 0 48px; /* bottom inset hosts the absolute footer */
-    border: 1px solid light-dark(#e4e2e4, #2e2e32);
-    box-shadow: 0 16px 70px rgb(0 0 0 / 20%);
     position: relative;
   }
 
-  .cmdk-raycast kbd {
+  .cmdk-raycast[cmdk-root] kbd {
     background: light-dark(#f0f0f1, #2e2e32);
     color: light-dark(#6f7177, #a0a0a8);
     min-width: 20px;
@@ -422,162 +351,78 @@
     font-size: 12px;
   }
 
-  .cmdk-raycast [cmdk-input] {
-    border: none;
-    width: 100%;
+  .cmdk-raycast[cmdk-root] [cmdk-input] {
     font-size: 15px;
     padding: 8px 16px;
-    outline: none;
-    background: transparent;
-    color: light-dark(#282a30, #ededef);
-    border-bottom: 1px solid light-dark(#e4e2e4, #2e2e32);
   }
 
-  .cmdk-raycast [cmdk-input]::placeholder {
-    color: light-dark(#8a8f98, #6f7177);
+  .cmdk-raycast[cmdk-root] .cmdk-search-row {
+    gap: 8px;
+    padding: 0 16px;
   }
 
-  .cmdk-raycast [cmdk-list] {
+  .cmdk-raycast[cmdk-root] .cmdk-search-row [cmdk-input] {
+    padding: 8px 0;
+  }
+
+  .cmdk-raycast[cmdk-root] [cmdk-list] {
     padding: 8px;
     height: min(330px, calc(var(--cmdk-list-height) + 16px));
-    overflow: auto;
-    overscroll-behavior: contain;
     scroll-padding-block-end: 8px;
-    transition: height 100ms ease;
   }
 
-  .cmdk-raycast [cmdk-item] {
-    content-visibility: auto;
-    cursor: pointer;
-    height: 40px;
-    border-radius: 8px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .cmdk-raycast[cmdk-root] [cmdk-item] {
     padding: 0 8px;
-    color: light-dark(#282a30, #ededef);
-    user-select: none;
   }
 
-  .cmdk-raycast [cmdk-item][data-selected='true'] {
-    background: light-dark(#ededee, #2c2c30);
-  }
-
-  .cmdk-raycast [cmdk-item][data-disabled='true'] {
-    color: light-dark(#b9bbc1, #55565b);
-    cursor: not-allowed;
-  }
-
-  .cmdk-raycast [cmdk-item] + [cmdk-item] {
+  .cmdk-raycast[cmdk-root] [cmdk-item] + [cmdk-item] {
     margin-top: 4px;
   }
 
-  .cmdk-raycast .cmdk-raycast-meta {
+  .cmdk-raycast[cmdk-root] .cmdk-raycast-meta {
     margin-left: auto;
-    color: light-dark(#6f7177, #8a8f98);
+    color: var(--cmdk-muted);
     font-size: 13px;
   }
 
-  .cmdk-raycast [cmdk-separator] {
-    height: 1px;
-    width: 100%;
-    background: light-dark(#e9e8ea, #2e2e32);
-    margin: 4px 0;
-  }
-
-  .cmdk-raycast [cmdk-group-heading] {
-    user-select: none;
-    font-size: 12px;
-    color: light-dark(#6f7177, #8a8f98);
+  .cmdk-raycast[cmdk-root] [cmdk-group-heading] {
     padding: 8px;
-    display: flex;
-    align-items: center;
   }
 
-  .cmdk-raycast [cmdk-empty] {
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .cmdk-raycast[cmdk-root] [cmdk-empty] {
     height: 64px;
     white-space: pre-wrap;
-    color: light-dark(#6f7177, #8a8f98);
   }
 
-  .cmdk-raycast [cmdk-footer] {
-    display: flex;
-    height: 40px;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
+  /* Footer is pinned to the bottom inset rather than flowing after the list. */
+  .cmdk-raycast[cmdk-root] [cmdk-footer] {
     position: absolute;
-    background: light-dark(#fdfcfd, #1c1c1f);
     bottom: 0;
     left: 0;
+    width: 100%;
+    height: 40px;
+    margin: 0;
     padding: 8px;
-    border-top: 1px solid light-dark(#e4e2e4, #2e2e32);
-    border-radius: 0 0 12px 12px;
+    background: var(--cmdk-bg);
+    border-radius: 0 0 var(--cmdk-radius) var(--cmdk-radius);
     font-size: 13px;
-    color: light-dark(#6f7177, #8a8f98);
   }
 
-  .cmdk-raycast [cmdk-footer-hint] {
-    display: flex;
-    align-items: center;
+  .cmdk-raycast[cmdk-root] [cmdk-footer-hint] {
     gap: 4px;
-    margin-left: auto;
-    color: light-dark(#282a30, #ededef);
+    color: var(--cmdk-fg);
   }
 
-  .cmdk-raycast [cmdk-footer-hint][data-empty] {
-    display: none;
-  }
-
-  /* Scoped search: row holds the pill + input; pill as a subtle Raycast chip. */
-  .cmdk-raycast .cmdk-search-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 16px;
-    border-bottom: 1px solid light-dark(#e4e2e4, #2e2e32);
-  }
-
-  .cmdk-raycast .cmdk-search-row [cmdk-input] {
-    flex: 1;
-    padding: 8px 0;
-    border-bottom: 0;
-  }
-
-  .cmdk-raycast [cmdk-scope-pill] {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    flex: none;
+  .cmdk-raycast[cmdk-root] [cmdk-scope-pill] {
     height: 24px;
+    gap: 6px;
     padding: 0 9px;
-    border: 0;
-    border-radius: 6px;
-    cursor: pointer;
     font-size: 13px;
-    background: light-dark(#ededee, #2c2c30);
-    color: light-dark(#282a30, #ededef);
-  }
-
-  .cmdk-raycast [cmdk-scope-pill]:hover {
-    background: light-dark(#e2e2e4, #38383d);
-  }
-
-  .cmdk-raycast [cmdk-scope-pill]::after {
-    content: '×';
-    color: light-dark(#8a8f98, #8a8f98);
   }
 
   /* Prevent iOS Safari from zooming into the focused input (needs ≥16px). */
   @media (max-width: 640px) {
-    .cmdk-vercel [cmdk-input],
-    .cmdk-linear [cmdk-input],
-    .cmdk-raycast [cmdk-input] {
+    [cmdk-root] [cmdk-input] {
       font-size: 16px;
     }
   }

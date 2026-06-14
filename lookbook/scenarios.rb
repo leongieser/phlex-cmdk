@@ -350,20 +350,45 @@ module Scenarios
     end
   end
 
+  # Plain listeners: every interaction is a bubbling DOM event, so listen on
+  # the root (scoped, so it ignores other menus on the page).
   class Events < Phlex::HTML
     def view_template
-      div(class: 'flex w-160 max-w-full flex-col gap-4') do
+      div(class: 'flex w-160 max-w-full flex-col gap-4', data: { events_demo: '' }) do
         render Menu.new
-        pre(id: 'event-log',
-            class: 'demo-panel h-32 overflow-y-auto p-3 text-xs')
+        pre(data: { events_log: '' }, class: 'demo-panel h-32 overflow-y-auto p-3 text-xs')
         script { raw safe(<<~JS) }
-          const log = document.getElementById('event-log')
+          const scope = document.currentScript.closest('[data-events-demo]')
+          const log = scope.querySelector('[data-events-log]')
+          const root = scope.querySelector('[cmdk-root]')
           for (const type of ['cmdk-item-select', 'cmdk-value-change', 'cmdk-search-change']) {
-            document.addEventListener(type, (e) => {
+            root.addEventListener(type, (e) => {
               log.textContent = `${type.padEnd(18)} ${JSON.stringify(e.detail)}\\n` + log.textContent
             })
           }
         JS
+      end
+    end
+  end
+
+  # The same idea wired through the optional Stimulus base controller: extend
+  # CmdkController and override its hooks. Registration lives in the page's
+  # module script (shown in the Stimulus controller pane).
+  class StimulusEvents < Phlex::HTML
+    def view_template
+      div(data: { controller: 'palette' }, class: 'flex w-160 max-w-full flex-col gap-4') do
+        Cmdk::Root(label: 'Stimulus', loop: true, class: 'cmdk-vercel w-full') do
+          Cmdk::Input(placeholder: 'Wired with a Stimulus controller…')
+          Cmdk::List() do
+            Cmdk::Empty() { 'No results found.' }
+            Cmdk::Group(heading: 'Suggestions') do
+              Cmdk::Item(value: 'Linear') { '📐 Linear' }
+              Cmdk::Item(value: 'Figma') { '🎨 Figma' }
+              Cmdk::Item(value: 'Slack') { '💬 Slack' }
+            end
+          end
+        end
+        pre(data: { palette_log: '' }, class: 'demo-panel h-32 overflow-y-auto p-3 text-xs')
       end
     end
   end

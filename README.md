@@ -125,7 +125,7 @@ class CommandMenu < Phlex::HTML
 end
 ```
 
-React's callbacks are DOM events; all bubble, so listen on the root, the document, or via a
+Every interaction is a bubbling DOM event, so listen on the root, the document, or via a
 Stimulus action (`data-action="cmdk-item-select->palette#run"`):
 
 ```js
@@ -295,8 +295,9 @@ actions: `open`/`close`/`toggle` (dialog), `setSearch`, `setValue`, `enterScope`
 
 ### Styling
 
-Unstyled, exactly like the React package. With Tailwind, the idiomatic way is
-utilities on the components themselves - the runtime toggles `data-*` attributes,
+Unstyled by design: the components ship no styles, only the `cmdk-*` attribute
+contract. With Tailwind, the idiomatic way is utilities on the components
+themselves - the runtime toggles `data-*` attributes,
 so Tailwind's data variants cover the states:
 
 ```ruby

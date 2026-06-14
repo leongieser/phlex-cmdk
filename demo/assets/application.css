@@ -46,6 +46,57 @@ html {
   color: light-dark(#737373, #a1a1aa);
 }
 
+/* Header nav "magic line": one underline that slides + stretches between items,
+   resting under the current page. JS (data-nav) drives width + translateX from
+   each link's geometry; the mid-flight stretch is handled in script for the
+   direction-aware feel. These transitions cover the reduced-motion/instant
+   paths and any non-scripted fallback. */
+.site-nav {
+  position: relative;
+}
+
+.nav-link {
+  padding-bottom: 3px;
+  color: inherit;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.is-active {
+  color: light-dark(#171717, #fafafa);
+}
+
+.nav-link.is-active {
+  font-weight: 500;
+}
+
+.nav-underline {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  width: 0;
+  border-radius: 2px;
+  background: light-dark(#171717, #fafafa);
+  transform: translateX(0);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease;
+}
+
+.site-nav.is-ready .nav-underline {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-underline {
+    transition: opacity 0.2s ease;
+  }
+}
+
 .demo-chip {
   border-radius: 4px;
   padding: 0 4px;

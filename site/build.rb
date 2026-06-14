@@ -97,11 +97,12 @@ class SitePage < Phlex::HTML
         div(class: 'site-header') do
           header(class: 'mx-auto flex w-full max-w-5xl items-center gap-4 px-4 py-4 text-sm sm:gap-5 sm:px-6') do
             a(href: './', class: 'shrink-0 font-semibold tracking-tight whitespace-nowrap') { '⌘K phlex-cmdk' }
-            nav(class: 'demo-hint hidden gap-4 sm:flex') do
+            nav(class: 'site-nav demo-hint hidden gap-4 sm:flex', data: { nav: '' }) do
               nav_link('Playground', './')
               nav_link('Examples', './examples.html')
               nav_link('Styling', './styling.html')
               nav_link('Docs', './docs.html')
+              span(class: 'nav-underline', data: { nav_underline: '' }, aria_hidden: 'true')
             end
             div(class: 'ml-auto flex items-center gap-1') do
               a(href: 'https://rubygems.org/gems/phlex-cmdk', class: 'header-icon-link',
@@ -128,6 +129,71 @@ class SitePage < Phlex::HTML
             addEventListener('scroll', onScroll, { passive: true })
             onScroll()
           }
+
+          // Header nav "magic line": one underline that slides + stretches to
+          // the hovered link, resting under the current page. The mid-flight
+          // stretch (it spans both items, then contracts) makes it direction
+          // aware. prefers-reduced-motion gets an instant jump instead.
+          ;(() => {
+            const nav = document.querySelector('[data-nav]')
+            if (!nav) return
+            const bar = nav.querySelector('[data-nav-underline]')
+            const links = [...nav.querySelectorAll('[data-nav-link]')]
+            if (!bar || !links.length) return
+            const home = nav.querySelector('[data-nav-link][aria-current="page"]') || links[0]
+            const reduce = matchMedia('(prefers-reduced-motion: reduce)')
+            let from = null
+            let anim = null
+
+            const geom = (el) => {
+              const n = nav.getBoundingClientRect()
+              const r = el.getBoundingClientRect()
+              return { x: r.left - n.left, w: r.width }
+            }
+            const set = (g) => {
+              bar.style.transform = `translateX(${g.x}px)`
+              bar.style.width = `${g.w}px`
+            }
+            const placeInstant = (el) => {
+              const g = geom(el)
+              bar.style.transition = 'none'
+              set(g)
+              bar.offsetWidth // flush, so the next move can transition
+              bar.style.transition = ''
+              from = g
+            }
+            const slideTo = (el) => {
+              const to = geom(el)
+              const a = from || to
+              from = to
+              if (reduce.matches) { set(to); return }
+              if (anim) anim.cancel()
+              const sx = Math.min(a.x, to.x)
+              const sw = Math.max(a.x + a.w, to.x + to.w) - sx
+              anim = bar.animate([
+                { transform: `translateX(${a.x}px)`, width: `${a.w}px` },
+                { transform: `translateX(${sx}px)`, width: `${sw}px`, offset: 0.45 },
+                { transform: `translateX(${to.x}px)`, width: `${to.w}px` },
+              ], { duration: 380, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' })
+              anim.onfinish = () => { try { anim.commitStyles() } catch (e) {} ; anim.cancel(); anim = null }
+            }
+
+            placeInstant(home)
+            requestAnimationFrame(() => nav.classList.add('is-ready'))
+
+            links.forEach((link) => {
+              link.addEventListener('pointerenter', () => slideTo(link))
+              link.addEventListener('focus', () => slideTo(link))
+            })
+            nav.addEventListener('pointerleave', () => slideTo(home))
+            nav.addEventListener('focusout', (e) => { if (!nav.contains(e.relatedTarget)) slideTo(home) })
+
+            let rid
+            addEventListener('resize', () => {
+              cancelAnimationFrame(rid)
+              rid = requestAnimationFrame(() => placeInstant(home))
+            }, { passive: true })
+          })()
 
           // Freeze each example's initial height so filtering (which shrinks
           // the list) does not shift the layout below it.
@@ -231,7 +297,8 @@ class SitePage < Phlex::HTML
 
   def nav_link(label, href)
     active = @current == label
-    a(href: href, class: active ? 'font-medium text-current' : 'hover:underline') { label }
+    a(href: href, class: active ? 'nav-link is-active' : 'nav-link',
+      data: { nav_link: '' }, aria_current: (active ? 'page' : nil)) { label }
   end
 end
 

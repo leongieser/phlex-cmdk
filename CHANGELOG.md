@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 — Unreleased
+## 0.1.0 — 2026-06-15
 
 Initial release: a feature-parity Phlex port of the cmdk React command menu.
 

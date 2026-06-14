@@ -9,6 +9,16 @@
  * cmdk-linear, cmdk-raycast) ship with the gem in assets/css/cmdk_themes.css.
  */
 
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 /* Page canvas for the demo and Lookbook previews. */
 .cmdk-canvas {
   background: light-dark(#f5f5f5, #0b0b0d);
@@ -301,6 +311,48 @@ pre.has-copy {
 /* <<< cmdk-terminal */
 
 /* Segmented view switcher and code panes on the examples page. */
+/* Examples side nav: sticky list of jump links, active one accented. */
+.examples-nav {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .examples-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 12rem;
+    flex-shrink: 0;
+    position: sticky;
+    top: 1.5rem;
+    align-self: flex-start;
+    max-height: calc(100vh - 3rem);
+    overflow: auto;
+  }
+}
+
+.examples-nav a {
+  padding: 4px 12px;
+  border-left: 2px solid transparent;
+  font-size: 13px;
+  line-height: 1.4;
+  color: light-dark(#737373, #a1a1aa);
+}
+
+.examples-nav a:hover {
+  color: light-dark(#171717, #ededef);
+}
+
+.examples-nav a.active {
+  color: light-dark(#171717, #ededef);
+  font-weight: 500;
+  border-left-color: light-dark(#5f6ad2, #818cf8);
+}
+
+.example-section {
+  scroll-margin-top: 1.5rem;
+}
+
 .seg-group {
   display: inline-flex;
   overflow: hidden;

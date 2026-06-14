@@ -926,6 +926,38 @@ pre code.hljs {
 }
 
 /* Theme builder on the Styling page. */
+.builder-presets {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.builder-presets-label {
+  font-size: 13px;
+}
+
+.builder-preset-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.builder-preset {
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid light-dark(#e5e5e5, #27272a);
+  border-radius: 8px;
+  background: light-dark(#ffffff, #18181b);
+  color: light-dark(#404040, #d4d4d8);
+}
+
+.builder-preset:hover {
+  border-color: light-dark(#d4d4d4, #3f3f46);
+}
+
 .builder {
   display: grid;
   grid-template-columns: 1fr;

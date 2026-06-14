@@ -735,3 +735,23 @@ pre code.hljs {
   height: 16px;
   display: block;
 }
+
+/* Icon-only header links (e.g. GitHub), sized to match the mode toggle. */
+.header-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: light-dark(#525252, #a1a1aa);
+  transition: color 150ms ease;
+}
+
+.header-icon-link:hover {
+  color: light-dark(#171717, #fafafa);
+}
+
+.header-icon-link svg {
+  width: 18px;
+  height: 18px;
+}

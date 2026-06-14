@@ -25,6 +25,17 @@ html {
   color: light-dark(#171717, #e4e4e7);
 }
 
+/* Frosted sticky header (the canvas colour at low opacity + blur). */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: light-dark(rgba(245, 245, 245, 0.72), rgba(11, 11, 13, 0.72));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.07));
+}
+
 .demo-hint {
   color: light-dark(#737373, #a1a1aa);
 }
@@ -334,9 +345,9 @@ pre.has-copy {
     width: 12rem;
     flex-shrink: 0;
     position: sticky;
-    top: 1.5rem;
+    top: 4.5rem; /* clears the sticky header */
     align-self: flex-start;
-    max-height: calc(100vh - 3rem);
+    max-height: calc(100vh - 6rem);
     overflow: auto;
   }
 }
@@ -374,7 +385,7 @@ pre.has-copy {
 }
 
 .example-section {
-  scroll-margin-top: 1.5rem;
+  scroll-margin-top: 4.5rem; /* anchor jumps land below the sticky header */
 }
 
 .seg-group {

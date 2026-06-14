@@ -612,13 +612,16 @@ pre code.hljs {
   position: relative;
   cursor: pointer;
   border-radius: 8px;
-  border: 1px solid light-dark(#e5e5e5, #27272a);
-  background: light-dark(#ffffff, #18181b);
-  color: light-dark(#404040, #d4d4d8);
+  border: none;
+  background: transparent;
+  color: light-dark(#525252, #a1a1aa);
+  transition: background-color 150ms ease, color 150ms ease;
 }
 
-.theme-menu-trigger:hover {
-  background: light-dark(#f5f5f5, #27272a);
+.theme-menu-trigger:hover,
+.theme-menu-trigger[aria-expanded='true'] {
+  background: light-dark(rgb(0 0 0 / 0.06), rgb(255 255 255 / 0.08));
+  color: light-dark(#171717, #fafafa);
 }
 
 .theme-menu-trigger:focus-visible {
@@ -743,11 +746,13 @@ pre code.hljs {
   justify-content: center;
   width: 32px;
   height: 32px;
+  border-radius: 8px;
   color: light-dark(#525252, #a1a1aa);
-  transition: color 150ms ease;
+  transition: background-color 150ms ease, color 150ms ease;
 }
 
 .header-icon-link:hover {
+  background: light-dark(rgb(0 0 0 / 0.06), rgb(255 255 255 / 0.08));
   color: light-dark(#171717, #fafafa);
 }
 

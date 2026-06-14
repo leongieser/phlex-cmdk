@@ -601,7 +601,9 @@ pre code.hljs {
 /* <<< cmdk-brutal */
 
 /* Header appearance toggle (shadcn-style): sun/moon trigger + dropdown. */
-.theme-menu { position: relative; }
+/* Flex (not block) so the inline-flex trigger does not add a line-box gap,
+   which would make this wrapper taller than the adjacent 32px icon link. */
+.theme-menu { position: relative; display: flex; align-items: center; }
 
 .theme-menu-trigger {
   display: inline-flex;

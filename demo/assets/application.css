@@ -161,30 +161,16 @@ pre.has-copy {
   background: repeating-linear-gradient(0deg, rgb(0 0 0 / 0.22) 0 1px, transparent 1px 3px);
 }
 
-.cmdk-terminal .term-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 4px 8px 0;
-  border-bottom: 1px dashed #14532d;
-}
-
-.cmdk-terminal .term-prompt {
-  color: #4ade80;
-  text-shadow: 0 0 8px rgb(74 222 128 / 0.8);
-  animation: cmdk-terminal-blink 1.2s steps(2) infinite;
-}
-
-@keyframes cmdk-terminal-blink {
-  50% { opacity: 0.25; }
-}
-
 .cmdk-terminal [cmdk-input] {
-  flex: 1;
+  width: 100%;
   border: none;
+  border-bottom: 1px dashed #14532d;
   outline: none;
-  background: transparent;
-  padding: 8px 0 12px;
+  /* The › prompt is drawn in CSS so it shows on any terminal-themed menu,
+     not only the one example that wrapped the input in markup. */
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ade80' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 6 15 12 9 18'/%3E%3C/svg%3E") no-repeat 9px 50%;
+  background-size: 13px;
+  padding: 10px 8px 12px 30px;
   font: inherit;
   font-size: 14px;
   letter-spacing: 0.03em;
@@ -231,9 +217,12 @@ pre.has-copy {
 }
 
 .cmdk-terminal [cmdk-item]::before {
-  content: '  ';
-  white-space: pre;
+  content: '❯';
+  flex: none;
+  width: 14px;
+  text-align: center;
   color: #4ade80;
+  opacity: 0; /* the marker column reserves space; only the selected row shows it */
 }
 
 .cmdk-terminal [cmdk-item][data-selected='true'] {
@@ -243,7 +232,7 @@ pre.has-copy {
 }
 
 .cmdk-terminal [cmdk-item][data-selected='true']::before {
-  content: '❯ ';
+  opacity: 1;
 }
 
 .cmdk-terminal [cmdk-item][data-disabled='true'] {

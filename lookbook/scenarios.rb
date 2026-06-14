@@ -253,10 +253,7 @@ module Scenarios
   class CustomTheme < Phlex::HTML
     def view_template
       Cmdk::Root(label: 'Terminal', loop: true, class: 'cmdk-terminal w-160 max-w-full') do
-        div(class: 'term-row') do
-          span(class: 'term-prompt', aria_hidden: 'true') { '❯' }
-          Cmdk::Input(placeholder: 'type a command_')
-        end
+        Cmdk::Input(placeholder: 'type a command_')
         Cmdk::List() do
           Cmdk::Empty() { 'command not found' }
           Cmdk::Group(heading: 'processes') do

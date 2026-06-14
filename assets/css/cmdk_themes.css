@@ -302,11 +302,12 @@
   }
 
   .cmdk-linear [cmdk-list] {
-    height: min(300px, var(--cmdk-list-height));
+    height: min(300px, calc(var(--cmdk-list-height) + 12px));
     max-height: 400px;
     overflow: auto;
     overscroll-behavior: contain;
     transition: height 100ms ease;
+    padding: 6px 0;
   }
 
   .cmdk-linear [cmdk-group-heading] {
@@ -333,7 +334,7 @@
     align-items: center;
     gap: 8px;
     height: 40px;
-    padding: 0 12px;
+    padding: 0 16px;
     border-top: 1px solid light-dark(#e9e8ea, #3c3d40);
     font-size: 12px;
     color: light-dark(#6f7177, #8a8f98);

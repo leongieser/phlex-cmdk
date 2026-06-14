@@ -925,8 +925,212 @@ pre code.hljs {
   }
 }
 
-/* Code block on the Styling page (token override example). */
-.code-block {
+/* Theme builder on the Styling page. */
+.builder-presets {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.builder-presets-label {
+  font-size: 13px;
+}
+
+.builder-preset-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.builder-preset {
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid light-dark(#e5e5e5, #27272a);
+  border-radius: 8px;
+  background: light-dark(#ffffff, #18181b);
+  color: light-dark(#404040, #d4d4d8);
+}
+
+.builder-preset:hover {
+  border-color: light-dark(#d4d4d4, #3f3f46);
+}
+
+.builder {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .builder { grid-template-columns: minmax(0, 19rem) 1fr; }
+  /* Keep the (now larger) preview in view while scrolling the controls. */
+  .builder-preview { position: sticky; top: 16px; }
+}
+
+.builder-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid light-dark(#e5e5e5, #27272a);
+  border-radius: 10px;
+  background: light-dark(#ffffff, #18181b);
+}
+
+.builder-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.builder-control-label {
+  font-size: 13px;
+  color: light-dark(#404040, #d4d4d8);
+}
+
+.builder-swatch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.builder-control-value {
+  min-width: 4.5rem;
+  text-align: right;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  color: light-dark(#737373, #a1a1aa);
+}
+
+.builder-swatch input[type='color'] {
+  width: 38px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid light-dark(#d4d4d4, #3f3f46);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+.builder-swatch input[type='color']::-webkit-color-swatch-wrapper { padding: 2px; }
+.builder-swatch input[type='color']::-webkit-color-swatch { border: 0; border-radius: 4px; }
+
+.builder-swatch input[type='range'] {
+  width: 110px;
+  accent-color: light-dark(#5f6ad2, #818cf8);
+  cursor: pointer;
+}
+
+/* Paired light/dark color swatches per token. */
+.builder-pair {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.builder-color {
+  width: 38px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid light-dark(#d4d4d4, #3f3f46);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+.builder-color::-webkit-color-swatch-wrapper { padding: 2px; }
+.builder-color::-webkit-color-swatch { border: 0; border-radius: 4px; }
+
+.builder-pair-label {
+  width: 38px;
+  text-align: center;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: light-dark(#737373, #a1a1aa);
+}
+
+.builder-head { padding-bottom: 2px; }
+
+.builder-legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.builder-group-label {
+  margin: 10px 0 -2px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: light-dark(#737373, #a1a1aa);
+}
+
+.builder-group-label:first-of-type { margin-top: 0; }
+
+.builder-preview {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.builder-output-wrap { position: relative; }
+
+.builder-output-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.builder-format {
+  display: inline-flex;
+  border: 1px solid light-dark(#e5e5e5, #27272a);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.builder-format-btn {
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  color: light-dark(#737373, #a1a1aa);
+}
+
+.builder-format-btn + .builder-format-btn {
+  border-left: 1px solid light-dark(#e5e5e5, #27272a);
+}
+
+.builder-format-btn[aria-selected='true'] {
+  background: light-dark(#f5f5f5, #27272a);
+  color: light-dark(#171717, #ededef);
+}
+
+.builder-copy {
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid light-dark(#e5e5e5, #27272a);
+  border-radius: 8px;
+  background: light-dark(#ffffff, #18181b);
+  color: light-dark(#404040, #d4d4d8);
+}
+
+.builder-copy.copied { color: light-dark(#15803d, #4ade80); }
+
+.builder-output {
   width: 100%;
   margin: 0;
   padding: 14px 16px;
@@ -938,4 +1142,5 @@ pre code.hljs {
   font-size: 12px;
   line-height: 1.55;
   overflow: auto;
+  max-height: 440px;
 }

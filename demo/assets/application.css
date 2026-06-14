@@ -340,8 +340,35 @@ pre.has-copy {
   line-height: 1.55;
 }
 
-[data-pane][hidden] {
-  display: none !important;
+/* Preview / code / style panes share a stage: the active one is in flow, the
+   rest overlay it, and toggling crossfades + animates the stage height. */
+.example-stage {
+  position: relative;
+  width: 100%;
+  transition: height 0.28s ease;
+}
+
+.example-pane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.example-pane[data-active] {
+  position: relative;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .example-stage,
+  .example-pane {
+    transition: none;
+  }
 }
 
 /* Syntax highlighting palette (highlight.js classes), light-dark aware. */

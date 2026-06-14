@@ -204,6 +204,10 @@ function renderPill(inst) {
     input?.parentElement?.insertBefore(pill, input)
   }
   pill.textContent = inst.scope
+  // Expose the scope name so a pill can be styled per scope
+  // (`[cmdk-scope-pill][data-scope="user"]`), falling back to the plain
+  // `[cmdk-scope-pill]` rule when no per-scope style is defined.
+  pill.setAttribute('data-scope', inst.scope)
   pill.setAttribute('aria-label', `Remove ${inst.scope} filter`)
 }
 

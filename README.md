@@ -188,7 +188,10 @@ The flow follows the Linear/Slack/Raycast pattern (and cmdk's own "pages" recipe
 - Typing `/` suggests the `enters_scope:` items; `/u` narrows them.
 - Enter (or click) pins the scope as a **pill** (`[cmdk-scope-pill]`, a button
   inserted before the input) and clears the input - typing then filters only
-  items/groups tagged with that `scope:`.
+  items/groups tagged with that `scope:`. The pill carries
+  `data-scope="user"`, so you can style each scope distinctly
+  (`[cmdk-scope-pill][data-scope="user"]`) and fall back to the bare
+  `[cmdk-scope-pill]` rule.
 - Typing the name out (`/user `) commits too.
 - Backspace on an empty input or clicking the pill leaves the scope.
 

@@ -10,6 +10,12 @@ module Cmdk
     # Merge user-supplied attributes into the component's defaults.
     # User values win, except `class` and `style` which are concatenated
     # and `data` hashes which are merged.
+    #
+    # Deliberately not Phlex's `mix`: `mix` treats *every* attribute as a
+    # token list (e.g. `mix({role: 'option'}, {role: 'button'})` yields
+    # `role: 'option button'`), which is wrong for scalar attributes like
+    # `role`/`type`/`tabindex`/`aria-selected` that should be replaced, not
+    # appended. Here only `class`/`style`/`data` combine; other scalars override.
     def merged(defaults, overrides)
       defaults.merge(overrides) do |key, default, override|
         case key

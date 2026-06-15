@@ -280,7 +280,8 @@ The bubbling events work with plain action descriptors - no controller required:
 
 For more structure, the gem ships an optional base controller
 (`Cmdk.stimulus_controller_path`; serve it next to the runtime, it imports
-`./cmdk.js` and `@hotwired/stimulus`). Extend it and override the hooks:
+the runtime as the bare specifier `cmdk` and `@hotwired/stimulus`). Extend it
+and override the hooks:
 
 ```js
 import CmdkController from 'cmdk_controller' // pin to Cmdk.stimulus_controller_path

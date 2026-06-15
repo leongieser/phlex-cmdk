@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1 — 2026-06-15
+
+- docs: correct the Stimulus base controller import (the bare `cmdk`
+  specifier, not `./cmdk.js`); document `dialog_attributes:` and the
+  `cmdk-dialog-frame` theme class
+- internal: idiomatic Phlex content-block forwarding; deterministic group
+  heading ids (monotonic, replacing a random suffix). No markup or API changes.
+
 ## 0.1.0 — 2026-06-15
 
 Initial release: a feature-parity Phlex port of the cmdk React command menu.

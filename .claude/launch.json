@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "demo",
+      "runtimeExecutable": "bundle",
+      "runtimeArgs": ["exec", "rake", "demo"],
+      "port": 9292
+    },
+    {
+      "name": "lookbook",
+      "runtimeExecutable": "bundle",
+      "runtimeArgs": ["exec", "rake", "lookbook"],
+      "port": 9293
+    },
+    {
+      "name": "site",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "_site"],
+      "port": 8765
+    }
+  ]
+}

@@ -147,6 +147,20 @@ Renders a native `<dialog cmdk-dialog>`: Escape and backdrop clicks close it, an
 `Cmdk.openDialog(el)` / `Cmdk.closeDialog(el)` toggle it programmatically. Style the
 backdrop with `dialog[cmdk-dialog]::backdrop` (replaces Radix's `[cmdk-overlay]`).
 
+Extra attributes on `Cmdk::Dialog(...)` go to the inner `Cmdk::Root`; to set
+attributes on the `<dialog>` element itself, pass `dialog_attributes:`. The
+shipped themes style the dialog frame (transparent border, entry animation)
+behind a `cmdk-dialog-frame` class, opt in the same way you opt into the menu
+theme - by asking for the class:
+
+```ruby
+Cmdk::Dialog(label: 'Command Menu', hotkey: 'k', class: 'cmdk',
+             dialog_attributes: { class: 'cmdk-dialog-frame' }) do
+  Cmdk::Input()
+  Cmdk::List() { ... }
+end
+```
+
 By default the dialog renders as a top-third, horizontally centered palette; on
 viewports ≤640px it becomes a top-anchored, full-width sheet (the GitHub/Jira
 pattern - the software keyboard owns the bottom of the screen, so the input

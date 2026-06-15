@@ -1,10 +1,18 @@
-require 'securerandom'
-
 module Cmdk
   # Groups items together with an optional heading. Port of `<Command.Group>`.
   # Provide `value:` when there is no heading (it is used for sorting groups);
   # with a string heading the value is inferred from it, matching React cmdk.
   class Group < Base
+    # Monotonic id source for `aria-labelledby` (the analog of React's useId,
+    # which this port mirrors). Deterministic and collision-free, unlike a
+    # random suffix; the mutex keeps it correct under threaded servers.
+    @heading_seq = 0
+    @heading_mutex = Mutex.new
+
+    def self.next_heading_id
+      @heading_mutex.synchronize { "cmdk-heading-#{@heading_seq += 1}" }
+    end
+
     def initialize(heading: nil, value: nil, force_mount: false, scope: nil, scope_only: false,
                    server_filtered: false, **attributes)
       @heading = heading
@@ -17,7 +25,7 @@ module Cmdk
     end
 
     def view_template(&block)
-      heading_id = @heading ? "cmdk-heading-#{SecureRandom.hex(4)}" : nil
+      heading_id = @heading ? Group.next_heading_id : nil
 
       div(**merged(group_attributes, @attributes)) do
         if @heading

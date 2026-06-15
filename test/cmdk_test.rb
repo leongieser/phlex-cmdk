@@ -190,7 +190,11 @@ class GroupTest < Minitest::Test
     assert_includes html, 'aria-hidden="true"'
     assert_includes html, 'cmdk-group-items=""'
     assert_includes html, 'role="group"'
-    assert_match(/aria-labelledby="cmdk-heading-\h{8}"/, html)
+    # The heading's id and the items' aria-labelledby reference each other.
+    id = html[/cmdk-heading-\d+/]
+    assert id, 'expected a generated heading id'
+    assert_includes html, %(id="#{id}")
+    assert_includes html, %(aria-labelledby="#{id}")
   end
 
   def test_without_heading_uses_explicit_value

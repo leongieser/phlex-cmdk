@@ -52,6 +52,50 @@ class SitePage < Phlex::HTML
   # lucide "gem" — stroked to sit alongside the sun/moon toggle.
   RUBYGEMS_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>'
 
+  HEADER_STATS_JS = <<~JS
+    ;(() => {
+      const fmt = (n) => Number(n).toLocaleString('en-US')
+      const wire = ({ sel, url, pick, key, label }) => {
+        const el = document.querySelector(sel)
+        if (!el) return
+        const show = (n) => {
+          if (n == null || Number.isNaN(Number(n))) return
+          el.textContent = fmt(n)
+          el.hidden = false
+          const noun = Number(n) === 1 ? label.one : label.many
+          el.closest('a')?.setAttribute('title', `${fmt(n)} ${noun}`)
+        }
+        try {
+          const cached = sessionStorage.getItem(key)
+          if (cached != null) show(cached)
+        } catch (e) {}
+        fetch(url)
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data) => {
+            const n = data == null ? null : pick(data)
+            if (n == null) return
+            try { sessionStorage.setItem(key, String(n)) } catch (e) {}
+            show(n)
+          })
+          .catch(() => {})
+      }
+      wire({
+        sel: '[data-rubygems-downloads]',
+        url: 'https://rubygems.org/api/v1/gems/phlex-cmdk.json',
+        pick: (d) => d.downloads,
+        key: 'phlex-cmdk-rubygems-downloads',
+        label: { one: 'download on RubyGems', many: 'downloads on RubyGems' },
+      })
+      wire({
+        sel: '[data-github-stars]',
+        url: 'https://api.github.com/repos/leongieser/phlex-cmdk',
+        pick: (d) => d.stargazers_count,
+        key: 'phlex-cmdk-github-stars',
+        label: { one: 'star on GitHub', many: 'stars on GitHub' },
+      })
+    })()
+  JS
+
   # Set the stored mode and its resolved light/dark before first paint, so the
   # page never flashes the wrong appearance on load or navigation.
   THEME_BOOT_JS = <<~JS
@@ -106,13 +150,20 @@ class SitePage < Phlex::HTML
             end
             div(class: 'ml-auto flex items-center gap-1') do
               a(href: 'https://rubygems.org/gems/phlex-cmdk', class: 'header-icon-link',
-                aria_label: 'RubyGems page', title: 'RubyGems') { raw safe(RUBYGEMS_ICON) }
+                aria_label: 'RubyGems page', title: 'RubyGems') do
+                raw safe(RUBYGEMS_ICON)
+                span(class: 'header-stat', data: { rubygems_downloads: '' }, hidden: true)
+              end
               a(href: 'https://github.com/leongieser/phlex-cmdk', class: 'header-icon-link',
-                aria_label: 'GitHub repository', title: 'GitHub') { raw safe(GITHUB_ICON) }
+                aria_label: 'GitHub repository', title: 'GitHub') do
+                raw safe(GITHUB_ICON)
+                span(class: 'header-stat', data: { github_stars: '' }, hidden: true)
+              end
               render AppearanceToggle.new
             end
           end
         end
+        script { raw safe(HEADER_STATS_JS) }
         block&.call
         script { raw safe(<<~JS) }
           // The shortcut is Cmd+K on macOS, Ctrl+K everywhere else (the runtime

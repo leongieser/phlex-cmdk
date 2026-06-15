@@ -984,6 +984,20 @@ pre code.hljs {
   height: 18px;
 }
 
+.header-icon-link:has(.header-stat:not([hidden])) {
+  width: auto;
+  gap: 6px;
+  padding: 0 8px;
+}
+
+.header-stat {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
 /* Anatomy diagram on the Styling page: a menu flanked by labelled callouts
    with leader lines (drawn in JS). Columns hide on small screens. */
 .anatomy-stage {

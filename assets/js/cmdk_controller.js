@@ -8,7 +8,7 @@
  *
  * Extend it and override the hooks you care about:
  *
- *   import CmdkController from 'phlex-cmdk/controller' // or the copied file
+ *   import CmdkController from 'cmdk_controller' // pin to Cmdk.stimulus_controller_path
  *
  *   export default class extends CmdkController {
  *     itemSelected({ detail: { value } }) { this.runCommand(value) }

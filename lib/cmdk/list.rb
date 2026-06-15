@@ -10,7 +10,7 @@ module Cmdk
 
     def view_template(&block)
       div(**merged({ 'cmdk-list' => '', role: 'listbox', tabindex: '-1', aria_label: @label }, @attributes)) do
-        div('cmdk-list-sizer' => '') { block ? block.call : nil }
+        div('cmdk-list-sizer' => '', &block)
       end
     end
   end

@@ -24,7 +24,7 @@ module Cmdk
     end
 
     def view_template(&block)
-      div(**merged(item_attributes, @attributes)) { block ? block.call : nil }
+      div(**merged(item_attributes, @attributes), &block)
     end
 
     private

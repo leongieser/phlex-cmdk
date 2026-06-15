@@ -23,9 +23,7 @@ module Cmdk
         if @heading
           div('cmdk-group-heading' => '', aria_hidden: 'true', id: heading_id) { @heading }
         end
-        div('cmdk-group-items' => '', role: 'group', aria_labelledby: heading_id) do
-          block ? block.call : nil
-        end
+        div('cmdk-group-items' => '', role: 'group', aria_labelledby: heading_id, &block)
       end
     end
 

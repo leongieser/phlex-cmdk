@@ -33,15 +33,11 @@ module Cmdk
     def view_template(&block)
       div(**merged(root_attributes, @attributes)) do
         label('cmdk-label' => '', style: SR_ONLY_STYLE) { @label }
-        yield_content(&block)
+        block&.call
       end
     end
 
     private
-
-    def yield_content(&block)
-      block ? block.call : nil
-    end
 
     def root_attributes
       data = {}

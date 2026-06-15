@@ -19,11 +19,7 @@ module Cmdk
 
     def view_template(&block)
       div(**merged({ 'cmdk-footer' => '' }, @attributes)) do
-        if block
-          block.call
-        else
-          div('cmdk-footer-hint' => '')
-        end
+        block ? block.call : div('cmdk-footer-hint' => '')
       end
     end
   end

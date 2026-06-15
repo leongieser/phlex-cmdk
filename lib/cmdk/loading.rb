@@ -18,7 +18,7 @@ module Cmdk
         aria_label: @label
       }
       div(**merged(defaults, @attributes)) do
-        div(aria_hidden: 'true') { block ? block.call : nil }
+        div(aria_hidden: 'true', &block)
       end
     end
   end

@@ -9,7 +9,7 @@ module Cmdk
 
     def view_template(&block)
       defaults = { 'cmdk-empty' => '', role: 'presentation', style: 'display:none' }
-      div(**merged(defaults, @attributes)) { block ? block.call : nil }
+      div(**merged(defaults, @attributes), &block)
     end
   end
 end

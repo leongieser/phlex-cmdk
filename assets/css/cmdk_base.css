@@ -1,0 +1,47 @@
+/*
+ * phlex-cmdk base styles — the rules the runtime injects at start() as
+ * <style id="cmdk-base-styles">: native <dialog> placement (top-third palette,
+ * top-anchored sheet under 640px) and keeping server-rendered hidden parts
+ * hidden. Everything except the [hidden] guard is zero-specificity
+ * (`:where()`), so any rule of yours wins.
+ *
+ * For CSP-strict or cascade-layered hosts: turn the injection off with
+ *
+ *   <meta name="cmdk-base-styles" content="off">
+ *
+ * and include this file yourself (path in Ruby: Cmdk.base_stylesheet_path),
+ * e.g. in a layer of your choice:
+ *
+ *   @import url('cmdk_base.css') layer(cmdk);
+ */
+:where(dialog[cmdk-dialog]) {
+  position: fixed;
+  inset: 0;
+  margin: 16dvh auto auto;
+  width: fit-content;
+  height: fit-content;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(84dvh - 2rem);
+  /* The list scrolls internally; keep the dialog itself unclipped so a themed
+     root's border-radius and drop-shadow are not squared off at the corners. */
+  overflow: visible;
+}
+:where(dialog[cmdk-dialog])::backdrop {
+  background: transparent;
+}
+:where([cmdk-list-sizer]) {
+  display: flow-root; /* child margins must count into --cmdk-list-height */
+}
+/* Server-rendered hidden parts stay hidden even when theme CSS sets display. */
+[cmdk-label][hidden],
+[cmdk-empty][hidden] {
+  display: none !important;
+}
+@media (max-width: 640px) {
+  :where(dialog[cmdk-dialog]) {
+    margin: 0.5rem auto auto;
+    width: calc(100vw - 1rem);
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100dvh - 1rem);
+  }
+}

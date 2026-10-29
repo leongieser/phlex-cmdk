@@ -41,6 +41,11 @@ export default class CmdkController extends Controller {
   disconnect() {
     for (const [type, listener] of this.#listeners) this.element.removeEventListener(type, listener)
     this.#listeners = []
+    // Free the runtime's observers once the menu has left the document (a
+    // Turbo visit, frame reload or morph). A menu that is only moved — e.g.
+    // `data-turbo-permanent` — is still connected and keeps its state.
+    const root = this.root
+    if (root && !root.isConnected) Cmdk.destroy(root)
   }
 
   /** The [cmdk-root] this controller manages. */

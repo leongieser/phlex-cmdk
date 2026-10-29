@@ -1395,3 +1395,22 @@ pre code.hljs {
   overflow: auto;
   max-height: 440px;
 }
+
+/* The custom demo themes above set `display` on [cmdk-empty]; Cmdk::Empty is
+   server-rendered `hidden`, so keep it hidden until the runtime shows it. */
+.cmdk-terminal [cmdk-empty][hidden],
+.cmdk-brutal [cmdk-empty][hidden] {
+  display: none;
+}
+
+/* Match highlighting (Cmdk::ItemLabel) in the custom demo themes. */
+.cmdk-terminal mark[cmdk-match] {
+  background: none;
+  color: rgb(187 247 208);
+  text-decoration: underline;
+}
+
+.cmdk-brutal mark[cmdk-match] {
+  background: #000;
+  color: #fde68a;
+}

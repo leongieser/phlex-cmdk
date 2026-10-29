@@ -16,8 +16,44 @@ class RootTest < Minitest::Test
     assert_includes html, 'tabindex="-1"'
     assert_includes html, '<label cmdk-label='
     assert_includes html, '>Menu</label>'
-    # Accessible label is visually hidden, like React's srOnlyStyles
-    assert_includes html, 'position:absolute;width:1px;height:1px'
+    # The accessible label is hidden with the attribute, not an inline style
+    # (CSP-safe); the runtime names the input with aria-labelledby.
+    assert_includes html, '<label cmdk-label="" hidden>'
+    refute_includes html, 'style='
+  end
+
+  def test_label_attributes_pass_through
+    html = render { Cmdk::Root(label: 'Menu', label_attributes: { class: 'palette__label', data: { testid: 'l' } }) }
+
+    assert_includes html, '<label cmdk-label="" hidden class="palette__label" data-testid="l">Menu</label>'
+  end
+
+  def test_label_can_be_shown
+    html = render { Cmdk::Root(label: 'Menu', label_attributes: { hidden: false }) }
+
+    assert_includes html, '<label cmdk-label="">Menu</label>'
+  end
+
+  def test_native_home_end_option
+    assert_includes render { Cmdk::Root(native_home_end: true) }, 'data-cmdk-native-home-end=""'
+    refute_includes render { Cmdk::Root() }, 'data-cmdk-native-home-end'
+  end
+
+  def test_no_component_renders_a_style_attribute
+    html = render do
+      Cmdk::Dialog(label: 'Menu', hotkey: 'k', scopes: %w[docs]) do
+        Cmdk::Input()
+        Cmdk::List() do
+          Cmdk::Empty() { 'No results' }
+          Cmdk::Loading() { '…' }
+          Cmdk::Group(heading: 'Docs') { Cmdk::Item() { Cmdk::ItemLabel() { 'Guide' } } }
+          Cmdk::Separator()
+        end
+        Cmdk::Footer()
+      end
+    end
+
+    refute_includes html, 'style='
   end
 
   def test_options_become_data_attributes
@@ -222,6 +258,40 @@ class GroupTest < Minitest::Test
 
     assert_includes html, 'data-cmdk-server-filtered=""'
   end
+
+  def test_heading_and_items_attributes_pass_through
+    html = render do
+      Cmdk::Group(heading: 'Fruits', class: 'palette__group',
+                  heading_attributes: { class: 'palette__heading', data: { testid: 'h' } },
+                  items_attributes: { class: 'palette__items', data: { testid: 'i' } }) { Cmdk::Item() { 'Apple' } }
+    end
+
+    assert_includes html, 'class="palette__group"'
+    assert_match(/<div cmdk-group-heading="" aria-hidden="true" id="cmdk-heading-\d+" class="palette__heading" data-testid="h">Fruits</, html)
+    assert_match(/<div cmdk-group-items="" role="group" aria-labelledby="cmdk-heading-\d+" class="palette__items" data-testid="i">/, html)
+  end
+
+  def test_custom_heading_id_keeps_the_label_reference
+    html = render { Cmdk::Group(heading: 'Fruits', heading_attributes: { id: 'fruits-heading' }) { Cmdk::Item() { 'A' } } }
+
+    assert_includes html, 'id="fruits-heading"'
+    assert_includes html, 'aria-labelledby="fruits-heading"'
+  end
+end
+
+class ItemLabelTest < Minitest::Test
+  def test_renders_opt_in_label_element
+    html = render { Cmdk::Item(value: 'posts') { Cmdk::ItemLabel(class: 'palette__label') { 'Posts' } } }
+
+    assert_includes html, '<span cmdk-item-label="" class="palette__label">Posts</span>'
+  end
+
+  def test_items_without_it_render_unchanged
+    html = render { Cmdk::Item() { 'Apple' } }
+
+    refute_includes html, 'cmdk-item-label'
+    assert_includes html, '>Apple</div>'
+  end
 end
 
 class SeparatorTest < Minitest::Test
@@ -246,8 +316,15 @@ class EmptyTest < Minitest::Test
 
     assert_includes html, 'cmdk-empty=""'
     assert_includes html, 'role="presentation"'
-    assert_includes html, 'style="display:none"'
+    assert_includes html, 'hidden'
+    refute_includes html, 'style='
     assert_includes html, 'No results found.'
+  end
+
+  def test_inline_style_can_still_be_passed
+    html = render { Cmdk::Empty(style: 'display:none') { 'None' } }
+
+    assert_includes html, 'style="display:none"'
   end
 end
 
@@ -297,6 +374,16 @@ class AssetsTest < Minitest::Test
     js = File.read(Cmdk.stimulus_controller_path)
     assert_includes js, 'extends Controller'
     assert_includes js, "from '@hotwired/stimulus'"
+  end
+
+  def test_base_stylesheet_matches_the_injected_styles
+    css = File.read(Cmdk.base_stylesheet_path, encoding: 'UTF-8')
+    js = File.read(Cmdk.javascript_path, encoding: 'UTF-8')
+    injected = js[/const BASE_STYLES = `\n(.*?)`\n/m, 1]
+
+    assert injected, 'expected BASE_STYLES in the runtime'
+    assert css.end_with?(injected), 'cmdk_base.css must end with exactly the injected rules'
+    refute_includes css, '@layer' # the host picks the layer (or none)
   end
 
   def test_themes_stylesheet_exists_and_is_plain_css

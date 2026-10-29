@@ -2,6 +2,10 @@ module Cmdk
   # Groups items together with an optional heading. Port of `<Command.Group>`.
   # Provide `value:` when there is no heading (it is used for sorting groups);
   # with a string heading the value is inferred from it, matching React cmdk.
+  #
+  # `heading_attributes:` and `items_attributes:` add attributes (class,
+  # data-*, …) to the heading and to the `[cmdk-group-items]` wrapper; extra
+  # keyword attributes go to the group element itself.
   class Group < Base
     # Monotonic id source for `aria-labelledby` (the analog of React's useId,
     # which this port mirrors). Deterministic and collision-free, unlike a
@@ -14,24 +18,29 @@ module Cmdk
     end
 
     def initialize(heading: nil, value: nil, force_mount: false, scope: nil, scope_only: false,
-                   server_filtered: false, **attributes)
+                   server_filtered: false, heading_attributes: {}, items_attributes: {}, **attributes)
       @heading = heading
       @value = value
       @force_mount = force_mount
       @scope = scope
       @scope_only = scope_only
       @server_filtered = server_filtered
+      @heading_attributes = heading_attributes
+      @items_attributes = items_attributes
       @attributes = attributes
     end
 
     def view_template(&block)
-      heading_id = @heading ? Group.next_heading_id : nil
+      heading_id = @heading ? (@heading_attributes[:id] || Group.next_heading_id) : nil
 
       div(**merged(group_attributes, @attributes)) do
         if @heading
-          div('cmdk-group-heading' => '', aria_hidden: 'true', id: heading_id) { @heading }
+          div(**merged({ 'cmdk-group-heading' => '', aria_hidden: 'true', id: heading_id }, @heading_attributes)) do
+            @heading
+          end
         end
-        div('cmdk-group-items' => '', role: 'group', aria_labelledby: heading_id, &block)
+        items = { 'cmdk-group-items' => '', role: 'group', aria_labelledby: heading_id }
+        div(**merged(items, @items_attributes), &block)
       end
     end
 

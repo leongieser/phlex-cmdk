@@ -186,6 +186,13 @@
       color: var(--cmdk-accent-fg);
     }
 
+    /* Match highlighting (opt-in via Cmdk::ItemLabel). */
+    & [cmdk-item-label] mark[cmdk-match] {
+      background: none;
+      color: inherit;
+      font-weight: 600;
+    }
+
     & [cmdk-item][data-disabled='true'] {
       cursor: not-allowed;
       color: var(--cmdk-muted);
@@ -215,6 +222,12 @@
       height: 48px;
       font-size: 14px;
       color: var(--cmdk-muted);
+    }
+
+    /* Rendered `hidden` until the runtime decides; keep it so despite the
+       display above (matters only before the runtime has started). */
+    & [cmdk-empty][hidden] {
+      display: none;
     }
 
     & [cmdk-footer] {

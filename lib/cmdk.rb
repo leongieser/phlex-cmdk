@@ -19,6 +19,14 @@ module Cmdk
     File.expand_path('../assets/css/cmdk_themes.css', __dir__)
   end
 
+  # Absolute path to the runtime's base styles as a static stylesheet (the
+  # same rules the runtime injects at start, all zero-specificity `:where()`).
+  # For CSP-strict or cascade-layered hosts that turn the injection off with
+  # `<meta name="cmdk-base-styles" content="off">` and include it themselves.
+  def self.base_stylesheet_path
+    File.expand_path('../assets/css/cmdk_base.css', __dir__)
+  end
+
   # Absolute path to the optional Stimulus base controller (requires
   # @hotwired/stimulus and the runtime pinned/aliased as `cmdk`).
   def self.stimulus_controller_path
@@ -32,6 +40,7 @@ require_relative 'cmdk/root'
 require_relative 'cmdk/input'
 require_relative 'cmdk/list'
 require_relative 'cmdk/item'
+require_relative 'cmdk/item_label'
 require_relative 'cmdk/group'
 require_relative 'cmdk/separator'
 require_relative 'cmdk/empty'

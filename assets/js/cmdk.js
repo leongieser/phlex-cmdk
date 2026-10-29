@@ -13,7 +13,10 @@
  *   import 'cmdk'                  // auto-starts
  *
  * Events (all bubble from within the root):
- *   cmdk-item-select   detail: { value }  — item chosen via click or Enter (cancelable)
+ *   cmdk-item-select   detail: { value, metaKey, ctrlKey, shiftKey, altKey }
+ *                      — item chosen via click or Enter (cancelable); the
+ *                        modifier keys held at that moment
+ *                        (e.g. ⌘/Ctrl+Enter for an alternate action)
  *   cmdk-value-change  detail: { value }  — selection (highlight) changed
  *   cmdk-search-change detail: { search, scope, query } — search query changed
  *   cmdk-scope-change  detail: { scope, query } — active search scope entered/left
@@ -29,6 +32,16 @@
  * to cmdk-scope-change / cmdk-search-change to fetch scoped results from the
  * server (e.g. via Turbo). Add `data-cmdk-scope-only` to keep items hidden
  * unless their scope is active.
+ *
+ * Match highlighting (opt-in): mark the text to highlight inside an item with
+ * `[cmdk-item-label]` (Cmdk::ItemLabel) and the runtime wraps the matched
+ * characters in `<mark cmdk-match>` while searching, restoring the plain text
+ * when the search clears.
+ *
+ * Base styles: unless `<meta name="cmdk-base-styles" content="off">` is in the
+ * document, start() injects a small zero-specificity stylesheet (dialog
+ * placement), nonced from `<meta name="csp-nonce">` when present. The same
+ * rules ship as assets/css/cmdk_base.css for CSP-strict or layered hosts.
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -49,7 +62,11 @@ const IS_GAP_REGEXP = /[\\/_+.#"@[({&]/,
   IS_SPACE_REGEXP = /[\s-]/,
   COUNT_SPACE_REGEXP = /[\s-]/g
 
-function commandScoreInner(string, abbreviation, lowerString, lowerAbbreviation, stringIndex, abbreviationIndex, memoizedResults) {
+// The scoring arithmetic below is unchanged from the port; the memo is a typed
+// array instead of string keys (no allocation per call), and `choices`, when
+// given, records which index won at each step so the match path can be read
+// back for highlighting.
+function commandScoreInner(string, abbreviation, lowerString, lowerAbbreviation, stringIndex, abbreviationIndex, memo, stride, choices) {
   if (abbreviationIndex === abbreviation.length) {
     if (stringIndex === string.length) {
       return SCORE_CONTINUE_MATCH
@@ -57,19 +74,22 @@ function commandScoreInner(string, abbreviation, lowerString, lowerAbbreviation,
     return PENALTY_NOT_COMPLETE
   }
 
-  const memoizeKey = `${stringIndex},${abbreviationIndex}`
-  if (memoizedResults[memoizeKey] !== undefined) {
-    return memoizedResults[memoizeKey]
+  const memoizeKey = stringIndex * stride + abbreviationIndex
+  const memoized = memo[memoizeKey]
+  if (memoized >= 0) {
+    return memoized
   }
 
   const abbreviationChar = lowerAbbreviation.charAt(abbreviationIndex)
   let index = lowerString.indexOf(abbreviationChar, stringIndex)
   let highScore = 0
+  let choice = -1
 
-  let score, transposedScore, wordBreaks, spaceBreaks
+  let score, transposedScore, wordBreaks, spaceBreaks, transposed
 
   while (index >= 0) {
-    score = commandScoreInner(string, abbreviation, lowerString, lowerAbbreviation, index + 1, abbreviationIndex + 1, memoizedResults)
+    transposed = false
+    score = commandScoreInner(string, abbreviation, lowerString, lowerAbbreviation, index + 1, abbreviationIndex + 1, memo, stride, choices)
     if (score > highScore) {
       if (index === stringIndex) {
         score *= SCORE_CONTINUE_MATCH
@@ -102,31 +122,105 @@ function commandScoreInner(string, abbreviation, lowerString, lowerAbbreviation,
       (lowerAbbreviation.charAt(abbreviationIndex + 1) === lowerAbbreviation.charAt(abbreviationIndex) &&
         lowerString.charAt(index - 1) !== lowerAbbreviation.charAt(abbreviationIndex))
     ) {
-      transposedScore = commandScoreInner(string, abbreviation, lowerString, lowerAbbreviation, index + 1, abbreviationIndex + 2, memoizedResults)
+      transposedScore = commandScoreInner(string, abbreviation, lowerString, lowerAbbreviation, index + 1, abbreviationIndex + 2, memo, stride, choices)
 
       if (transposedScore * SCORE_TRANSPOSITION > score) {
         score = transposedScore * SCORE_TRANSPOSITION
+        transposed = true
       }
     }
 
     if (score > highScore) {
       highScore = score
+      choice = index * 2 + (transposed ? 1 : 0)
     }
 
     index = lowerString.indexOf(abbreviationChar, index + 1)
   }
 
-  memoizedResults[memoizeKey] = highScore
+  memo[memoizeKey] = highScore
+  if (choices) choices[memoizeKey] = choice
   return highScore
 }
 
+// Lowercased/space-normalised strings are cached: item values repeat on every
+// keystroke, so this saves re-normalising each one per query.
+const formatted = new Map()
+
 function formatInput(string) {
-  return string.toLowerCase().replace(COUNT_SPACE_REGEXP, ' ')
+  let result = formatted.get(string)
+  if (result === undefined) {
+    result = string.toLowerCase().replace(COUNT_SPACE_REGEXP, ' ')
+    if (formatted.size >= 20000) formatted.clear()
+    formatted.set(string, result)
+  }
+  return result
+}
+
+// Scratch buffers reused across calls (scoring is synchronous, never re-entered).
+let memoBuffer = new Float64Array(4096)
+let choiceBuffer = new Int32Array(4096)
+
+function scoreString(string, abbreviation, choices) {
+  // +3 keeps a key unique for any abbreviation index the recursion can reach.
+  const stride = abbreviation.length + 3
+  const size = (string.length + 1) * stride
+  if (memoBuffer.length < size) {
+    memoBuffer = new Float64Array(size * 2)
+    choiceBuffer = new Int32Array(size * 2)
+  }
+  memoBuffer.fill(-1, 0, size)
+  if (choices) {
+    choiceBuffer.fill(-1, 0, size)
+    choices.array = choiceBuffer
+    choices.stride = stride
+  }
+  return commandScoreInner(string, abbreviation, formatInput(string), formatInput(abbreviation), 0, 0, memoBuffer, stride, choices ? choiceBuffer : null)
+}
+
+function joinAliases(string, aliases) {
+  return aliases && aliases.length > 0 ? `${string + ' ' + aliases.join(' ')}` : string
 }
 
 export function commandScore(string, abbreviation, aliases) {
-  string = aliases && aliases.length > 0 ? `${string + ' ' + aliases.join(' ')}` : string
-  return commandScoreInner(string, abbreviation, formatInput(string), formatInput(abbreviation), 0, 0, {})
+  return scoreString(joinAliases(string, aliases), abbreviation)
+}
+
+/**
+ * commandScore plus the positions it matched: `{ score, matches }`, where
+ * `matches` are ascending indices into `string` (then into the aliases, joined
+ * after it with single spaces). The score is identical to commandScore's;
+ * matches is empty when the score is 0. Used for match highlighting.
+ */
+export function commandScoreWithMatches(string, abbreviation, aliases) {
+  const full = joinAliases(string, aliases)
+  const choices = {}
+  const score = scoreString(full, abbreviation, choices)
+  const matches = []
+  if (score > 0) {
+    const lowerString = formatInput(full)
+    const lowerAbbreviation = formatInput(abbreviation)
+    let stringIndex = 0
+    let abbreviationIndex = 0
+    while (abbreviationIndex < abbreviation.length) {
+      const choice = choices.array[stringIndex * choices.stride + abbreviationIndex]
+      if (choice === undefined || choice < 0) break
+      const index = choice >> 1
+      if (choice & 1) {
+        // A transposition ("ab" typed as "ba") consumed two characters of the
+        // abbreviation; a doubled letter ("hhello") consumed only one match.
+        if (index > 0 && lowerString.charAt(index - 1) === lowerAbbreviation.charAt(abbreviationIndex + 1)) {
+          matches.push(index - 1)
+        }
+        abbreviationIndex += 2
+      } else {
+        abbreviationIndex += 1
+      }
+      matches.push(index)
+      stringIndex = index + 1
+    }
+  }
+  return { score, matches: [...new Set(matches)].sort((a, b) => a - b).filter((i) => i < full.length) }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -143,6 +237,8 @@ const GROUP_HEADING_SELECTOR = '[cmdk-group-heading]'
 const ITEM_SELECTOR = '[cmdk-item]'
 const VALID_ITEM_SELECTOR = `${ITEM_SELECTOR}:not([aria-disabled="true"])`
 const DIALOG_SELECTOR = 'dialog[cmdk-dialog]'
+const ITEM_LABEL_SELECTOR = '[cmdk-item-label]'
+const MATCH_ATTR = 'cmdk-match'
 const VALUE_ATTR = 'data-value'
 
 const SELECT_EVENT = 'cmdk-item-select'
@@ -259,6 +355,7 @@ function config(root) {
     loop: root.hasAttribute('data-cmdk-loop'),
     vimBindings: root.getAttribute('data-cmdk-vim-bindings') !== 'false',
     disablePointerSelection: root.hasAttribute('data-cmdk-disable-pointer-selection'),
+    nativeHomeEnd: root.hasAttribute('data-cmdk-native-home-end'),
   }
 }
 
@@ -291,11 +388,14 @@ function createInstance(root) {
     order: new Map(), // element → original index, to restore server order when search clears
     orderUid: 0,
     itemUid: 0,
+    highlighted: new Set(), // [cmdk-item-label] elements currently holding <mark cmdk-match>
+    disconnect: [], // teardown callbacks, run by destroy()
   }
   instances.set(root, inst)
 
   wireIds(inst)
   registerNodes(inst)
+  adoptHighlights(inst)
   // A server-rendered input value is the initial search (React: <Command.Input value>).
   inst.search = root.querySelector(INPUT_SELECTOR)?.value || ''
   // Server-rendered scope state: data-cmdk-active-scope pins the pill at init.
@@ -312,7 +412,9 @@ function createInstance(root) {
   observeListHeight(inst)
 
   // Item mount/unmount lifecycle (Turbo streams, morphing, manual DOM changes).
-  new MutationObserver(() => onItemsChanged(inst)).observe(root, { childList: true, subtree: true })
+  const observer = new MutationObserver(() => onItemsChanged(inst))
+  observer.observe(root, { childList: true, subtree: true })
+  inst.disconnect.push(() => observer.disconnect())
 
   return inst
 }
@@ -402,40 +504,55 @@ function score(inst, value, keywords, item) {
   return value ? filter(value, inst.query, keywords, item) : 0
 }
 
+/** Set an inline display only when it changes (unchanged writes still cost style work). */
+function setDisplay(el, shown) {
+  const display = shown ? '' : 'none'
+  if (el.style.display !== display) el.style.display = display
+}
+
 /** Port of filterItems(): score items, toggle item/group/separator/empty visibility. */
 function filterItems(inst) {
   const { root, search, scope, picker } = inst
   const filtering = Boolean(search) && config(root).shouldFilter
+  // Match highlighting is opt-in markup; skip all of it when no item uses it.
+  const highlight = inst.highlighted.size > 0 || root.querySelector(ITEM_LABEL_SELECTOR) !== null
   let count = 0
 
+  // Skip per-item ancestor lookups for features the menu doesn't use.
+  const anyForceMount = root.querySelector('[data-cmdk-force-mount]') !== null
+  const anyScopeOnly = root.querySelector('[data-cmdk-scope-only]') !== null
+  const anyServerFiltered = root.querySelector('[data-cmdk-server-filtered]') !== null
+
   for (const item of root.querySelectorAll(ITEM_SELECTOR)) {
-    const fm = forceMounted(item)
+    const fm = anyForceMount && forceMounted(item)
     // Scope-only items require deliberate entry: hidden (even from global
     // search and force mount) unless their scope is the active one.
-    const scopeHidden = isScopeOnly(item) && itemScope(item) !== scope
+    const scopeHidden = anyScopeOnly && isScopeOnly(item) && itemScope(item) !== scope
     let rank
+    let scored = false // matched against the query (so its label can be highlighted)
     if (scopeHidden) {
       rank = 0
     } else if (picker) {
       // Scope-picker mode ("/..."): only scope-entry items are suggested.
-      rank = item.hasAttribute('data-cmdk-enters-scope')
-        ? score(inst, itemValue(item), itemKeywords(item), item)
-        : 0
+      scored = item.hasAttribute('data-cmdk-enters-scope')
+      rank = scored ? score(inst, itemValue(item), itemKeywords(item), item) : 0
     } else if (scope && itemScope(item) !== scope) {
       rank = 0
-    } else if (item.closest('[data-cmdk-server-filtered]')) {
+    } else if (anyServerFiltered && item.closest('[data-cmdk-server-filtered]')) {
       // The server already filtered these (e.g. a Turbo-framed scope search);
       // don't fuzzy-match them against the query again.
       rank = 1
     } else {
+      scored = filtering
       rank = filtering ? score(inst, itemValue(item), itemKeywords(item), item) : 1
     }
     inst.scores.set(item, rank)
     const shown = !scopeHidden && (fm || rank > 0)
     // React removes filtered items from the DOM; we hide them with an inline
     // style so theme CSS (e.g. `[cmdk-item] { display: flex }`) cannot win.
-    item.style.display = shown ? '' : 'none'
+    setDisplay(item, shown)
     if (!fm && shown) count++
+    if (highlight) highlightItem(inst, item, shown && scored && (filtering || picker) ? inst.query : '')
   }
   inst.count = count
 
@@ -445,7 +562,7 @@ function filterItems(inst) {
       shown =
         (!picker && group.hasAttribute('data-cmdk-force-mount')) ||
         Array.from(group.querySelectorAll(ITEM_SELECTOR)).some(
-          (item) => !forceMounted(item) && inst.scores.get(item) > 0,
+          (item) => !(anyForceMount && forceMounted(item)) && inst.scores.get(item) > 0,
         )
     } else if (shown) {
       // Hide groups whose items are all scope-hidden; keep itemless groups
@@ -453,16 +570,77 @@ function filterItems(inst) {
       const items = Array.from(group.querySelectorAll(ITEM_SELECTOR))
       shown = items.length === 0 || items.some((item) => item.style.display !== 'none')
     }
-    group.hidden = !shown
+    if (group.hidden !== !shown) group.hidden = !shown
   }
 
   for (const separator of root.querySelectorAll('[cmdk-separator]')) {
     const shown = (!search && !scope) || separator.hasAttribute('data-cmdk-always-render')
-    separator.style.display = shown ? '' : 'none'
+    setDisplay(separator, shown)
   }
 
   for (const empty of root.querySelectorAll('[cmdk-empty]')) {
-    empty.style.display = count === 0 ? '' : 'none'
+    // Server-rendered with the `hidden` attribute (no inline style, so a
+    // strict CSP allows it); from here on the inline display decides, as
+    // before, so theme CSS cannot show it while there are results.
+    if (empty.hidden !== (count !== 0)) empty.hidden = count !== 0
+    setDisplay(empty, count === 0)
+  }
+}
+
+// ── Match highlighting ([cmdk-item-label] → <mark cmdk-match>) ──
+
+const labelMarks = new WeakMap() // label element → the matches currently rendered ("1,2,5")
+
+/** Highlight `query`'s matches in the item's [cmdk-item-label]s ('' restores the text). */
+function highlightItem(inst, item, query) {
+  const labels = item.querySelectorAll(ITEM_LABEL_SELECTOR)
+  for (const label of labels) {
+    const marked = inst.highlighted.has(label)
+    if (!query && !marked) continue
+    // Marks only wrap runs of the label's text, so its textContent is always
+    // the plain text, highlighted or not.
+    const text = label.textContent
+    const matches = query ? commandScoreWithMatches(text, query).matches : []
+    const key = matches.join(',')
+    // Unchanged since the last pass (and not re-rendered by a morph meanwhile).
+    if (marked && labelMarks.get(label) === key && label.childElementCount > 0) continue
+    if (!matches.length) {
+      if (marked) label.textContent = text
+      inst.highlighted.delete(label)
+      labelMarks.delete(label)
+      continue
+    }
+    renderMarks(label, text, matches)
+    inst.highlighted.add(label)
+    labelMarks.set(label, key)
+  }
+}
+
+/** Rebuild a label as text nodes and <mark cmdk-match> runs (never innerHTML). */
+function renderMarks(label, text, matches) {
+  const fragment = document.createDocumentFragment()
+  let position = 0
+  for (let i = 0; i < matches.length; ) {
+    let end = i
+    while (end + 1 < matches.length && matches[end + 1] === matches[end] + 1) end++
+    const from = matches[i]
+    const to = matches[end] + 1
+    if (from > position) fragment.appendChild(document.createTextNode(text.slice(position, from)))
+    const mark = document.createElement('mark')
+    mark.setAttribute(MATCH_ATTR, '')
+    mark.textContent = text.slice(from, to)
+    fragment.appendChild(mark)
+    position = to
+    i = end + 1
+  }
+  if (position < text.length) fragment.appendChild(document.createTextNode(text.slice(position)))
+  label.replaceChildren(fragment)
+}
+
+/** Labels that already hold marks (a page restored from Turbo's cache, a re-init after destroy). */
+function adoptHighlights(inst) {
+  for (const mark of inst.root.querySelectorAll(`${ITEM_LABEL_SELECTOR} mark[${MATCH_ATTR}]`)) {
+    inst.highlighted.add(mark.closest(ITEM_LABEL_SELECTOR))
   }
 }
 
@@ -485,14 +663,27 @@ function sortItems(inst) {
     return
   }
 
-  getValidItems(inst)
-    .sort((a, b) => (scores.get(b) ?? 0) - (scores.get(a) ?? 0))
-    .forEach((item) => {
-      const container = item.closest(GROUP_ITEMS_SELECTOR) || sizer
-      container.appendChild(directChild(container, item))
-    })
+  // The result is what appending every visible item (in score order) and then
+  // every visible group (by best item) to the end of its container produces;
+  // planned per container first, so nodes already in place are not moved.
+  const plan = new Map() // container → Map(child → sequence; the last append wins)
+  let seq = 0
+  let direct = true
+  const append = (container, child) => {
+    if (child.parentElement !== container) direct = false
+    let moves = plan.get(container)
+    if (!moves) plan.set(container, (moves = new Map()))
+    moves.delete(child)
+    moves.set(child, seq++)
+  }
 
-  Array.from(root.querySelectorAll(GROUP_SELECTOR))
+  const items = getValidItems(inst).sort((a, b) => (scores.get(b) ?? 0) - (scores.get(a) ?? 0))
+  for (const item of items) {
+    const container = item.closest(GROUP_ITEMS_SELECTOR) || sizer
+    append(container, directChild(container, item))
+  }
+
+  const groups = Array.from(root.querySelectorAll(GROUP_SELECTOR))
     .filter((group) => !group.hidden)
     .map((group) => {
       let max = 0
@@ -502,15 +693,40 @@ function sortItems(inst) {
       return [group, max]
     })
     .sort((a, b) => b[1] - a[1])
-    .forEach(([group]) => group.parentElement?.appendChild(group))
+  for (const [group] of groups) {
+    if (group.parentElement) append(group.parentElement, group)
+  }
+
+  if (!direct) {
+    // Unusual markup (an item outside its container): replay the appends.
+    for (const [container, moves] of plan) for (const child of moves.keys()) container.appendChild(child)
+    return
+  }
+  for (const [container, moves] of plan) {
+    const stay = Array.from(container.children).filter((child) => !moves.has(child))
+    reorder(container, stay.concat(Array.from(moves.keys())))
+  }
+}
+
+/** Make `container`'s element children follow `desired`, moving only misplaced nodes. */
+function reorder(container, desired) {
+  let current = container.firstElementChild
+  for (const el of desired) {
+    if (current === el) {
+      current = current.nextElementSibling
+      continue
+    }
+    container.insertBefore(el, current)
+  }
 }
 
 function restoreOrder(inst) {
   for (const container of containersOf(inst)) {
-    Array.from(container.children)
+    const children = Array.from(container.children)
+    const known = children
       .filter((child) => inst.order.has(child))
       .sort((a, b) => inst.order.get(a) - inst.order.get(b))
-      .forEach((child) => container.appendChild(child))
+    reorder(container, children.filter((child) => !inst.order.has(child)).concat(known))
   }
 }
 
@@ -519,14 +735,16 @@ function applySelection(inst) {
   for (const item of inst.root.querySelectorAll(ITEM_SELECTOR)) {
     const isSelected = Boolean(inst.value) && itemValue(item) === inst.value
     if (isSelected && !selected) selected = item
-    item.setAttribute('aria-selected', String(isSelected))
-    item.setAttribute('data-selected', String(isSelected))
+    const state = String(isSelected)
+    if (item.getAttribute('aria-selected') !== state) item.setAttribute('aria-selected', state)
+    if (item.getAttribute('data-selected') !== state) item.setAttribute('data-selected', state)
   }
 
   for (const el of [inst.root.querySelector(INPUT_SELECTOR), inst.root.querySelector(LIST_SELECTOR)]) {
     if (!el) continue
-    if (selected) el.setAttribute('aria-activedescendant', selected.id)
-    else el.removeAttribute('aria-activedescendant')
+    if (selected) {
+      if (el.getAttribute('aria-activedescendant') !== selected.id) el.setAttribute('aria-activedescendant', selected.id)
+    } else el.removeAttribute('aria-activedescendant')
   }
 
   updateFooterHint(inst, selected)
@@ -602,11 +820,20 @@ function selectFirstItem(inst, opts) {
 }
 
 /** Item chosen via click or Enter. Dispatches cmdk-item-select; honors data-href. */
-function triggerSelect(inst, item) {
+function triggerSelect(inst, item, source) {
   if (item.getAttribute('aria-disabled') === 'true') return
   const value = itemValue(item)
   setValueState(inst, value, { scroll: false })
-  const event = new CustomEvent(SELECT_EVENT, { bubbles: true, cancelable: true, detail: { value } })
+  // The modifier keys held during the click or Enter, so listeners can offer
+  // an alternate action (e.g. ⌘/Ctrl+Enter opens a "create" URL instead).
+  const detail = {
+    value,
+    metaKey: Boolean(source?.metaKey),
+    ctrlKey: Boolean(source?.ctrlKey),
+    shiftKey: Boolean(source?.shiftKey),
+    altKey: Boolean(source?.altKey),
+  }
+  const event = new CustomEvent(SELECT_EVENT, { bubbles: true, cancelable: true, detail })
   const proceed = item.dispatchEvent(event)
   if (!proceed) return
   const enters = item.getAttribute('data-cmdk-enters-scope')
@@ -712,10 +939,15 @@ function observeListHeight(inst) {
   const update = () => list.style.setProperty('--cmdk-list-height', sizer.offsetHeight.toFixed(1) + 'px')
   update()
   let frame
-  new ResizeObserver(() => {
+  const observer = new ResizeObserver(() => {
     cancelAnimationFrame(frame)
     frame = requestAnimationFrame(update)
-  }).observe(sizer)
+  })
+  observer.observe(sizer)
+  inst.disconnect.push(() => {
+    observer.disconnect()
+    cancelAnimationFrame(frame)
+  })
 }
 
 // ── Dialog (native <dialog> port of Command.Dialog) ──
@@ -750,15 +982,31 @@ function setupDialog(dialog) {
   }
 }
 
+/**
+ * The physical letter for hotkey matching on non-Latin layouts: there ⌘/Ctrl+K
+ * reports e.key "л" (Cyrillic) or "κ" (Greek), so when e.key is a letter but
+ * not a Latin one, fall back to e.code ("KeyK" → "k"). Null otherwise, so Latin
+ * layouts (QWERTY, Dvorak, AZERTY, …) keep matching by e.key alone.
+ */
+function physicalLetter(e) {
+  const key = e.key || ''
+  if (key.length !== 1 || /^[a-z]$/i.test(key) || !/\p{L}/u.test(key)) return null
+  const physical = /^Key([A-Z])$/.exec(e.code || '')
+  return physical ? physical[1].toLowerCase() : null
+}
+
 function handleDialogHotkey(e) {
   if (!(e.metaKey || e.ctrlKey) || e.repeat) return
+  const key = (e.key || '').toLowerCase()
+  const physical = physicalLetter(e)
   // ctrl+n/j/p/k inside a menu with vim bindings is navigation, not a hotkey.
-  if (e.ctrlKey && !e.metaKey && ['n', 'j', 'p', 'k'].includes(e.key)) {
+  if (e.ctrlKey && !e.metaKey && ['n', 'j', 'p', 'k'].some((k) => k === key || k === physical)) {
     const root = e.target instanceof Element ? e.target.closest(ROOT_SELECTOR) : null
     if (root && config(root).vimBindings) return
   }
   for (const dialog of document.querySelectorAll(`${DIALOG_SELECTOR}[data-cmdk-dialog-hotkey]`)) {
-    if (e.key.toLowerCase() === dialog.getAttribute('data-cmdk-dialog-hotkey').toLowerCase()) {
+    const hotkey = dialog.getAttribute('data-cmdk-dialog-hotkey').toLowerCase()
+    if (key === hotkey || physical === hotkey) {
       e.preventDefault()
       dialog.open ? closeDialog(dialog) : openDialog(dialog)
     }
@@ -776,7 +1024,7 @@ function onKeydown(e) {
 
   // IME composition guard (keyCode 229 covers legacy CJK IMEs).
   if (e.defaultPrevented || e.isComposing || e.keyCode === 229) return
-  const { vimBindings } = config(root)
+  const { vimBindings, nativeHomeEnd } = config(root)
 
   switch (e.key) {
     case 'n':
@@ -806,11 +1054,14 @@ function onKeydown(e) {
       break
     }
     case 'Home': {
+      // data-cmdk-native-home-end: Home/End move the caret inside the input.
+      if (nativeHomeEnd && e.target.matches?.(INPUT_SELECTOR)) break
       e.preventDefault()
       updateSelectedToIndex(inst, 0)
       break
     }
     case 'End': {
+      if (nativeHomeEnd && e.target.matches?.(INPUT_SELECTOR)) break
       e.preventDefault()
       updateSelectedToIndex(inst, getValidItems(inst).length - 1)
       break
@@ -818,7 +1069,7 @@ function onKeydown(e) {
     case 'Enter': {
       e.preventDefault()
       const item = getSelectedItem(inst)
-      if (item) triggerSelect(inst, item)
+      if (item) triggerSelect(inst, item, e)
       break
     }
   }
@@ -851,7 +1102,7 @@ function onClick(e) {
 
   const item = e.target.closest(ITEM_SELECTOR)
   const root = item?.closest(ROOT_SELECTOR)
-  if (item && root) triggerSelect(getInstance(root), item)
+  if (item && root) triggerSelect(getInstance(root), item, e)
 }
 
 function onPointerMove(e) {
@@ -874,6 +1125,21 @@ export function scan(node = document) {
   if (node instanceof Element && node.matches(DIALOG_SELECTOR)) setupDialog(node)
   node.querySelectorAll?.(ROOT_SELECTOR).forEach((root) => getInstance(root))
   node.querySelectorAll?.(DIALOG_SELECTOR).forEach(setupDialog)
+}
+
+/**
+ * Tear down a menu's instance: disconnect its MutationObserver and
+ * ResizeObserver, cancel pending frames and forget its state. The DOM is left
+ * as it is. Call it when a menu leaves the page (e.g. from a Stimulus
+ * controller's disconnect()); a later scan() or interaction with the same
+ * element initialises it afresh.
+ */
+export function destroy(target) {
+  const root = resolveRoot(target)
+  const inst = root && instances.get(root)
+  if (!inst) return
+  for (const teardown of inst.disconnect.splice(0)) teardown()
+  instances.delete(root)
 }
 
 /** Programmatically set the search query (the React `<Command.Input value>` controlled mode). */
@@ -931,12 +1197,10 @@ export function setFilter(target, fn) {
  * destroy the native <dialog> centering, so the runtime re-asserts it here.
  * `:where()` keeps specificity at zero — any consumer rule on
  * `dialog[cmdk-dialog]` or a class overrides these.
+ *
+ * Identical to assets/css/cmdk_base.css (a test keeps the two in sync).
  */
-function injectBaseStyles() {
-  if (document.getElementById('cmdk-base-styles')) return
-  const style = document.createElement('style')
-  style.id = 'cmdk-base-styles'
-  style.textContent = `
+const BASE_STYLES = `
 :where(dialog[cmdk-dialog]) {
   position: fixed;
   inset: 0;
@@ -955,6 +1219,11 @@ function injectBaseStyles() {
 :where([cmdk-list-sizer]) {
   display: flow-root; /* child margins must count into --cmdk-list-height */
 }
+/* Server-rendered hidden parts stay hidden even when theme CSS sets display. */
+[cmdk-label][hidden],
+[cmdk-empty][hidden] {
+  display: none !important;
+}
 @media (max-width: 640px) {
   :where(dialog[cmdk-dialog]) {
     margin: 0.5rem auto auto;
@@ -962,8 +1231,37 @@ function injectBaseStyles() {
     max-width: calc(100vw - 1rem);
     max-height: calc(100dvh - 1rem);
   }
-}`
+}
+`
+
+/**
+ * Inject BASE_STYLES once, as a <style id="cmdk-base-styles"> in <head>.
+ * `<meta name="cmdk-base-styles" content="…">` controls it:
+ *   off (or false/none) — inject nothing; include cmdk_base.css yourself
+ *   layer               — wrap the rules in `@layer cmdk`
+ *   layer:<name>        — wrap them in `@layer <name>`
+ * The <style> gets the nonce from `<meta name="csp-nonce">` (Rails'
+ * csp_meta_tag) when present, so a nonce-based style-src CSP accepts it.
+ */
+function injectBaseStyles() {
+  if (document.getElementById('cmdk-base-styles')) return
+  const setting = (document.querySelector('meta[name="cmdk-base-styles"]')?.getAttribute('content') || '').trim()
+  if (/^(off|false|none)$/i.test(setting)) return
+  const layer = /^layer(?::\s*([\w-]+))?$/i.exec(setting)
+  const style = document.createElement('style')
+  style.id = 'cmdk-base-styles'
+  const nonce = document.querySelector('meta[name="csp-nonce"]')?.getAttribute('content')
+  if (nonce) style.nonce = nonce
+  style.textContent = layer ? `@layer ${layer[1] || 'cmdk'} {${BASE_STYLES}}\n` : BASE_STYLES
   document.head.appendChild(style)
+}
+
+/**
+ * Turbo snapshots the page before leaving it; an open modal would come back
+ * from the cache as a non-modal `<dialog open>`. Close cmdk dialogs first.
+ */
+function onBeforeCache() {
+  for (const dialog of document.querySelectorAll(`${DIALOG_SELECTOR}[open]`)) dialog.close()
 }
 
 let started = false
@@ -977,6 +1275,7 @@ export function start() {
   document.addEventListener('input', onInput)
   document.addEventListener('click', onClick)
   document.addEventListener('pointermove', onPointerMove)
+  document.addEventListener('turbo:before-cache', onBeforeCache)
 
   const init = () => scan()
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init)
@@ -986,7 +1285,8 @@ export function start() {
   new MutationObserver((records) => {
     for (const record of records) {
       for (const node of record.addedNodes) {
-        if (node.nodeType === Node.ELEMENT_NODE) scan(node)
+        // Highlight marks are the runtime's own nodes, never roots or dialogs.
+        if (node.nodeType === Node.ELEMENT_NODE && !node.hasAttribute(MATCH_ATTR)) scan(node)
       }
     }
   }).observe(document.documentElement, { childList: true, subtree: true })
@@ -995,7 +1295,9 @@ export function start() {
 const Cmdk = {
   start,
   scan,
+  destroy,
   commandScore,
+  commandScoreWithMatches,
   defaultFilter,
   setFilter,
   setSearch,

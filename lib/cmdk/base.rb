@@ -1,7 +1,9 @@
 module Cmdk
   # Shared base for all cmdk components.
   class Base < ::Phlex::HTML
-    # Inline equivalent of cmdk's srOnlyStyles, used for the accessible label.
+    # Inline equivalent of cmdk's srOnlyStyles. No longer rendered (since
+    # 0.2.0 the accessible label uses the `hidden` attribute, so the markup
+    # needs no inline style under a strict CSP); kept for code referencing it.
     SR_ONLY_STYLE = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;' \
                     'overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0'.freeze
 

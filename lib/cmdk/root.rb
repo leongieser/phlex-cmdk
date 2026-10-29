@@ -14,10 +14,19 @@ module Cmdk
   # pill before the input. The rest of the input is then matched only against
   # items/groups tagged with the same `scope:`. Pass `active_scope:` to
   # server-render an already-pinned scope.
+  #
+  # The accessible `label:` renders as a `hidden` <label cmdk-label> that the
+  # runtime wires to the input via `aria-labelledby` (no inline style, so it
+  # works under a strict CSP). `label_attributes:` adds attributes to it
+  # (`label_attributes: { hidden: false, class: 'my-label' }` shows it).
+  #
+  # `native_home_end: true` lets Home/End move the caret inside the input
+  # instead of jumping to the first/last item (⌘↑/⌘↓ still do that).
   class Root < Base
     def initialize(label: nil, default_value: nil, should_filter: true, loop: false,
                    vim_bindings: true, disable_pointer_selection: false, scopes: nil,
-                   scope_picker: nil, active_scope: nil, **attributes)
+                   scope_picker: nil, active_scope: nil, label_attributes: {},
+                   native_home_end: false, **attributes)
       @label = label
       @default_value = default_value
       @should_filter = should_filter
@@ -27,12 +36,14 @@ module Cmdk
       @scopes = scopes
       @scope_picker = scope_picker
       @active_scope = active_scope
+      @label_attributes = label_attributes
+      @native_home_end = native_home_end
       @attributes = attributes
     end
 
     def view_template(&block)
       div(**merged(root_attributes, @attributes)) do
-        label('cmdk-label' => '', style: SR_ONLY_STYLE) { @label }
+        label(**merged({ 'cmdk-label' => '', hidden: true }, @label_attributes)) { @label }
         block&.call
       end
     end
@@ -48,6 +59,7 @@ module Cmdk
       data[:cmdk_default_value] = @default_value if @default_value
       data[:cmdk_scopes] = Array(@scopes).join(' ') if @scopes
       data[:cmdk_active_scope] = @active_scope if @active_scope
+      data[:cmdk_native_home_end] = '' if @native_home_end
       unless @scope_picker.nil?
         data[:cmdk_scope_picker] = @scope_picker == false ? 'false' : @scope_picker
       end

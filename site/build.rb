@@ -146,6 +146,7 @@ class SitePage < Phlex::HTML
               nav_link('Examples', './examples.html')
               nav_link('Styling', './styling.html')
               nav_link('Docs', './docs.html')
+              nav_link('Changelog', './changelog.html')
               span(class: 'nav-underline', data: { nav_underline: '' }, aria_hidden: 'true')
             end
             div(class: 'ml-auto flex items-center gap-1') do
@@ -487,6 +488,8 @@ class PlaygroundPage < Phlex::HTML
           Cmdk::Item(value: 'Examples', href: './examples.html', hint: 'Go to Page', kbd: '↵') { entry('🧪', 'Examples') }
           Cmdk::Item(value: 'Styling', href: './styling.html', hint: 'Go to Page', kbd: '↵') { entry('🎨', 'Styling') }
           Cmdk::Item(value: 'Docs', href: './docs.html', hint: 'Go to Page', kbd: '↵') { entry('📚', 'Docs') }
+          Cmdk::Item(value: 'Changelog', keywords: %w[releases versions], href: './changelog.html',
+                     hint: 'Go to Page', kbd: '↵') { entry('📝', 'Changelog') }
           Cmdk::Item(value: 'GitHub', href: 'https://github.com/leongieser/phlex-cmdk', hint: 'Open Repository', kbd: '↵') { entry('🐙', 'GitHub') }
         end
 
@@ -521,7 +524,7 @@ class PlaygroundPage < Phlex::HTML
 
   def entry(icon, text)
     span(class: 'text-base', aria_hidden: 'true') { icon }
-    span { text }
+    Cmdk::ItemLabel() { text } # matched characters are highlighted while searching
   end
 
   def theme_pill(label, theme_class, mark, checked: false)
@@ -762,6 +765,21 @@ class DocsPage < Phlex::HTML
     render SitePage.new(title: 'Docs · phlex-cmdk', current: 'Docs') do
       main(class: 'markdown mx-auto max-w-3xl px-4 pt-8 pb-16') do
         raw safe(@readme_html)
+      end
+    end
+  end
+end
+
+# Release notes, generated from CHANGELOG.md.
+class ChangelogPage < Phlex::HTML
+  def initialize(changelog_html:)
+    @changelog_html = changelog_html
+  end
+
+  def view_template
+    render SitePage.new(title: 'Changelog · phlex-cmdk', current: 'Changelog') do
+      main(class: 'markdown mx-auto max-w-3xl px-4 pt-8 pb-16') do
+        raw safe(@changelog_html)
       end
     end
   end
@@ -1310,15 +1328,20 @@ FileUtils.cp(Cmdk.javascript_path, File.join(SITE, 'cmdk.js'))
 FileUtils.cp(Cmdk.stimulus_controller_path, File.join(SITE, 'cmdk_controller.js'))
 FileUtils.cp(File.join(ROOT, 'demo/public/application.css'), File.join(SITE, 'site.css'))
 
-readme_html = Kramdown::Document.new(
-  File.read(File.join(ROOT, 'README.md'), encoding: 'UTF-8'),
-  input: 'GFM', syntax_highlighter: nil, hard_wrap: false,
-).to_html
+def markdown_html(file)
+  Kramdown::Document.new(
+    File.read(File.join(ROOT, file), encoding: 'UTF-8'),
+    input: 'GFM', syntax_highlighter: nil, hard_wrap: false,
+  ).to_html
+end
+
+readme_html = markdown_html('README.md')
 
 File.write(File.join(SITE, 'index.html'), PlaygroundPage.new.call)
 File.write(File.join(SITE, 'examples.html'), ExamplesPage.new.call)
 File.write(File.join(SITE, 'styling.html'), StylingPage.new.call)
 File.write(File.join(SITE, 'docs.html'), DocsPage.new(readme_html: readme_html).call)
+File.write(File.join(SITE, 'changelog.html'), ChangelogPage.new(changelog_html: markdown_html('CHANGELOG.md')).call)
 File.write(File.join(SITE, '.nojekyll'), '')
 
 puts "Built #{Dir[File.join(SITE, '*')].length} files into _site/"

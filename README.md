@@ -25,6 +25,9 @@ The runtime uses event delegation and MutationObservers rather than mounting, so
 Turbo navigation and morphing with no per-page setup, and items appended later (Turbo Streams,
 your own DOM writes) are registered, filtered and sorted automatically.
 
+The rendered markup carries no inline `style` attributes, so it works under a strict
+Content Security Policy (see [Content Security Policy](#content-security-policy)).
+
 ## Install
 
 ```ruby
@@ -102,6 +105,42 @@ where you would reach for cn(). (Heads-up: Tailwind's preflight resets break
 native `<dialog>` centering; the runtime ships zero-specificity defaults that
 handle this - see [Dialog](#dialog).)
 
+### Content Security Policy
+
+The components render no inline `style` attributes (the accessible label and
+`Cmdk::Empty` use the `hidden` attribute), and the runtime only sets styles
+through the CSSOM (`element.style`), which a CSP allows. The one thing a
+strict `style-src` can block is the small `<style id="cmdk-base-styles">` the
+runtime injects at start (dialog placement, see [Dialog](#dialog)). Two ways
+to handle it:
+
+**Nonce it.** When the page has a `<meta name="csp-nonce">` (Rails'
+`csp_meta_tag`), the runtime copies its nonce onto the injected `<style>`:
+
+```erb
+<%= csp_meta_tag %>  <%# <meta name="csp-nonce" content="…"> %>
+```
+
+**Or include the rules yourself.** Turn the injection off and serve the same
+rules as a static stylesheet (`Cmdk.base_stylesheet_path`, i.e.
+[assets/css/cmdk_base.css](assets/css/cmdk_base.css)):
+
+```html
+<meta name="cmdk-base-styles" content="off">
+<link rel="stylesheet" href="/cmdk_base.css">
+```
+
+The file has no `@layer` of its own, so a host that uses cascade layers puts
+it in the layer it wants (`@import url('cmdk_base.css') layer(cmdk);`, or
+inside its own build). For an injected copy in a layer, use
+`<meta name="cmdk-base-styles" content="layer">` (`@layer cmdk`) or
+`content="layer:vendor"` (`@layer vendor`). The meta tag must be in the
+document before the runtime starts (put it in `<head>`).
+
+With Rails and Propshaft, add the stylesheet directory to the asset paths as
+shown above (`File.dirname(Cmdk.base_stylesheet_path)` is the same directory
+as the themes).
+
 ## Use
 
 ```ruby
@@ -134,6 +173,73 @@ root.addEventListener('cmdk-value-change', (e) => preview(e.detail.value))
 root.addEventListener('cmdk-search-change', (e) => e.detail.search)
 ```
 
+`cmdk-item-select` is dispatched on the chosen item and also reports the
+modifier keys held during the click or Enter (`metaKey`, `ctrlKey`,
+`shiftKey`, `altKey`), so an item can offer an alternate action - here
+⌘/Ctrl+Enter opens a "create" URL instead of the item's `href:`:
+
+```ruby
+Cmdk::Item(href: '/posts', data: { create_url: '/posts/new' }) { 'Posts' }
+```
+
+```js
+root.addEventListener('cmdk-item-select', (e) => {
+  const { metaKey, ctrlKey } = e.detail
+  const createUrl = e.target.dataset.createUrl
+  if ((metaKey || ctrlKey) && createUrl) {
+    e.preventDefault() // skip the default href visit
+    Turbo.visit(createUrl)
+  }
+})
+```
+
+Extra keyword arguments become HTML attributes on every component. For the
+parts a component renders around your content, use the dedicated hashes:
+`Cmdk::Root(label_attributes: {...})` for the accessible label,
+`Cmdk::Group(heading_attributes: {...}, items_attributes: {...})` for the
+heading and the `[cmdk-group-items]` wrapper:
+
+```ruby
+Cmdk::Group(heading: 'Collections', class: 'palette__group',
+            heading_attributes: { class: 'palette__heading' },
+            items_attributes: { class: 'palette__items' }) { ... }
+```
+
+The label is rendered `hidden` and named onto the input with
+`aria-labelledby`; `label_attributes: { hidden: false }` shows it.
+
+Home and End select the first and last item, as in cmdk. Pass
+`Cmdk::Root(native_home_end: true)` to let them move the caret inside the input
+instead (⌘↑/⌘↓ still jump to the first/last item).
+
+### Match highlighting
+
+Wrap an item's text in `Cmdk::ItemLabel` and the runtime highlights the
+characters the query matched, wrapping each run in `<mark cmdk-match>`, and
+restores the plain text when the search clears. Items without an `ItemLabel`
+render and behave exactly as before.
+
+```ruby
+Cmdk::Item(value: 'Go to Field Notes', href: '/field_notes') do
+  span(class: 'icon') { '📒' }
+  Cmdk::ItemLabel() { 'Field Notes' }
+end
+```
+
+```css
+[cmdk-item-label] mark[cmdk-match] { background: none; color: inherit; font-weight: 600; }
+```
+
+Matches are computed against the label's own text with the default
+command-score algorithm (so an item found through its `value:` or `keywords:`
+alone shows no highlight). Keep the label to plain text: while highlighted its
+children are rebuilt from text nodes and `<mark>` elements (never `innerHTML`).
+The shipped themes style the marks; the same positions are available in JS:
+
+```js
+Cmdk.commandScoreWithMatches('Field Notes', 'fn') // => { score: 0.89…, matches: [0, 6] }
+```
+
 ### Dialog
 
 ```ruby
@@ -146,6 +252,11 @@ end
 Renders a native `<dialog cmdk-dialog>`: Escape and backdrop clicks close it, and
 `Cmdk.openDialog(el)` / `Cmdk.closeDialog(el)` toggle it programmatically. Style the
 backdrop with `dialog[cmdk-dialog]::backdrop` (replaces Radix's `[cmdk-overlay]`).
+
+The hotkey matches `event.key`; on a non-Latin keyboard layout (Cyrillic, Greek, …),
+where ⌘K reports a letter like `л`, it falls back to the physical key (`event.code`
+`KeyK`). Before Turbo caches a page, open cmdk dialogs are closed, so a restored page
+never shows a stale, non-modal palette.
 
 Extra attributes on `Cmdk::Dialog(...)` go to the inner `Cmdk::Root`; to set
 attributes on the `<dialog>` element itself, pass `dialog_attributes:`. The
@@ -167,7 +278,8 @@ pattern - the software keyboard owns the bottom of the screen, so the input
 belongs at the top), sized with `dvh` units so dynamic viewports behave. CSS
 resets (e.g. Tailwind preflight's universal `margin: 0`) break native `<dialog>`
 centering, so the runtime injects these defaults with zero specificity (`:where()`)
-- any rule of yours wins, even a bare element selector:
+- any rule of yours wins, even a bare element selector (under a strict CSP, see
+[Content Security Policy](#content-security-policy)):
 
 ```css
 dialog[cmdk-dialog] { margin-top: 30vh; }   /* overrides the default placement */
@@ -309,7 +421,29 @@ export default class extends CmdkController {
 Hooks: `itemSelected`, `valueChanged`, `searchChanged`, `scopeChanged`. API and
 actions: `open`/`close`/`toggle` (dialog), `setSearch`, `setValue`, `enterScope`
 (param-friendly: `data-action="cmdk#enterScope" data-cmdk-scope-param="fruits"`),
-`exitScope`, and a `state` getter.
+`exitScope`, and a `state` getter. When the controller disconnects because the
+menu left the page (a Turbo visit, a frame reload), it calls `Cmdk.destroy` to
+free the runtime's observers; a menu that is only moved (`data-turbo-permanent`)
+keeps its state.
+
+### JavaScript API
+
+The module's exports (also on `window.Cmdk` and the default export). `target`
+is a root element, an element containing one, or a selector.
+
+| Export | Does |
+|---|---|
+| `start()` | Wire the document (runs on import; idempotent) |
+| `scan(node = document)` | Initialise roots and dialogs in `node` |
+| `destroy(target)` | Tear down a menu: disconnect its observers, forget its state (the DOM stays); a later `scan` or interaction re-initialises it |
+| `setSearch(target, query)` / `setValue(target, value)` | Controlled search / selection |
+| `getState(target)` | `{ search, scope, picker, query, value, filtered: { count } }` |
+| `setFilter(fn)` / `setFilter(target, fn)` | Replace the filter globally / per menu (`null` resets) |
+| `enterScope(target, scope)` / `exitScope(target)` | Scoped search |
+| `openDialog(target)` / `closeDialog(target)` | The `<dialog>` palette |
+| `commandScore(value, query, keywords)` / `defaultFilter` | The cmdk scoring function |
+| `commandScoreWithMatches(value, query, keywords)` | `{ score, matches }`: the same score plus the matched indices |
+| `getInstance(target)` | The internal instance (advanced) |
 
 ### Styling
 
@@ -385,7 +519,7 @@ per color. The Lookbook previews expose this as a Theme dropdown in the preview 
 | `filter={fn}` | `Cmdk.setFilter(fn)` or `Cmdk.setFilter(root, fn)` - same `(value, search, keywords) → 0..1` signature |
 | `<Command.Input value onValueChange>` | `Cmdk::Input(value:)`; `Cmdk.setSearch(root, q)`; `cmdk-search-change` |
 | `<Command.List label>` | `Cmdk::List(label:)` |
-| `<Command.Item value keywords disabled forceMount onSelect>` | `Cmdk::Item(value:, keywords:, disabled:, force_mount:)`; `cmdk-item-select` event; value inferred from text content when omitted |
+| `<Command.Item value keywords disabled forceMount onSelect>` | `Cmdk::Item(value:, keywords:, disabled:, force_mount:)`; `cmdk-item-select` event (with the modifier keys); value inferred from text content when omitted |
 | `<Command.Group heading value forceMount>` | `Cmdk::Group(heading:, value:, force_mount:)` |
 | `<Command.Separator alwaysRender>` | `Cmdk::Separator(always_render:)` |
 | `<Command.Empty>` / `<Command.Loading progress label>` | `Cmdk::Empty()` / `Cmdk::Loading(progress:, label:)` |
@@ -394,17 +528,24 @@ per color. The Lookbook previews expose this as a Theme dropdown in the preview 
 | vim bindings, Home/End, alt/meta arrows, IME guard | identical, ported from the same keydown logic |
 
 Extensions beyond the React API: `Cmdk::Item(href:)` visits a URL on select (via Turbo when
-present), and clearing the search restores the server-rendered order (React leaves the
-sorted order in place).
+present), `Cmdk::ItemLabel` highlights matched characters, and clearing the search restores
+the server-rendered order (React leaves the sorted order in place).
 
 ## Demo, previews & tests
 
 ```sh
 bundle install
-bundle exec rake test      # component markup contract tests
-bundle exec rake demo      # builds Tailwind CSS, serves http://localhost:9292
-bundle exec rake lookbook  # Lookbook component previews on http://localhost:9293
+bundle exec rake test          # component markup contract tests
+bundle exec rake test:js       # runtime pure functions (node --test, no dependencies)
+bundle exec rake test:browser  # runtime DOM behaviour in headless Chrome (Ferrum)
+bundle exec rake test:all      # all three
+bundle exec rake bench         # per-keystroke filtering latency at 200/1,000/5,000 items
+bundle exec rake demo          # builds Tailwind CSS, serves http://localhost:9292
+bundle exec rake lookbook      # Lookbook component previews on http://localhost:9293
 ```
+
+The browser tests and the benchmark need Chrome or Chromium installed; the
+`ferrum` gem that drives it is a development dependency only.
 
 The [Lookbook](https://lookbook.build) previews live in [lookbook/](lookbook/) - Lookbook is a
 Rails engine, so a minimal single-file Rails host ([lookbook/app.rb](lookbook/app.rb)) boots it;

@@ -17,5 +17,11 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - run: bundle exec rake test
       - run: node --check assets/js/cmdk.js
+      - run: bundle exec rake test:js
+      # Runtime DOM tests in the runner's preinstalled Google Chrome (via Ferrum).
+      - run: bundle exec rake test:browser

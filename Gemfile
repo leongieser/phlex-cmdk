@@ -12,6 +12,9 @@ group :development, :test do
   gem 'kramdown-parser-gfm'
   gem 'tailwindcss-ruby'
 
+  # Headless-Chrome tests of the JS runtime (rake test:browser, rake bench)
+  gem 'ferrum'
+
   # Lookbook component previews (Rails host lives in lookbook/)
   gem 'actionpack'
   gem 'lookbook'

@@ -1,4 +1,4 @@
-# ⌘K for Phlex <img src="https://img.shields.io/badge/port%20of-cmdk-blue" align="right">
+# [⌘K for Phlex](https://leongieser.github.io/phlex-cmdk/) <img src="https://img.shields.io/badge/port%20of-cmdk-blue" align="right">
 
 A feature-parity port of the [cmdk](https://cmdk.paco.me) React command menu, built for
 [Phlex](https://www.phlex.fun). Two pieces, and that is the whole dependency surface:
